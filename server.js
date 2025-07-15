@@ -8,7 +8,7 @@ dotenv.config({ path: "./config.env" });
 if (process.env.NODE_ENV == "development") {
   app.use(morgan("dev")); // Logging middleware
   console.log(`Environment: ${process.env.NODE_ENV}`);
-}
+} 
 
 async function connectDB(params) {
   const DATABASE_URL = process.env.DATABASE_URL;
