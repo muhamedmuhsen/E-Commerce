@@ -1,12 +1,12 @@
 import slugify from "slugify";
-import Category from "../models/category.model.js";
 import asyncWraper from "../middlewares/asyncWraper.js";
+import Category from "../models/category.model.js";
 
 const createCategory = asyncWraper(async (req, res, next) => {
   const category = req.body;
 
   if (!category || !category.name) {
-    next(
+    return next(
       res
         .status(400)
         .json({ success: false, message: '"Category name is required"' })
@@ -25,60 +25,69 @@ const createCategory = asyncWraper(async (req, res, next) => {
 
 const getAllCategories = asyncWraper(async (req, res, next) => {
   const categories = await Category.find();
-
-  if (!categories) {
-    next(
-      res
-        .status(404)
-        .json({ success: false, message: `couldn't find categories` })
-    );
-  }
-
-  res.status(200).json({ succes: true, data: { categories } });
+  res.status(200).json({ success: true, data: { categories } });
 });
 
 const updateCategory = asyncWraper(async (req, res, next) => {
   const { name } = req.body;
   if (!name) {
-    next(
+    return next(
       res
         .status(400)
         .json({ succes: false, message: "category name is required" })
     );
   }
 
-  const updatedCategory = await Category.findOneAndUpdate(name, { name: name });
+  const updatedCategory = await Category.findOneAndUpdate(name, {
+    name: name,
+    slug: slugify(name),
+  });
+
+  if (!updatedCategory) {
+    return next(
+      res.status(404).json({ success: false, message: "Category not found" })
+    );
+  }
 
   res.status(200).json({ success: true, data: updateCategory });
 });
 
 const deleteCategory = asyncWraper(async (req, res, next) => {
-  const id = req.header.id;
+  const id = req.params.id;
 
   if (!id) {
-    next(res.status(400).json({ succes: false, message: "unvalid id" }));
+    return next(res.status(400).json({ succes: false, message: "invalid id" }));
   }
-
-  await Category.findByIdAndDelete(id);
-
+  const deletedCategory = await Category.findByIdAndDelete(id);
+  if (!deletedCategory) {
+    return next(
+      res.status(404).json({ success: false, message: "Category not found" })
+    );
+  }
   res.status(200).json({ success: true, data: [] });
 });
 
 const getSpecificCategory = asyncWraper(async (req, res, next) => {
-  const id = req.header.id;
+  const id = req.params.id;
 
   if (!id) {
-    next(res.status(400).json({ succes: false, message: "unvalid id" }));
+    return next(res.status(400).json({ succes: false, message: "invalid id" }));
   }
   const category = await Category.findById(id);
+
+  if (!category) {
+    return next(
+      res.status(404).json({ success: false, message: "category not found" })
+    );
+  }
 
   res.status(200).json({ success: true, data: category });
 });
 
 export {
   createCategory,
-  getAllCategories,
-  updateCategory,
   deleteCategory,
+  getAllCategories,
   getSpecificCategory,
+  updateCategory,
 };
