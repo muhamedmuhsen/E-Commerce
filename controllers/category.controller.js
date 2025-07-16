@@ -24,7 +24,12 @@ const createCategory = asyncWraper(async (req, res, next) => {
 });
 
 const getAllCategories = asyncWraper(async (req, res, next) => {
-  const categories = await Category.find();
+  const page = req.query.page || 1;
+  const limit = req.query.limit || 10;
+
+  const offset = (page - 1) * limit;
+
+  const categories = await Category.find().skip(offset).limit(limit);
   res.status(200).json({ success: true, data: { categories } });
 });
 
