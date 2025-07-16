@@ -35,6 +35,8 @@ const getAllCategories = asyncWraper(async (req, res, next) => {
 
 const updateCategory = asyncWraper(async (req, res, next) => {
   const { name } = req.body;
+  const id = req.params.id;
+
   if (!name) {
     return next(
       res
@@ -43,7 +45,7 @@ const updateCategory = asyncWraper(async (req, res, next) => {
     );
   }
 
-  const updatedCategory = await Category.findOneAndUpdate(name, {
+  const updatedCategory = await Category.findByIdAndUpdate(id, {
     name: name,
     slug: slugify(name),
   });
@@ -54,7 +56,7 @@ const updateCategory = asyncWraper(async (req, res, next) => {
     );
   }
 
-  res.status(200).json({ success: true, data: updateCategory });
+  res.status(200).json({ success: true, data: updatedCategory });
 });
 
 const deleteCategory = asyncWraper(async (req, res, next) => {

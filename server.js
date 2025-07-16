@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import morgan from "morgan";
 import dbConnection from "./config/database.js";
+import errorHandler from "./middlewares/errorHandler.js";
 import categroyRoute from "./routes/category.route.js";
 
 dotenv.config({ path: "./config.env" });
@@ -18,8 +19,11 @@ if (process.env.NODE_ENV == "development") {
 
 // Middlewares
 app.use(express.json());
+
 // routes
 app.use("/api/v1/categories", categroyRoute);
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
