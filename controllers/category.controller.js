@@ -30,7 +30,7 @@ const getAllCategories = asyncWraper(async (req, res, next) => {
   const offset = (page - 1) * limit;
 
   const categories = await Category.find().skip(offset).limit(limit);
-  res.status(200).json({ success: true, data: { categories } });
+  res.status(200).json({ success: true, page: page, data: { categories } });
 });
 
 const updateCategory = asyncWraper(async (req, res, next) => {
@@ -45,10 +45,14 @@ const updateCategory = asyncWraper(async (req, res, next) => {
     );
   }
 
-  const updatedCategory = await Category.findByIdAndUpdate(id, {
-    name: name,
-    slug: slugify(name),
-  });
+  const updatedCategory = await Category.findByIdAndUpdate(
+    id,
+    {
+      name: name,
+      slug: slugify(name),
+    },
+    { new: true }
+  );
 
   if (!updatedCategory) {
     return next(
