@@ -4,6 +4,7 @@ import morgan from "morgan";
 import dbConnection from "./config/database.js";
 import errorHandler from "./middlewares/errorHandler.js";
 import categoryRoute from "./routes/category.route.js";
+import ApiError from "./utils/ApiError.js";
 
 dotenv.config({ path: "./config.env" });
 
@@ -22,6 +23,11 @@ app.use(express.json());
 
 // routes
 app.use("/api/v1/categories", categoryRoute);
+
+// 404 handler for unmatched routes using custom ApiError
+app.use((req, res, next) => {
+  next(new ApiError("Route not found", 404));
+});
 
 app.use(errorHandler);
 
