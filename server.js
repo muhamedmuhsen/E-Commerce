@@ -3,7 +3,7 @@ import express from "express";
 import morgan from "morgan";
 import dbConnection from "./config/database.js";
 import errorHandler from "./middlewares/errorHandler.js";
-import categroyRoute from "./routes/category.route.js";
+import categoryRoute from "./routes/category.route.js";
 
 dotenv.config({ path: "./config.env" });
 
@@ -12,7 +12,7 @@ const app = express();
 // Database Connection
 dbConnection();
 
-if (process.env.NODE_ENV == "development") {
+if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev")); // Logging middleware
   console.log(`Environment: ${process.env.NODE_ENV}`);
 }
@@ -21,7 +21,7 @@ if (process.env.NODE_ENV == "development") {
 app.use(express.json());
 
 // routes
-app.use("/api/v1/categories", categroyRoute);
+app.use("/api/v1/categories", categoryRoute);
 
 app.use(errorHandler);
 
