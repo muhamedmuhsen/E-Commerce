@@ -1,4 +1,6 @@
-const asyncWrapper  = (fn) => {
+import ApiError from "../utils/ApiError.js";
+
+const asyncWrapper = (fn) => {
   return async (req, res, next) => {
     try {
       await fn(req, res, next);
@@ -9,4 +11,5 @@ const asyncWrapper  = (fn) => {
 };
 
 
-export default asyncWrapper 
+export default asyncWrapper;
+
