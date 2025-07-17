@@ -1,4 +1,5 @@
 import express from "express";
+
 import {
   createCategory,
   deleteCategory,
@@ -7,20 +8,23 @@ import {
   updateCategory,
 } from "../controllers/category.controller.js";
 import {
-  categorySchema,
-  validateRequest,
+  createCategoryValidator,
+  deleteCategoryValidator,
+  getAllCategoriesValidator,
+  getSpecificCategoryValidator,
+  updateCategoryValidator,
 } from "../middlewares/validateRequest.js";
 
 const router = express.Router();
 
 router
   .route("/")
-  .get(getAllCategories)
-  .post(validateRequest(categorySchema), createCategory);
+  .get(getAllCategoriesValidator, getAllCategories)
+  .post(createCategoryValidator, createCategory);
 router
   .route("/:id")
-  .put(updateCategory)
-  .delete(deleteCategory)
-  .get(getSpecificCategory);
+  .put(updateCategoryValidator, updateCategory)
+  .delete(deleteCategoryValidator, deleteCategory)
+  .get(getSpecificCategoryValidator, getSpecificCategory);
 
 export default router;
