@@ -6,10 +6,17 @@ import {
   getSpecificCategory,
   updateCategory,
 } from "../controllers/category.controller.js";
+import {
+  categorySchema,
+  validateRequest,
+} from "../middlewares/validateRequest.js";
 
 const router = express.Router();
 
-router.route("/").get(getAllCategories).post(createCategory);
+router
+  .route("/")
+  .get(getAllCategories)
+  .post(validateRequest(categorySchema), createCategory);
 router
   .route("/:id")
   .put(updateCategory)
