@@ -6,6 +6,7 @@ import errorHandler from "./middlewares/errorHandler.js";
 import categoryRoute from "./routes/category.route.js";
 import subcategoryRoute from "./routes/subcategory.route.js";
 import ApiError from "./utils/ApiError.js";
+import authRoute from './routes/auth.route.js'
 
 dotenv.config({ path: "./config.env" });
 
@@ -23,6 +24,7 @@ if (process.env.NODE_ENV === "development") {
 app.use(express.json());
 
 // routes
+app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/categories", categoryRoute);
 app.use("/api/v1/subcategories", subcategoryRoute);
 
