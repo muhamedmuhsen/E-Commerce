@@ -8,6 +8,10 @@ import {
   updateCategory,
 } from "../controllers/category.controller.js";
 import {
+  createSubCategoryOnCategory,
+  getSubCategoryofSpecificCategory,
+} from "../controllers/subcategory.controller.js";
+import {
   createCategoryValidator,
   deleteCategoryValidator,
   getAllCategoriesValidator,
@@ -26,5 +30,10 @@ router
   .put(updateCategoryValidator, updateCategory)
   .delete(deleteCategoryValidator, deleteCategory)
   .get(getSpecificCategoryValidator, getSpecificCategory);
+
+router
+  .route("/:id/subcategories")
+  .get(getSubCategoryofSpecificCategory)
+  .post(createSubCategoryOnCategory);
 
 export default router;

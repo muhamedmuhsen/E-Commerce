@@ -106,10 +106,60 @@ const getSpecificSubCategory = asyncWrapper(async (req, res, next) => {
   res.status(200).json({ success: true, data: subcategory });
 });
 
+const getSubCategoryofSpecificCategory = asyncWrapper(
+  async (req, res, next) => {
+    const id = req.params.id;
+
+    if (!id) {
+      return next(new ApiError("Invalid id", 400));
+    }
+
+    const ParentCategory = await Category.findById(id);
+
+    if (!ParentCategory) {
+      return next(new ApiError("Paretnt category not found", 404));
+    }
+
+    const subcategories = await SubCategory.find({ category: id });
+
+    res.status(200).json({ success: true, data: subcategories });
+  }
+);
+
+const createSubCategoryOnCategory = asyncWrapper(async (req, res, next) => {
+  const id = req.params.id;
+  const subCategory = req.body;
+  if (!id) {
+    return next(new ApiError("Invalid id", 400));
+  }
+
+  if (!subCategory) {
+    return next(new ApiError("subcategory name is required", 400));
+  }
+
+  const ParentCategory = await Category.findById(id);
+
+  if (!ParentCategory) {
+    return next(new ApiError("Paretnt category not found", 404));
+  }
+
+  const newSubCategory = new SubCategory({
+    category: ParentCategory._id,
+    slug: slugify(subCategory.name),
+    name: subCategory.name,
+  });
+
+  await newSubCategory.save();
+
+  res.status(201).json({ success: true, data: newSubCategory });
+});
+
 export {
   createSubCategory,
   deleteSubCategory,
   getAllSubCategories,
   getSpecificSubCategory,
+  getSubCategoryofSpecificCategory,
   updateSubCategory,
+  createSubCategoryOnCategory,
 };
