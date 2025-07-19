@@ -1,17 +1,7 @@
 import { check } from "express-validator";
 import validateRequest from "../../middlewares/validateRequest.js";
 
-const getAllSubCategoriesValidator = [
-  check("page")
-    .optional()
-    .isInt({ min: 1, max: 100 })
-    .withMessage("Page must be a number between 1 and 100"),
-  check("limit")
-    .optional()
-    .isInt({ min: 1, max: 50 })
-    .withMessage("Limit must be a number between 1 and 50"),
-  validateRequest,
-];
+
 const createSubCategoryValidator = [
   check("name")
     .isLength({ min: 3 })
@@ -42,7 +32,6 @@ const deleteSubCategoryValidator = [getSpecificSubCategoryValidator];
 export {
   createSubCategoryValidator,
   deleteSubCategoryValidator,
-  getAllSubCategoriesValidator,
   updateSubCategoryValidator,
   getSpecificSubCategoryValidator,
 };

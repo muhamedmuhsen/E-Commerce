@@ -1,5 +1,5 @@
 import express from "express";
-
+import subCategoryRoute from './subcategory.route.js'
 import {
   createCategory,
   deleteCategory,
@@ -7,14 +7,11 @@ import {
   getSpecificCategory,
   updateCategory,
 } from "../controllers/category.controller.js";
-import {
-  createSubCategoryOnCategory,
-  getSubCategoryofSpecificCategory,
-} from "../controllers/subcategory.controller.js";
+
+
 import {
   createCategoryValidator,
   deleteCategoryValidator,
-  getAllCategoriesValidator,
   getSpecificCategoryValidator,
   updateCategoryValidator,
 } from "../utils/validators/validateCategoryRequest.js"
@@ -23,7 +20,7 @@ const router = express.Router();
 
 router
   .route("/")
-  .get(getAllCategoriesValidator, getAllCategories)
+  .get( getAllCategories)
   .post(createCategoryValidator, createCategory);
 router
   .route("/:id")
@@ -31,9 +28,8 @@ router
   .delete(deleteCategoryValidator, deleteCategory)
   .get(getSpecificCategoryValidator, getSpecificCategory);
 
-router
-  .route("/:id/subcategories")
-  .get(getSubCategoryofSpecificCategory)
-  .post(createSubCategoryOnCategory);
+
+// TODO(add valdiator)
+router.use("/:id/subcategories",subCategoryRoute)
 
 export default router;

@@ -4,14 +4,36 @@ import Category from "../models/category.model.js";
 import SubCategory from "../models/subcategory.model.js";
 import ApiError from "../utils/ApiError.js";
 
+const setCategoryIdToBody = (req, res, next) => {
+  if (!req.body.category) {
+    req.body.category = req.params.id;
+  }
+  next();
+};
+
+const setFilterObject = (req, res, next) => {
+  let filterObject = {};
+
+  console.log(req.params);
+
+  if (req.params.id) {
+    filterObject = { category: req.params.id };
+  }
+  req.filterObject = filterObject;
+  next();
+};
+
 const createSubCategory = asyncWrapper(async (req, res, next) => {
   const { name, category } = req.body;
+
+  console.log(req.params);
 
   if (!name) {
     return next(new ApiError("SubCategory name is required", 400));
   }
   if (!category) {
-    return next(new ApiError("Parent Category name is required", 400));
+    req.body.category = req.params.id;
+    category = req.params.id;
   }
 
   const ParentCategory = await Category.findById(category);
@@ -37,7 +59,10 @@ const getAllSubCategories = asyncWrapper(async (req, res, next) => {
 
   const offset = (page - 1) * limit;
 
-  const subcategories = await SubCategory.find().skip(offset).limit(limit);
+  const subcategories = await SubCategory.find(req.filterObject)
+    .skip(offset)
+    .limit(limit);
+
   res.status(200).json({ success: true, page: page, data: { subcategories } });
 });
 
@@ -106,26 +131,6 @@ const getSpecificSubCategory = asyncWrapper(async (req, res, next) => {
   res.status(200).json({ success: true, data: subcategory });
 });
 
-const getSubCategoryofSpecificCategory = asyncWrapper(
-  async (req, res, next) => {
-    const id = req.params.id;
-
-    if (!id) {
-      return next(new ApiError("Invalid id", 400));
-    }
-
-    const ParentCategory = await Category.findById(id);
-
-    if (!ParentCategory) {
-      return next(new ApiError("Paretnt category not found", 404));
-    }
-
-    const subcategories = await SubCategory.find({ category: id });
-
-    res.status(200).json({ success: true, data: subcategories });
-  }
-);
-
 const createSubCategoryOnCategory = asyncWrapper(async (req, res, next) => {
   const id = req.params.id;
   const subCategory = req.body;
@@ -156,10 +161,11 @@ const createSubCategoryOnCategory = asyncWrapper(async (req, res, next) => {
 
 export {
   createSubCategory,
+  createSubCategoryOnCategory,
   deleteSubCategory,
   getAllSubCategories,
   getSpecificSubCategory,
-  getSubCategoryofSpecificCategory,
+  setCategoryIdToBody,
+  setFilterObject,
   updateSubCategory,
-  createSubCategoryOnCategory,
 };

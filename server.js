@@ -4,11 +4,11 @@ import morgan from "morgan";
 import dbConnection from "./config/database.js";
 import errorHandler from "./middlewares/errorHandler.js";
 import authRoute from "./routes/auth.route.js";
+import brandRoute from "./routes/brand.route.js";
 import categoryRoute from "./routes/category.route.js";
+import productRoute from './routes/product.route.js';
 import subcategoryRoute from "./routes/subcategory.route.js";
 import ApiError from "./utils/ApiError.js";
-import brandRoute from "./routes/brand.route.js";
-import productRoute from './routes/product,route.js'
 
 dotenv.config({ path: "./config.env" });
 

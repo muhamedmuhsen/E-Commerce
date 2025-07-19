@@ -33,18 +33,6 @@ const deleteBrandValidator = [
   validateRequest,
 ];
 
-const getAllBrandValidator = [
-  check("page")
-    .optional()
-    .isInt({ min: 1, max: 100 })
-    .withMessage("Page must be a number between 1 and 100"),
-  check("limit")
-    .optional()
-    .isInt({ min: 1, max: 50 })
-    .withMessage("Limit must be a number between 1 and 50"),
-  validateRequest,
-];
-
 const getSpecificBrandValidtor = [
   check("id")
     .notEmpty()
@@ -57,7 +45,6 @@ const getSpecificBrandValidtor = [
 export {
   createBrandValidator,
   deleteBrandValidator,
-  getAllBrandValidator,
   getSpecificBrandValidtor,
   updateBrandValidator,
 };

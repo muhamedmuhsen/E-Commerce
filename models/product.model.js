@@ -13,9 +13,9 @@ const ProductSchema = new Schema(
     },
     quantity: {
       type: Number,
-      required: true,
+      required: [true, "Product quantity is required"],
     },
-    price: { type: Number, required: true },
+    price: { type: Number, required: [true, "Product price is required"] },
     priceAfterDiscount: { type: Number },
     slug: {
       type: String,
@@ -38,8 +38,26 @@ const ProductSchema = new Schema(
       type: String,
       maxlength: [500, "Description cannot exceed 500 characters"],
     },
-    image: {
+    brand: {
       type: String,
+      required: [true, "Prodcut brand is required"],
+    },
+    imageCover: {
+      type: String,
+      required: [true, "Product Image cover is required"],
+    },
+    ratingsAverage: {
+      type: Number,
+      min: [1, "Rating must be above or equal 1.0"],
+      max: [5, "Rating must be below or equal 5.0"],
+    },
+    colors: [String],
+    ratingsQuantity: {
+      type: Number,
+      default: 0,
+    },
+    image: {
+      type: [String],
       validate: {
         validator: function (v) {
           return !v || validator.isURL(v);

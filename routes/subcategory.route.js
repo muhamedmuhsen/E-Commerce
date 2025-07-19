@@ -5,22 +5,24 @@ import {
   deleteSubCategory,
   getAllSubCategories,
   getSpecificSubCategory,
+  setCategoryIdToBody,
+  setFilterObject,
   updateSubCategory,
 } from "../controllers/subcategory.controller.js";
 import {
   createSubCategoryValidator,
   deleteSubCategoryValidator,
-  getAllSubCategoriesValidator,
   getSpecificSubCategoryValidator,
   updateSubCategoryValidator,
 } from "../utils/validators/validateSubCateogryRequest.js";
 
-const router = express.Router();
+// mergeParams allow us access parameters on other routes
+const router = express.Router({ mergeParams: true });
 
 router
   .route("/")
-  .get(getAllSubCategoriesValidator, getAllSubCategories)
-  .post(createSubCategoryValidator, createSubCategory);
+  .get(setFilterObject, getAllSubCategories)
+  .post(setCategoryIdToBody, createSubCategoryValidator, createSubCategory);
 router
   .route("/:id")
   .put(updateSubCategoryValidator, updateSubCategory)

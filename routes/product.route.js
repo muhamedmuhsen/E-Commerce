@@ -3,29 +3,28 @@ import express from "express";
 import {
   createProduct,
   deleteProduct,
-  getAllProduct,
+  getAllProducts,
   getSpecificProduct,
   updateProduct,
-} from "../controllers/Product.controller.js";
+} from "../controllers/product.controller.js";
 
 import {
   createProductValidator,
   deleteProductValidator,
-  getAllProductValidator,
-  getSpecificProductValidtor,
+  getSpecificProductValidator,
   updateProductValidator,
 } from "../utils/validators/validateProductRequest.js";
 const router = express.Router();
 
 router
   .route("/")
-  .get(getAllProductValidator, getAllProduct)
+  .get(getAllProducts)
   .post(createProductValidator, createProduct);
 
 router
   .route("/:id")
   .put(updateProductValidator, updateProduct)
   .delete(deleteProductValidator, deleteProduct)
-  .get(getSpecificProductValidtor, getSpecificProduct);
+  .get(getSpecificProductValidator, getSpecificProduct);
 
 export default router;
