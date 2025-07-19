@@ -12,7 +12,7 @@ const signup = asyncWrapper(async (req, res, next) => {
     return next(new ApiError("all fields are required", 400));
   }
 
-  if (user.password != user.passwordConfirm) {
+  if (user.password !== user.passwordConfirm) {
     return next(new ApiError("the password doe not match", 400));
   }
 

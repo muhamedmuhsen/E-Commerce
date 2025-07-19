@@ -13,7 +13,7 @@ import {
   getAllCategoriesValidator,
   getSpecificCategoryValidator,
   updateCategoryValidator,
-} from "../middlewares/validateRequest.js";
+} from "../middlewares/validateCategoryRequest.js";
 
 const router = express.Router();
 
