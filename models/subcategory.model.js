@@ -4,15 +4,24 @@ const SubCategorySchema = new Schema(
   {
     name: {
       type: String,
-      required: true,
-      unique: [true, "category must be unique"],
-      minlength: [3, "category name too short"],
-      maxlength: [32, "category name too long"],
+      required: [true, "Subcategory name is required"],
+      trim: true,
+      minlength: [2, "Subcategory name must be at least 2 characters long"],
+      maxlength: [50, "Subcategory name cannot exceed 50 characters"],
     },
-    category: mongoose.Schema.Types.ObjectId,
     slug: {
       type: String,
       lowercase: true,
+    },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: [true, "Category is required"],
+      index: true,
+    },
+    description: {
+      type: String,
+      maxlength: [500, "Description cannot exceed 500 characters"],
     },
   },
   { timestamps: true }
@@ -21,3 +30,4 @@ const SubCategorySchema = new Schema(
 const SubCategoryModel = mongoose.model("subcategories", SubCategorySchema);
 
 export default SubCategoryModel;
+

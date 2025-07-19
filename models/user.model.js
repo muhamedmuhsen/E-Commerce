@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import validator from "validator";
 
 const UserSchema = new Schema(
   {
@@ -10,12 +11,21 @@ const UserSchema = new Schema(
     },
     email: {
       type: String,
-      required: true,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      validate: [validator.isEmail, "please provide a valid email"],
     },
     password: {
       type: String,
-      required: true,
+      required: [true, "Password is required"],
+      minlength:[8,'Password must be at least 8 characters long']
     },
+    role:{
+      type:String,
+      enum:['user','admin'],
+      default:'user'
+    }
   },
   { timestamps: true }
 );

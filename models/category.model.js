@@ -4,14 +4,29 @@ const CategorySchema = new Schema(
   {
     name: {
       type: String,
-      required: [true, "category name required"],
-      unique: [true, "category must be unique"],
-      minlength: [3, "category name too short"],
-      maxlength: [32, "category name too long"],
+      required: [true, "Category name is required"],
+      unique: true,
+      trim: true,
+      minlength: [2, "Category name must be at least 2 characters long"],
+      maxlength: [50, "Category name cannot exceed 50 characters"],
     },
     slug: {
       type: String,
+      unique: true,
       lowercase: true,
+    },
+    description: {
+      type: String,
+      maxlength: [500, "Description cannot exceed 500 characters"],
+    },
+    image: {
+      type: String,
+      validate: {
+        validator: function (v) {
+          return !v || validator.isURL(v);
+        },
+        message: "Please provide a valid image URL",
+      },
     },
   },
   { timestamps: true }
