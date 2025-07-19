@@ -8,23 +8,23 @@ import {
   updateSubCategory,
 } from "../controllers/subcategory.controller.js";
 import {
-  createCategoryValidator,
-  deleteCategoryValidator,
-  getAllCategoriesValidator,
-  getSpecificCategoryValidator,
-  updateCategoryValidator,
-} from "../middlewares/validateCategoryRequest.js";
+  createSubCategoryValidator,
+  deleteSubCategoryValidator,
+  getAllSubCategoriesValidator,
+  getSpecificSubCategoryValidator,
+  updateSubCategoryValidator,
+} from "../utils/validators/validateSubCateogryRequest.js";
 
 const router = express.Router();
 
 router
   .route("/")
-  .get(getAllCategoriesValidator, getAllSubCategories)
-  .post(createCategoryValidator, createSubCategory);
+  .get(getAllSubCategoriesValidator, getAllSubCategories)
+  .post(createSubCategoryValidator, createSubCategory);
 router
   .route("/:id")
-  .put(updateCategoryValidator, updateSubCategory)
-  .delete(deleteCategoryValidator, deleteSubCategory)
-  .get(getSpecificCategoryValidator, getSpecificSubCategory);
+  .put(updateSubCategoryValidator, updateSubCategory)
+  .delete(deleteSubCategoryValidator, deleteSubCategory)
+  .get(getSpecificSubCategoryValidator, getSpecificSubCategory);
 
 export default router;

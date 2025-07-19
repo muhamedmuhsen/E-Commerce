@@ -17,7 +17,7 @@ import {
   getAllCategoriesValidator,
   getSpecificCategoryValidator,
   updateCategoryValidator,
-} from "../middlewares/validateCategoryRequest.js";
+} from "../utils/validators/validateCategoryRequest.js"
 
 const router = express.Router();
 
