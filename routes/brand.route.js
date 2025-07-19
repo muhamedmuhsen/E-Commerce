@@ -5,17 +5,24 @@ import {
   deleteBrand,
   getAllBrand,
   getSpecificBrand,
-  updateBrand,
+  updateBrand
 } from "../controllers/brand.controller.js";
 
+import {
+  createBrandValidator,
+  deleteBrandValidator,
+  getAllBrandValidator,
+  getSpecificBrandValidtor,
+  updateBrandValidator
+} from '../utils/validators/validateBrandRequest.js';
 const router = express.Router();
 
-router.route("/").get(getAllBrand).post(createBrand);
+router.route("/").get(getAllBrandValidator,getAllBrand).post(createBrandValidator,createBrand);
 
 router
   .route("/:id")
-  .put(updateBrand)
-  .delete(deleteBrand)
-  .get(getSpecificBrand);
+  .put(updateBrandValidator,updateBrand)
+  .delete(deleteBrandValidator,deleteBrand)
+  .get(getSpecificBrandValidtor,getSpecificBrand);
 
 export default router;
