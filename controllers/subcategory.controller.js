@@ -23,6 +23,11 @@ const setFilterObject = (req, res, next) => {
   next();
 };
 
+/*
+    @desc   Create new subcategory
+    @route  POST /api/v1/subcategories
+    @access Private
+*/
 const createSubCategory = asyncWrapper(async (req, res, next) => {
   const { name, category } = req.body;
 
@@ -53,6 +58,11 @@ const createSubCategory = asyncWrapper(async (req, res, next) => {
   res.status(201).json({ success: true, data: addedSubCategory });
 });
 
+/*
+    @desc   Get all subcategories with pagination
+    @route  GET /api/v1/subcategories
+    @access Public
+*/
 const getAllSubCategories = asyncWrapper(async (req, res, next) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
@@ -66,6 +76,11 @@ const getAllSubCategories = asyncWrapper(async (req, res, next) => {
   res.status(200).json({ success: true, page: page, data: { subcategories } });
 });
 
+/*
+    @desc   Update subcategory by ID
+    @route  PUT /api/v1/subcategories/:id
+    @access Private
+*/
 const updateSubCategory = asyncWrapper(async (req, res, next) => {
   const { name, category } = req.body;
   const id = req.params.id;
@@ -99,6 +114,11 @@ const updateSubCategory = asyncWrapper(async (req, res, next) => {
   res.status(200).json({ success: true, data: updatedSubCategory });
 });
 
+/*
+    @desc   Delete subcategory by ID
+    @route  DELETE /api/v1/subcategories/:id
+    @access Private
+*/
 const deleteSubCategory = asyncWrapper(async (req, res, next) => {
   const id = req.params.id;
 
@@ -116,6 +136,11 @@ const deleteSubCategory = asyncWrapper(async (req, res, next) => {
   });
 });
 
+/*
+    @desc   Get single subcategory by ID
+    @route  GET /api/v1/subcategories/:id
+    @access Public
+*/
 const getSpecificSubCategory = asyncWrapper(async (req, res, next) => {
   const id = req.params.id;
 
@@ -129,6 +154,23 @@ const getSpecificSubCategory = asyncWrapper(async (req, res, next) => {
   }
 
   res.status(200).json({ success: true, data: subcategory });
+});
+
+/*
+    @desc   Get subcategories by category ID
+    @route  GET /api/v1/categories/:categoryId/subcategories
+    @access Public
+*/
+const getSubCategoriesByCategory = asyncWrapper(async (req, res, next) => {
+  const categoryId = req.params.categoryId;
+
+  if (!categoryId) {
+    return next(new ApiError("Invalid category ID", 400));
+  }
+
+  const subcategories = await SubCategory.find({ category: categoryId });
+
+  res.status(200).json({ success: true, data: subcategories });
 });
 
 const createSubCategoryOnCategory = asyncWrapper(async (req, res, next) => {
@@ -168,4 +210,5 @@ export {
   setCategoryIdToBody,
   setFilterObject,
   updateSubCategory,
+  getSubCategoriesByCategory,
 };

@@ -4,7 +4,13 @@ import asyncWrapper from "../middlewares/asyncWrapper.js";
 import User from "../models/user.model.js";
 import ApiError from "../utils/ApiError.js";
 
-const signup = asyncWrapper(async (req, res, next) => {
+/*
+    @desc   Register new user
+    @route  POST /api/v1/auth/register
+    @access Public
+*/
+
+const register = asyncWrapper(async (req, res, next) => {
   const user = req.body;
   console.log(user);
 
@@ -35,6 +41,11 @@ const signup = asyncWrapper(async (req, res, next) => {
     .json({ succes: true, message: "User registered successfully", token });
 });
 
+/*
+    @desc   Login user
+    @route  POST /api/v1/auth/login
+    @access Public
+*/
 const login = asyncWrapper(async (req, res, next) => {
   const { email, password } = req.body;
   console.log(email, password);
@@ -64,4 +75,4 @@ const login = asyncWrapper(async (req, res, next) => {
     .json({ success: true, message: "logged in successfully" }, token);
 });
 
-export { login, signup };
+export { login, register };

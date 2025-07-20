@@ -3,29 +3,14 @@ import asyncWrapper from "../middlewares/asyncWrapper.js";
 import ProductModel from "../models/product.model.js";
 import ApiError from "../utils/ApiError.js";
 
+/*
+    @desc   Create new product
+    @route  POST /api/v1/products
+    @access Private
+*/
 const createProduct = asyncWrapper(async (req, res, next) => {
   const product = req.body;
-
-  if (!product || !product.title) {
-    return next(new ApiError("Product title is required", 400));
-  }
-
-  if (!product.category) {
-    return next(new ApiError("Product category is required", 400));
-  }
-
-  if (!product.subcategory) {
-    return next(new ApiError("Product subcategory is required", 400));
-  }
-
-  if (!product.price || product.price <= 0) {
-    return next(new ApiError("Valid product price is required", 400));
-  }
-
-  if (!product.quantity || product.quantity < 0) {
-    return next(new ApiError("Valid product quantity is required", 400));
-  }
-
+  
   const addedProduct = new ProductModel({
     slug: slugify(product.title),
     ...product,
@@ -36,6 +21,11 @@ const createProduct = asyncWrapper(async (req, res, next) => {
   res.status(201).json({ success: true, data: addedProduct });
 });
 
+/*
+    @desc   Get all products with pagination
+    @route  GET /api/v1/products
+    @access Public
+*/
 const getAllProducts = asyncWrapper(async (req, res, next) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
@@ -51,6 +41,11 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
   res.status(200).json({ success: true, page: page, data: { products } });
 });
 
+/*
+    @desc   Update product by ID
+    @route  PUT /api/v1/products/:id
+    @access Private
+*/
 const updateProduct = asyncWrapper(async (req, res, next) => {
   const {
     title,
@@ -105,6 +100,11 @@ const updateProduct = asyncWrapper(async (req, res, next) => {
   res.status(200).json({ success: true, data: updatedProduct });
 });
 
+/*
+    @desc   Delete product by ID
+    @route  DELETE /api/v1/products/:id
+    @access Private
+*/
 const deleteProduct = asyncWrapper(async (req, res, next) => {
   const id = req.params.id;
 
@@ -125,6 +125,11 @@ const deleteProduct = asyncWrapper(async (req, res, next) => {
   });
 });
 
+/*
+    @desc   Get single product by ID
+    @route  GET /api/v1/products/:id
+    @access Public
+*/
 const getSpecificProduct = asyncWrapper(async (req, res, next) => {
   const id = req.params.id;
 
@@ -143,6 +148,11 @@ const getSpecificProduct = asyncWrapper(async (req, res, next) => {
   res.status(200).json({ success: true, data: product });
 });
 
+/*
+    @desc   Get products by category ID
+    @route  GET /api/v1/products/category/:categoryId
+    @access Public
+*/
 const getProductsByCategory = asyncWrapper(async (req, res, next) => {
   const categoryId = req.params.categoryId;
   const page = parseInt(req.query.page) || 1;
@@ -167,6 +177,11 @@ const getProductsByCategory = asyncWrapper(async (req, res, next) => {
   });
 });
 
+/*
+    @desc   Get products by subcategory ID
+    @route  GET /api/v1/products/subcategory/:subcategoryId
+    @access Public
+*/
 const getProductsBySubcategory = asyncWrapper(async (req, res, next) => {
   const subcategoryId = req.params.subcategoryId;
   const page = parseInt(req.query.page) || 1;

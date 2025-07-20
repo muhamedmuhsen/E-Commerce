@@ -3,6 +3,12 @@ import asyncWrapper  from "../middlewares/asyncWrapper.js";
 import Category from "../models/category.model.js";
 import ApiError from "../utils/ApiError.js";
 
+
+/*
+    @desc   Create new category
+    @route  POST /api/v1/categories
+    @access Private
+*/
 const createCategory = asyncWrapper (async (req, res, next) => {
   const category = req.body;
 
@@ -20,6 +26,11 @@ const createCategory = asyncWrapper (async (req, res, next) => {
   res.status(201).json({ success: true, data: addedCategory });
 });
 
+/*
+    @desc   Get all categories with pagination
+    @route  GET /api/v1/categories
+    @access Public
+*/
 const getAllCategories = asyncWrapper (async (req, res, next) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
@@ -30,6 +41,11 @@ const getAllCategories = asyncWrapper (async (req, res, next) => {
   res.status(200).json({ success: true, page: page, data: { categories } });
 });
 
+/*
+    @desc   Update category by ID
+    @route  PUT /api/v1/categories/:id
+    @access Private
+*/
 const updateCategory = asyncWrapper  (async (req, res, next) => {
   const { name } = req.body;
   const id = req.params.id;
@@ -54,6 +70,11 @@ const updateCategory = asyncWrapper  (async (req, res, next) => {
   res.status(200).json({ success: true, data: updatedCategory });
 });
 
+/*
+    @desc   Delete category by ID
+    @route  DELETE /api/v1/categories/:id
+    @access Private
+*/
 const deleteCategory = asyncWrapper (async (req, res, next) => {
   const id = req.params.id;
 
@@ -67,6 +88,11 @@ const deleteCategory = asyncWrapper (async (req, res, next) => {
   res.status(200).json({ success: true,message:'category deleted successfully', data: deletedCategory });
 });
 
+/*
+    @desc   Get single category by ID
+    @route  GET /api/v1/categories/:id
+    @access Public
+*/
 const getSpecificCategory = asyncWrapper (async (req, res, next) => {
   const id = req.params.id;
 
