@@ -10,7 +10,7 @@ import ApiError from "../utils/ApiError.js";
 */
 const createProduct = asyncWrapper(async (req, res, next) => {
   const product = req.body;
-  
+
   const addedProduct = new ProductModel({
     slug: slugify(product.title),
     ...product,
@@ -33,8 +33,8 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
   const offset = (page - 1) * limit;
 
   const products = await ProductModel.find()
-    .populate("category", "name")
-    .populate("subcategory", "name")
+    .populate({ path: "category", select: "name -_id" })
+    .populate({ path: "subcategory", select: "name -_id" })
     .skip(offset)
     .limit(limit);
 
@@ -47,51 +47,20 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
     @access Private
 */
 const updateProduct = asyncWrapper(async (req, res, next) => {
-  const {
-    title,
-    price,
-    quantity,
-    priceAfterDiscount,
-    description,
-    image,
-    category,
-    subcategory,
-  } = req.body;
+  const { productDetails } = req.body;
   const id = req.params.id;
 
-  if (
-    !title &&
-    !price &&
-    !quantity &&
-    !priceAfterDiscount &&
-    !description &&
-    !image &&
-    !category &&
-    !subcategory
-  ) {
-    return next(new ApiError("At least one field is required to update", 400));
-  }
+  console.log(productDetails);
 
-  const updateData = {};
-
-  if (title) {
-    updateData.title = title;
-    updateData.slug = slugify(title);
-  }
-  if (price !== undefined) updateData.price = price;
-  if (quantity !== undefined) updateData.quantity = quantity;
-  if (priceAfterDiscount !== undefined)
-    updateData.priceAfterDiscount = priceAfterDiscount;
-  if (description !== undefined) updateData.description = description;
-  if (image !== undefined) updateData.image = image;
-  if (category) updateData.category = category;
-  if (subcategory) updateData.subcategory = subcategory;
-
-  const updatedProduct = await ProductModel.findByIdAndUpdate(id, updateData, {
-    new: true,
-  })
-    .populate("category", "name")
-    .populate("subcategory", "name");
+  const updatedProduct = await ProductModel.findByIdAndUpdate(
+    id,
+    productDetails,
+    {
+      new: true,
+    }
+  )
+    .populate({ path: "category", select: "name -_id" })
+    .populate({ path: "subcategory", select: "name -_id" });
 
   if (!updatedProduct) {
     return next(new ApiError("Product not found", 404));

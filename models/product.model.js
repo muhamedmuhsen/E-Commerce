@@ -5,11 +5,11 @@ const ProductSchema = new Schema(
   {
     title: {
       type: String,
-      required: [true, "Product name is required"],
+      required: [true, "Product title is required"],
       unique: true,
       trim: true,
-      minlength: [2, "Product name must be at least 2 characters long"],
-      maxlength: [50, "Product name cannot exceed 50 characters"],
+      minlength: [2, "Product title must be at least 2 characters long"],
+      maxlength: [100, "Product title cannot exceed 100 characters"],
     },
     quantity: {
       type: Number,
@@ -31,17 +31,13 @@ const ProductSchema = new Schema(
     subcategory: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubCategory",
-      required: [true, "SubCategory is required"],
       index: true,
     },
     description: {
       type: String,
       maxlength: [500, "Description cannot exceed 500 characters"],
     },
-    brand: {
-      type: String,
-      required: [true, "Prodcut brand is required"],
-    },
+    brand: { type: String },
     imageCover: {
       type: String,
       required: [true, "Product Image cover is required"],
@@ -59,12 +55,12 @@ const ProductSchema = new Schema(
     sold: { type: Number, default: 0 },
     image: {
       type: [String],
-      validate: {
-        validator: function (v) {
-          return !v || validator.isURL(v);
-        },
-        message: "Please provide a valid image URL",
-      },
+      // validate: {
+      //   validator: function (v) {
+      //     return !v || validator.isURL(v);
+      //   },
+      //   message: "Please provide a valid image URL",
+      // },
     },
   },
   { timestamps: true }

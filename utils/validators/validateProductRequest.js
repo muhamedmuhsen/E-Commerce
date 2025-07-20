@@ -1,19 +1,25 @@
-import { check } from "express-validator";
+import { body, check } from "express-validator";
 import validateRequest from "../../middlewares/validateRequest.js";
-
+import Category from "../../models/category.model.js";
 
 const createProductValidator = [
   check("title")
+    .notEmpty()
+    .withMessage("Prodcut title is required")
     .isLength({ min: 3 })
     .withMessage("Product title too short")
     .isLength({ max: 100 })
     .withMessage("Product title too long"),
   check("description")
+    .notEmpty()
+    .withMessage("Prodcut description is required")
     .isLength({ min: 20 })
     .withMessage("Product description too short")
     .isLength({ max: 2000 })
     .withMessage("Product description too long"),
   check("quantity")
+    .notEmpty()
+    .withMessage("Prodcut quantity is required")
     .isInt({ min: 0 })
     .withMessage("Product quantity must be a positive number"),
   check("sold")
@@ -21,6 +27,8 @@ const createProductValidator = [
     .isInt({ min: 0 })
     .withMessage("Product sold must be a positive number"),
   check("price")
+    .notEmpty()
+    .withMessage("Prodcut price is required")
     .isFloat({ min: 0 })
     .withMessage("Product price must be a positive number"),
   check("priceAfterDiscount")
@@ -48,14 +56,15 @@ const createProductValidator = [
     .notEmpty()
     .withMessage("Product must belong to a category")
     .isMongoId()
-    .withMessage("Invalid category id"),
-  check("subcategory")
-    .optional()
-    .isMongoId()
-    .withMessage("Invalid subcategory id"),
-  check("brand")
-    .notEmpty() // Should be required according to your model
-    .withMessage("Product brand is required"),
+    .withMessage("Invalid category id")
+    .custom(async (value) => {
+      const category = await Category.findById(value).lean();
+      if (!category) {
+        throw new Error("Category not found");
+      }
+      return true;
+    }),
+  ,
   check("ratingsAverage")
     .optional()
     .isFloat({ min: 1, max: 5 })
@@ -68,7 +77,11 @@ const createProductValidator = [
 ];
 
 const updateProductValidator = [
-  check("id").isMongoId().withMessage("Invalid product id"),
+  check("id")
+    .notEmpty()
+    .withMessage("Prodcut id is required")
+    .isMongoId()
+    .withMessage("Invalid product id"),
   check("title")
     .optional()
     .isLength({ min: 3 })
@@ -131,6 +144,30 @@ const updateProductValidator = [
     .optional()
     .isInt({ min: 0 })
     .withMessage("Ratings quantity must be a positive number"),
+  body().custom((value, { req }) => {
+    const fields = [
+      "title",
+      "description",
+      "quantity",
+      "sold",
+      "price",
+      "priceAfterDiscount",
+      "colors",
+      "imageCover",
+      "images",
+      "category",
+      "subcategory",
+      "brand",
+      "ratingsAverage",
+      "ratingsQuantity",
+    ];
+    const hasAtLeastOneField = fields.some((field) => value[field]);
+
+    if (!hasAtLeastOneField) {
+      throw new Error("At least one field is required to update");
+    }
+    return true;
+  }),
   validateRequest,
 ];
 
