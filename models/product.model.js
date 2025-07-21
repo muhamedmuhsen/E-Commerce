@@ -1,5 +1,4 @@
 import mongoose, { Schema } from "mongoose";
-import validator from "validator";
 
 const ProductSchema = new Schema(
   {
@@ -28,8 +27,8 @@ const ProductSchema = new Schema(
       required: [true, "Category is required"],
       index: true,
     },
-    subcategory: {
-      type: mongoose.Schema.Types.ObjectId,
+    subcategories: {
+      type: [mongoose.Schema.Types.ObjectId],
       ref: "SubCategory",
       index: true,
     },

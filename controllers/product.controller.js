@@ -34,7 +34,7 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
 
   const products = await ProductModel.find()
     .populate({ path: "category", select: "name -_id" })
-    .populate({ path: "subcategory", select: "name -_id" })
+    .populate({ path: "subcategories", select: "name -_id" })
     .skip(offset)
     .limit(limit);
 
@@ -60,7 +60,7 @@ const updateProduct = asyncWrapper(async (req, res, next) => {
     }
   )
     .populate({ path: "category", select: "name -_id" })
-    .populate({ path: "subcategory", select: "name -_id" });
+    .populate({ path: "subcategories", select: "name -_id" });
 
   if (!updatedProduct) {
     return next(new ApiError("Product not found", 404));
@@ -108,7 +108,7 @@ const getSpecificProduct = asyncWrapper(async (req, res, next) => {
 
   const product = await ProductModel.findById(id)
     .populate("category", "name")
-    .populate("subcategory", "name");
+    .populate("subcategories", "name");
 
   if (!product) {
     return next(new ApiError("Product not found", 404));
@@ -135,7 +135,7 @@ const getProductsByCategory = asyncWrapper(async (req, res, next) => {
 
   const products = await ProductModel.find({ category: categoryId })
     .populate("category", "name")
-    .populate("subcategory", "name")
+    .populate("subcategories", "name")
     .skip(offset)
     .limit(limit);
 
@@ -162,9 +162,9 @@ const getProductsBySubcategory = asyncWrapper(async (req, res, next) => {
 
   const offset = (page - 1) * limit;
 
-  const products = await ProductModel.find({ subcategory: subcategoryId })
+  const products = await ProductModel.find({ subcategories: subcategoryId })
     .populate("category", "name")
-    .populate("subcategory", "name")
+    .populate("subcategories", "name")
     .skip(offset)
     .limit(limit);
 
