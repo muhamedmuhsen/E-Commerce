@@ -9,7 +9,6 @@ import ApiError from "../utils/ApiError.js";
     @route  POST /api/v1/auth/register
     @access Public
 */
-
 const register = asyncWrapper(async (req, res, next) => {
   const user = req.body;
   console.log(user);

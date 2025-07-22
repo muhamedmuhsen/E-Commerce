@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+build/
+dist/
+
+# Environment files
+.env*
+config.env
+
+# Logs
+logs/
+*.log
+
+# Coverage reports
+coverage/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads and user content
+uploads/
+public/uploads/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.backup
+
+# Package manager files
+package-lock.json
+yarn.lock
+
+# ESLint cache
+.eslintcache
+
+# Other generated files
+*.min.js

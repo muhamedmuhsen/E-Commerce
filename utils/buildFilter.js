@@ -32,6 +32,9 @@ function buildFilter(query) {
     }
   }
 
+  const excludedFields = ["page", "limit", "sort", "fields"];
+  excludedFields.forEach((field) => delete filter[field]);
+
   return filter;
 }
 

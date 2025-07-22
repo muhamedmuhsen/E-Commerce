@@ -34,6 +34,7 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
   const filter = buildFilter(req.query);
   console.log(filter);
 
+  // Pagination
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
 
