@@ -5,6 +5,7 @@ import Product from "../models/product.model.js";
 import "../models/subcategory.model.js"; // This registers the model
 import ApiError from "../utils/ApiError.js";
 import buildFilter from "../utils/buildFilter.js";
+import buildSort from "../utils/buildSort.js";
 
 /*
     @desc   Create new product
@@ -32,7 +33,6 @@ const createProduct = asyncWrapper(async (req, res, next) => {
 const getAllProducts = asyncWrapper(async (req, res, next) => {
   // Filtering
   const filter = buildFilter(req.query);
-  console.log(filter);
 
   // Pagination
   const page = parseInt(req.query.page) || 1;
@@ -40,11 +40,24 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
 
   const offset = (page - 1) * limit;
 
+  // Sorting
+  const { sort = "createdAt" } = req.query.sort;
+  const allowedFields = ["price", "createdAt", "rating"];
+  if (!allowedFields.includes(sort)) {
+    return next(
+      new ApiError(
+        `Invalid sort field. Allowed fields: ${allowedFields.join(", ")}`,
+        400
+      )
+    );
+  }
+
   const mongooseQuery = Product.find(filter)
+    .skip(offset)
+    .limit(limit)
     .populate({ path: "category", select: "name -_id" })
     .populate({ path: "subcategories", select: "name -_id" })
-    .skip(offset)
-    .limit(limit);
+    .sort({ [sort]: -1 });
 
   const products = await mongooseQuery;
 
