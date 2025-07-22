@@ -2,11 +2,19 @@ import dotenv from "dotenv";
 import express from "express";
 import morgan from "morgan";
 import dbConnection from "./config/database.js";
+
+// Import all models FIRST to register them with Mongoose
+import "./models/brand.model.js";
+import "./models/category.model.js";
+import "./models/product.model.js";
+import "./models/subcategory.model.js";
+
+// Then import other modules
 import errorHandler from "./middlewares/errorHandler.js";
 import authRoute from "./routes/auth.route.js";
 import brandRoute from "./routes/brand.route.js";
 import categoryRoute from "./routes/category.route.js";
-import productRoute from './routes/product.route.js';
+import productRoute from "./routes/product.route.js";
 import subcategoryRoute from "./routes/subcategory.route.js";
 import ApiError from "./utils/ApiError.js";
 

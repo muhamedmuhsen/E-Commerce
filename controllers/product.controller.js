@@ -1,7 +1,10 @@
 import slugify from "slugify";
 import asyncWrapper from "../middlewares/asyncWrapper.js";
-import ProductModel from "../models/product.model.js";
+import "../models/category.model.js"; // Also register Category model
+import Product from "../models/product.model.js";
+import "../models/subcategory.model.js"; // This registers the model
 import ApiError from "../utils/ApiError.js";
+import buildFilter from "../utils/buildFilter.js";
 
 /*
     @desc   Create new product
@@ -11,7 +14,7 @@ import ApiError from "../utils/ApiError.js";
 const createProduct = asyncWrapper(async (req, res, next) => {
   const product = req.body;
 
-  const addedProduct = new ProductModel({
+  const addedProduct = new Product({
     slug: slugify(product.title),
     ...product,
   });
@@ -27,18 +30,29 @@ const createProduct = asyncWrapper(async (req, res, next) => {
     @access Public
 */
 const getAllProducts = asyncWrapper(async (req, res, next) => {
+  // Filtering
+  const filter = buildFilter(req.query);
+  console.log(filter);
+
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
 
   const offset = (page - 1) * limit;
 
-  const products = await ProductModel.find()
+  const mongooseQuery = Product.find(filter)
     .populate({ path: "category", select: "name -_id" })
     .populate({ path: "subcategories", select: "name -_id" })
     .skip(offset)
     .limit(limit);
 
-  res.status(200).json({ success: true, page: page, data: { products } });
+  const products = await mongooseQuery;
+
+  res.status(200).json({
+    success: true,
+    length: products.length,
+    page: page,
+    data: { products },
+  });
 });
 
 /*
@@ -52,13 +66,9 @@ const updateProduct = asyncWrapper(async (req, res, next) => {
 
   console.log(productDetails);
 
-  const updatedProduct = await ProductModel.findByIdAndUpdate(
-    id,
-    productDetails,
-    {
-      new: true,
-    }
-  )
+  const updatedProduct = await Product.findByIdAndUpdate(id, productDetails, {
+    new: true,
+  })
     .populate({ path: "category", select: "name -_id" })
     .populate({ path: "subcategories", select: "name -_id" });
 
@@ -81,7 +91,7 @@ const deleteProduct = asyncWrapper(async (req, res, next) => {
     return next(new ApiError("Invalid id", 400));
   }
 
-  const deletedProduct = await ProductModel.findByIdAndDelete(id);
+  const deletedProduct = await Product.findByIdAndDelete(id);
 
   if (!deletedProduct) {
     return next(new ApiError("Product not found", 404));
@@ -106,7 +116,7 @@ const getSpecificProduct = asyncWrapper(async (req, res, next) => {
     return next(new ApiError("Invalid id", 400));
   }
 
-  const product = await ProductModel.findById(id)
+  const product = await Product.findById(id)
     .populate("category", "name")
     .populate("subcategories", "name");
 
@@ -133,7 +143,7 @@ const getProductsByCategory = asyncWrapper(async (req, res, next) => {
 
   const offset = (page - 1) * limit;
 
-  const products = await ProductModel.find({ category: categoryId })
+  const products = await Product.find({ category: categoryId })
     .populate("category", "name")
     .populate("subcategories", "name")
     .skip(offset)
@@ -162,7 +172,7 @@ const getProductsBySubcategory = asyncWrapper(async (req, res, next) => {
 
   const offset = (page - 1) * limit;
 
-  const products = await ProductModel.find({ subcategories: subcategoryId })
+  const products = await Product.find({ subcategories: subcategoryId })
     .populate("category", "name")
     .populate("subcategories", "name")
     .skip(offset)
