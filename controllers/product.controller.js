@@ -32,7 +32,7 @@ const createProduct = asyncWrapper(async (req, res, next) => {
 const getAllProducts = asyncWrapper(async (req, res, next) => {
   // Filtering
   const filter = buildFilter(req.query);
-  
+
   // Pagination
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
@@ -41,9 +41,7 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
 
   let mongooseQuery = Product.find(filter)
     .skip(offset)
-    .limit(limit)
-    .populate({ path: "category", select: "name -_id" })
-    .populate({ path: "subcategories", select: "name -_id" });
+    .limit(limit);
 
   // Sorting
   if (req.query.sort) {
@@ -73,6 +71,28 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
     const sortOptions = { [sortField]: sortOrder };
 
     mongooseQuery = mongooseQuery.sort(sortOptions);
+  }else{
+    mongooseQuery = mongooseQuery.sort('-createdAt')
+  }
+
+  // Field Limiting
+  let selectedFields = [];
+  if (req.query.fields) {
+    const fieldsArr = req.query.fields.split(",").join(" ");
+    selectedFields = req.query.fields.split(",");
+    mongooseQuery = mongooseQuery.select(fieldsArr);
+    console.log(fieldsArr);
+  }else{
+    mongooseQuery = mongooseQuery.select('-__v -createdAt -updatedAt')
+  }
+
+  // Conditional Population - only populate if field is requested or no field selection
+  if (!req.query.fields || selectedFields.includes("category")) {
+    mongooseQuery = mongooseQuery.populate({ path: "category", select: "name -_id" });
+  }
+  
+  if (!req.query.fields || selectedFields.includes("subcategories")) {
+    mongooseQuery = mongooseQuery.populate({ path: "subcategories", select: "name -_id" });
   }
 
   // Search
@@ -85,8 +105,6 @@ const getAllProducts = asyncWrapper(async (req, res, next) => {
 
     mongooseQuery = mongooseQuery.find(query);
   }
-
-  console.log(mongooseQuery);
 
   const products = await mongooseQuery;
 
