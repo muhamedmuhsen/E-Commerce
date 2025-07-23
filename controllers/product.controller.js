@@ -5,7 +5,6 @@ import Product from "../models/product.model.js";
 import "../models/subcategory.model.js"; // This registers the model
 import ApiError from "../utils/ApiError.js";
 import buildFilter from "../utils/buildFilter.js";
-import buildSort from "../utils/buildSort.js";
 
 /*
     @desc   Create new product
@@ -33,31 +32,61 @@ const createProduct = asyncWrapper(async (req, res, next) => {
 const getAllProducts = asyncWrapper(async (req, res, next) => {
   // Filtering
   const filter = buildFilter(req.query);
-
+  
   // Pagination
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
 
   const offset = (page - 1) * limit;
 
-  // Sorting
-  const { sort = "createdAt" } = req.query.sort;
-  const allowedFields = ["price", "createdAt", "rating"];
-  if (!allowedFields.includes(sort)) {
-    return next(
-      new ApiError(
-        `Invalid sort field. Allowed fields: ${allowedFields.join(", ")}`,
-        400
-      )
-    );
-  }
-
-  const mongooseQuery = Product.find(filter)
+  let mongooseQuery = Product.find(filter)
     .skip(offset)
     .limit(limit)
     .populate({ path: "category", select: "name -_id" })
-    .populate({ path: "subcategories", select: "name -_id" })
-    .sort({ [sort]: -1 });
+    .populate({ path: "subcategories", select: "name -_id" });
+
+  // Sorting
+  if (req.query.sort) {
+    // 1. Parse the sort parameter
+    const { sort = "createdAt:desc" } = req.query.sort;
+    const [sortField, sortDirection = "desc"] = sort.split(":");
+
+    // 2. Validate the sort field
+    const allowedSortFields = ["price", "name", "createdAt", "rating"];
+    if (!allowedSortFields.includes(sortField)) {
+      return res.status(400).json({
+        error: `Invalid sort field. Allowed fields: ${allowedSortFields.join(
+          ", "
+        )}`,
+      });
+    }
+
+    // 3. Validate the sort direction
+    if (!["asc", "desc"].includes(sortDirection.toLowerCase())) {
+      return res.status(400).json({
+        error: 'Invalid sort direction. Use "asc" or "desc"',
+      });
+    }
+
+    // 4. Convert to MongoDB sort format
+    const sortOrder = sortDirection.toLowerCase() === "asc" ? 1 : -1;
+    const sortOptions = { [sortField]: sortOrder };
+
+    mongooseQuery = mongooseQuery.sort(sortOptions);
+  }
+
+  // Search
+  if (req.query.keyword) {
+    const query = {};
+    query.$or = [
+      { title: { $regex: req.query.keyword, $options: "i" } },
+      { description: { $regex: req.query.keyword, $options: "i" } },
+    ];
+
+    mongooseQuery = mongooseQuery.find(query);
+  }
+
+  console.log(mongooseQuery);
 
   const products = await mongooseQuery;
 
