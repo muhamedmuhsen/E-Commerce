@@ -11,7 +11,7 @@ import {
 import {
   createBrandValidator,
   deleteBrandValidator,
-  getSpecificBrandValidtor,
+  getSpecificBrandValidator,
   updateBrandValidator
 } from '../utils/validators/validateBrandRequest.js';
 const router = express.Router();
@@ -22,6 +22,6 @@ router
   .route("/:id")
   .put(updateBrandValidator,updateBrand)
   .delete(deleteBrandValidator,deleteBrand)
-  .get(getSpecificBrandValidtor,getSpecificBrand);
+  .get(getSpecificBrandValidator,getSpecificBrand);
 
 export default router;

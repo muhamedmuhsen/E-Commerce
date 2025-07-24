@@ -110,15 +110,13 @@ class ApiFeatures {
   }
 
   limitFields() {
-    console.log(this.queryString);
-
+    
     if (!this.queryString) {
       let selectedFields = [];
       if (this.queryString.fields) {
         const fieldsArr = this.queryString.fields.split(",").join(" ");
         selectedFields = this.queryString.fields.split(",");
         this.mongooseQuery = this.mongooseQuery.select(fieldsArr);
-        console.log(fieldsArr);
       } else {
         this.mongooseQuery = this.mongooseQuery.select(
           "-__v -createdAt -updatedAt"
@@ -150,7 +148,7 @@ class ApiFeatures {
   search(model) {
     if (this.queryString.keyword) {
       const query = {};
-      if (model === "Products") {
+      if (model === "Product") {
         query.$or = [
           { title: { $regex: this.queryString.keyword, $options: "i" } },
           { description: { $regex: this.queryString.keyword, $options: "i" } },

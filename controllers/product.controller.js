@@ -5,123 +5,48 @@ import Product from "../models/product.model.js";
 import "../models/subcategory.model.js"; // This registers the model
 import ApiError from "../utils/ApiError.js";
 import ApiFeatures from "../utils/apiFeatures.js";
+import {
+  createOne,
+  deleteOne,
+  getAll,
+  getSpecificOne,
+  updateOne,
+} from "./handlersFactory.js";
 
 /*
     @desc   Create new product
     @route  POST /api/v1/products
     @access Private
 */
-const createProduct = asyncWrapper(async (req, res, next) => {
-  const product = req.body;
-
-  const addedProduct = new Product({
-    slug: slugify(product.title),
-    ...product,
-  });
-
-  await addedProduct.save();
-
-  res.status(201).json({ success: true, data: addedProduct });
-});
+const createProduct = createOne(Product);
 
 /*
     @desc   Get all products with pagination
     @route  GET /api/v1/products
     @access Public
 */
-const getAllProducts = asyncWrapper(async (req, res, next) => {
-  const totalProducts = await Product.countDocuments();
-
-  const apiFeatures = new ApiFeatures(req.query, Product.find())
-    .filter()
-    .search("Products")
-    .sorting()
-    .limitFields()
-    .Paginate(totalProducts);
-
-  // execute query
-  const { mongooseQuery, pagination } = apiFeatures;
-  const products = await mongooseQuery;
-
-  res.status(200).json({
-    success: true,
-    pagination,
-    length: products.length,
-    data: { products },
-  });
-});
+const getAllProducts = getAll(Product);
 
 /*
     @desc   Update product by ID
     @route  PUT /api/v1/products/:id
     @access Private
 */
-const updateProduct = asyncWrapper(async (req, res, next) => {
-  const { productDetails } = req.body;
-  const id = req.params.id;
-
-  console.log(productDetails);
-
-  const updatedProduct = await Product.findByIdAndUpdate(id, productDetails, {
-    new: true,
-  })
-    .populate({ path: "category", select: "name -_id" })
-    .populate({ path: "subcategories", select: "name -_id" });
-
-  if (!updatedProduct) {
-    return next(new ApiError("Product not found", 404));
-  }
-
-  res.status(200).json({ success: true, data: updatedProduct });
-});
+const updateProduct = updateOne(Product);
 
 /*
     @desc   Delete product by ID
     @route  DELETE /api/v1/products/:id
     @access Private
 */
-const deleteProduct = asyncWrapper(async (req, res, next) => {
-  const id = req.params.id;
-
-  if (!id) {
-    return next(new ApiError("Invalid id", 400));
-  }
-
-  const deletedProduct = await Product.findByIdAndDelete(id);
-
-  if (!deletedProduct) {
-    return next(new ApiError("Product not found", 404));
-  }
-
-  res.status(200).json({
-    success: true,
-    message: "Product deleted successfully",
-    data: deletedProduct,
-  });
-});
+const deleteProduct = deleteOne(Product);
 
 /*
     @desc   Get single product by ID
     @route  GET /api/v1/products/:id
     @access Public
 */
-const getSpecificProduct = asyncWrapper(async (req, res, next) => {
-  const id = req.params.id;
-
-  if (!id) {
-    return next(new ApiError("Invalid id", 400));
-  }
-
-  const product = await Product.findById(id)
-    .populate("category", "name")
-    .populate("subcategories", "name");
-
-  if (!product) {
-    return next(new ApiError("Product not found", 404));
-  }
-
-  res.status(200).json({ success: true, data: product });
-});
+const getSpecificProduct = getSpecificOne(Product);
 
 /*
     @desc   Get products by category ID

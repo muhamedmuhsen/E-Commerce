@@ -2,12 +2,16 @@ import { body, check } from "express-validator";
 import validateRequest from "../../middlewares/validateRequest.js";
 import Category from "../../models/category.model.js";
 import SubCategory from "../../models/subcategory.model.js";
-
+import slugify from "slugify";
 // Common validation rules
 const commonValidationRules = {
-  title: check("title")
+  name: check("name")
     .isLength({ min: 3, max: 100 })
-    .withMessage("Product title must be between 3 and 100 characters"),
+    .withMessage("Product name must be between 3 and 100 characters")
+    .custom((value, { req }) => {
+      req.body.slug = slugify(value);
+      return true;
+    }),
 
   description: check("description")
     .isLength({ min: 20, max: 2000 })
@@ -135,9 +139,7 @@ const validateSubcategories = (isArray = true) => {
 
 // Create product validator
 const createProductValidator = [
-  commonValidationRules.title
-    .notEmpty()
-    .withMessage("Product title is required"),
+  commonValidationRules.name.notEmpty().withMessage("Product name is required"),
   commonValidationRules.description
     .notEmpty()
     .withMessage("Product description is required"),
@@ -170,7 +172,7 @@ const updateProductValidator = [
     .withMessage("Invalid product id"),
 
   // Make all fields optional for updates
-  commonValidationRules.title.optional(),
+  commonValidationRules.name.optional(),
   commonValidationRules.description.optional(),
   commonValidationRules.quantity.optional(),
   commonValidationRules.sold,
@@ -198,7 +200,7 @@ const updateProductValidator = [
   // Ensure at least one field is provided for update
   body().custom((value) => {
     const updateFields = [
-      "title",
+      "name",
       "description",
       "quantity",
       "sold",

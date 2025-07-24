@@ -1,5 +1,6 @@
 import { check } from "express-validator";
 import validateRequest from "../../middlewares/validateRequest.js";
+import slugify from "slugify";
 
 const createBrandValidator = [
   check("name")
@@ -15,7 +16,11 @@ const updateBrandValidator = [
     .isLength({ min: 3 })
     .withMessage("Brand name too short")
     .isLength({ max: 32 })
-    .withMessage("Brand name too long"),
+    .withMessage("Brand name too long")
+    .custom((value, { req }) => {
+      req.body.slug = slugify(value);
+      return true;
+    }),
   check("id")
     .notEmpty()
     .withMessage("Id is required")
@@ -33,7 +38,7 @@ const deleteBrandValidator = [
   validateRequest,
 ];
 
-const getSpecificBrandValidtor = [
+const getSpecificBrandValidator = [
   check("id")
     .notEmpty()
     .withMessage("Id is required")
@@ -45,6 +50,6 @@ const getSpecificBrandValidtor = [
 export {
   createBrandValidator,
   deleteBrandValidator,
-  getSpecificBrandValidtor,
+  getSpecificBrandValidator,
   updateBrandValidator,
 };

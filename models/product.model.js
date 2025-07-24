@@ -2,13 +2,13 @@ import mongoose, { Schema } from "mongoose";
 
 const ProductSchema = new Schema(
   {
-    title: {
+    name: {
       type: String,
-      required: [true, "Product title is required"],
+      required: [true, "Product name is required"],
       unique: true,
       trim: true,
-      minlength: [2, "Product title must be at least 2 characters long"],
-      maxlength: [100, "Product title cannot exceed 100 characters"],
+      minlength: [2, "Product name must be at least 2 characters long"],
+      maxlength: [100, "Product name cannot exceed 100 characters"],
     },
     quantity: {
       type: Number,
