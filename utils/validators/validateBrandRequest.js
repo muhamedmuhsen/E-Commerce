@@ -3,11 +3,13 @@ import validateRequest from "../../middlewares/validateRequest.js";
 import slugify from "slugify";
 
 const createBrandValidator = [
-  check("name")
-    .isLength({ min: 3 })
-    .withMessage("Brand name too short")
-    .isLength({ max: 32 })
-    .withMessage("Brand name too long"),
+   check("name")
+      .isLength({ min: 3, max: 32 })
+      .withMessage("Brand name must be between 3 and 32 characters")
+      .custom((value, { req }) => {
+        req.body.slug = slugify(value);
+        return true;
+      }),
   validateRequest,
 ];
 

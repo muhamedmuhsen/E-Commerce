@@ -3,8 +3,7 @@ import asyncWrapper from "../middlewares/asyncWrapper.js";
 import Category from "../models/category.model.js";
 import SubCategory from "../models/subcategory.model.js";
 import ApiError from "../utils/ApiError.js";
-import ApiFeatures from "../utils/apiFeatures.js";
-import { createOne, deleteOne, getAll, getSpecificOne, updateOne } from "./handlersFactory.js";
+import { createOne, deleteOne, getAll, getOne, updateOne } from "./handlersFactory.js";
 
 const setCategoryIdToBody = (req, res, next) => {
   if (!req.body.category) {
@@ -58,7 +57,7 @@ const deleteSubCategory = deleteOne(SubCategory);
     @route  GET /api/v1/subcategories/:id
     @access Public
 */
-const getSpecificSubCategory = getSpecificOne(SubCategory)
+const getSpecificSubCategory = getOne(SubCategory)
 
 /*
     @desc   Get subcategories by category ID

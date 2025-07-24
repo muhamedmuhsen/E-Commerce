@@ -57,9 +57,9 @@ const createOne = (Model) => {
   return asyncWrapper(async (req, res, next) => {
     const document = req.body;
 
-    if (!document || !document.name) {
-      return next(new ApiError("Document name is required", 400));
-    }
+    // if (!document || !document.name) {
+    //   return next(new ApiError("Document name is required", 400));
+    // }
 
     if (Model === "SubCategory") {
       const ParentCategory = await Category.findById(category);
@@ -115,7 +115,7 @@ const updateOne = (Model) => {
   });
 };
 
-const getSpecificOne = (Model) => {
+const getOne = (Model) => {
   return asyncWrapper(async (req, res, next) => {
     const { id } = req.params;
 
@@ -135,4 +135,4 @@ const getSpecificOne = (Model) => {
     res.status(200).json({ success: true, data: document });
   });
 };
-export { deleteOne, createOne, getAll, updateOne, getSpecificOne };
+export { deleteOne, createOne, getAll, updateOne, getOne };

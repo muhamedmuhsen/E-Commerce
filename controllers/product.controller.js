@@ -9,7 +9,7 @@ import {
   createOne,
   deleteOne,
   getAll,
-  getSpecificOne,
+  getOne,
   updateOne,
 } from "./handlersFactory.js";
 
@@ -46,7 +46,7 @@ const deleteProduct = deleteOne(Product);
     @route  GET /api/v1/products/:id
     @access Public
 */
-const getSpecificProduct = getSpecificOne(Product);
+const getSpecificProduct = getOne(Product);
 
 /*
     @desc   Get products by category ID

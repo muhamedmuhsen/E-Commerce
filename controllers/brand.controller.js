@@ -1,12 +1,10 @@
-import asyncWrapper from "../middlewares/asyncWrapper.js";
 import Brand from "../models/brand.model.js";
-import ApiError from "../utils/ApiError.js";
 import {
   deleteOne,
   createOne,
   getAll,
   updateOne,
-  getSpecificOne,
+  getOne,
 } from "./handlersFactory.js";
 
 /*
@@ -35,7 +33,7 @@ const updateBrand = updateOne(Brand);
     @route  GET /api/v1/brands/:id
     @access Public
 */
-const getSpecificBrand = getSpecificOne(Brand);
+const getSpecificBrand = getOne(Brand);
 /*
     @desc   delete brand
     @route  GET /api/v1/brands/:id

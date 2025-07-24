@@ -1,5 +1,11 @@
 import Category from "../models/category.model.js";
-import { createOne, deleteOne, getAll, updateOne, getSpecificOne } from "./handlersFactory.js";
+import {
+  createOne,
+  deleteOne,
+  getAll,
+  updateOne,
+  getOne,
+} from "./handlersFactory.js";
 
 /*
     @desc   Get all categories with pagination
@@ -34,7 +40,7 @@ const deleteCategory = deleteOne(Category);
     @route  GET /api/v1/categories/:id
     @access Public
 */
-const getSpecificCategory = getSpecificOne(Category);
+const getSpecificCategory = getOne(Category);
 
 export {
   createCategory,
