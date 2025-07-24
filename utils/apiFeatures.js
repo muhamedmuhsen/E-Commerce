@@ -40,19 +40,30 @@ class ApiFeatures {
 
     const excludedFields = ["page", "limit", "sort", "fields", "keyword"];
     excludedFields.forEach((field) => delete filter[field]);
-    
-    console.log("Filter applied:", filter);
+
     this.mongooseQuery = this.mongooseQuery.find(filter);
     return this;
   }
 
-  Paginate() {
+  Paginate(countDocuments) {
     const page = parseInt(this.queryString.page) || 1;
     const limit = parseInt(this.queryString.limit) || 10;
-
     const offset = (page - 1) * limit;
+    const endIndex = page * limit;
+
+    const pagination = {};
+    pagination.currentPage = page;
+    pagination.limit = limit;
+    pagination.numberOfPages = Math.ceil(countDocuments / limit);
+    if (endIndex < countDocuments) {
+      pagination.next = page + 1;
+    }
+    if (offset > 0) {
+      pagination.prev = page - 1;
+    }
 
     this.mongooseQuery = this.mongooseQuery.skip(offset).limit(limit);
+    this.pagination = pagination;
     return this;
   }
 
@@ -63,7 +74,13 @@ class ApiFeatures {
       const [sortField, sortDirection = "desc"] = sort.split(":");
 
       // Validate the sort field - use actual field names from Product model
-      const allowedSortFields = ["price", "title", "createdAt", "ratingsAverage", "sold"];
+      const allowedSortFields = [
+        "price",
+        "title",
+        "createdAt",
+        "ratingsAverage",
+        "sold",
+      ];
       if (!allowedSortFields.includes(sortField)) {
         // Skip invalid sort instead of throwing error to prevent breaking the query
         console.warn(`Invalid sort field: ${sortField}. Using default sort.`);
@@ -73,7 +90,9 @@ class ApiFeatures {
 
       // Validate the sort direction
       if (!["asc", "desc"].includes(sortDirection.toLowerCase())) {
-        console.warn(`Invalid sort direction: ${sortDirection}. Using default direction.`);
+        console.warn(
+          `Invalid sort direction: ${sortDirection}. Using default direction.`
+        );
         this.mongooseQuery = this.mongooseQuery.sort("-createdAt");
         return this;
       }
@@ -91,43 +110,56 @@ class ApiFeatures {
   }
 
   limitFields() {
-    let selectedFields = [];
-    if (this.queryString.fields) {
-      const fieldsArr = this.queryString.fields.split(",").join(" ");
-      selectedFields = this.queryString.fields.split(",");
-      this.mongooseQuery = this.mongooseQuery.select(fieldsArr);
-      console.log(fieldsArr);
-    } else {
-      this.mongooseQuery = this.mongooseQuery.select(
-        "-__v -createdAt -updatedAt"
-      );
-    }
+    console.log(this.queryString);
 
-    // Conditional Population - only populate if field is requested or no field selection
-    if (!this.queryString.fields || selectedFields.includes("category")) {
-      this.mongooseQuery = this.mongooseQuery.populate({
-        path: "category",
-        select: "name -_id",
-      });
-    }
+    if (!this.queryString) {
+      let selectedFields = [];
+      if (this.queryString.fields) {
+        const fieldsArr = this.queryString.fields.split(",").join(" ");
+        selectedFields = this.queryString.fields.split(",");
+        this.mongooseQuery = this.mongooseQuery.select(fieldsArr);
+        console.log(fieldsArr);
+      } else {
+        this.mongooseQuery = this.mongooseQuery.select(
+          "-__v -createdAt -updatedAt"
+        );
+      }
 
-    if (!this.queryString.fields || selectedFields.includes("subcategories")) {
-      this.mongooseQuery = this.mongooseQuery.populate({
-        path: "subcategories",
-        select: "name -_id",
-      });
+      // Conditional Population - only populate if field is requested or no field selection
+      if (!this.queryString.fields || selectedFields.includes("category")) {
+        this.mongooseQuery = this.mongooseQuery.populate({
+          path: "category",
+          select: "name -_id",
+        });
+      }
+
+      if (
+        !this.queryString.fields ||
+        selectedFields.includes("subcategories")
+      ) {
+        this.mongooseQuery = this.mongooseQuery.populate({
+          path: "subcategories",
+          select: "name -_id",
+        });
+      }
     }
 
     return this;
   }
 
-  search() {
+  search(model) {
     if (this.queryString.keyword) {
       const query = {};
-      query.$or = [
-        { title: { $regex: this.queryString.keyword, $options: "i" } },
-        { description: { $regex: this.queryString.keyword, $options: "i" } },
-      ];
+      if (model === "Products") {
+        query.$or = [
+          { title: { $regex: this.queryString.keyword, $options: "i" } },
+          { description: { $regex: this.queryString.keyword, $options: "i" } },
+        ];
+      } else {
+        query.$or = [
+          { name: { $regex: this.queryString.keyword, $options: "i" } },
+        ];
+      }
 
       this.mongooseQuery = this.mongooseQuery.find(query);
     }

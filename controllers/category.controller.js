@@ -2,6 +2,7 @@ import slugify from "slugify";
 import asyncWrapper  from "../middlewares/asyncWrapper.js";
 import Category from "../models/category.model.js";
 import ApiError from "../utils/ApiError.js";
+import ApiFeatures from "../utils/apiFeatures.js";
 
 
 /*
@@ -32,13 +33,21 @@ const createCategory = asyncWrapper (async (req, res, next) => {
     @access Public
 */
 const getAllCategories = asyncWrapper (async (req, res, next) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
+  
+  const totalCategories = await Category.countDocuments();
+  
+    const apiFeatures = new ApiFeatures(req.query, Category.find())
+      .filter()
+      .search()
+      .sorting()
+      .limitFields()
+      .Paginate(totalCategories);
+  
+    // execute query
+    const { mongooseQuery, pagination } = apiFeatures;
+    const categories = await mongooseQuery;
 
-  const offset = (page - 1) * limit;
-
-  const categories = await Category.find().skip(offset).limit(limit);
-  res.status(200).json({ success: true, page: page, data: { categories } });
+  res.status(200).json({ success: true, pagination, data: { categories } });
 });
 
 /*

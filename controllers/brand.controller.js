@@ -2,6 +2,7 @@ import slugify from "slugify";
 import asyncWrapper from "../middlewares/asyncWrapper.js";
 import Brand from "../models/brand.model.js";
 import ApiError from "../utils/ApiError.js";
+import ApiFeatures from "../utils/apiFeatures.js";
 
 /*
     @desc   get all the brands on the app
@@ -9,13 +10,20 @@ import ApiError from "../utils/ApiError.js";
     @access Public
 */
 const getAllBrand = asyncWrapper(async (req, res, next) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
+  const totalBrands = await Brand.countDocuments();
 
-  const offset = (page - 1) * limit;
+  const apiFeatures = new ApiFeatures(req.query, Brand.find())
+    .filter()
+    .search()
+    .sorting()
+    .limitFields()
+    .Paginate(totalBrands);
 
-  const brands = await Brand.find().skip(offset).limit(limit);
-  res.status(200).json({ success: true, page: page, data: { brands } });
+  // execute query
+  const { mongooseQuery, pagination } = apiFeatures;
+  const brands = await mongooseQuery;
+
+  res.status(200).json({ success: true, pagination, data: { brands } });
 });
 
 /*
@@ -30,14 +38,14 @@ const createBrand = asyncWrapper(async (req, res, next) => {
     return next(new ApiError("Brand name is required", 400));
   }
 
-  const addedCategory = new Brand({
+  const addedBrand = new Brand({
     slug: slugify(brand.name),
     ...brand,
   });
 
-  await addedCategory.save();
+  await addedBrand.save();
 
-  res.status(201).json({ success: true, data: addedCategory });
+  res.status(201).json({ success: true, data: addedBrand });
 });
 
 /*
@@ -61,7 +69,6 @@ const deleteBrand = asyncWrapper(async (req, res, next) => {
     data: deletedBrand,
   });
 });
-
 
 /*
     @desc   update brand
@@ -91,8 +98,6 @@ const updateBrand = asyncWrapper(async (req, res, next) => {
 
   res.status(200).json({ success: true, data: updatedBrand });
 });
-
-
 
 /*
     @desc   get specific brand

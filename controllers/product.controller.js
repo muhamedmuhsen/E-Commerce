@@ -30,38 +30,22 @@ const createProduct = asyncWrapper(async (req, res, next) => {
     @access Public
 */
 const getAllProducts = asyncWrapper(async (req, res, next) => {
-  console.log("Query parameters:", req.query);
-  
-  // First, let's check if there are any products at all
   const totalProducts = await Product.countDocuments();
-  console.log("Total products in database:", totalProducts);
-  
-  if (totalProducts === 0) {
-    return res.status(200).json({
-      success: true,
-      length: 0,
-      message: "No products found in database",
-      data: { products: [] },
-    });
-  }
-  
-  // Build query
+
   const apiFeatures = new ApiFeatures(req.query, Product.find())
     .filter()
-    .search()
+    .search("Products")
     .sorting()
     .limitFields()
-    .Paginate();
+    .Paginate(totalProducts);
 
-  console.log("Final mongoose query:", apiFeatures.mongooseQuery.getOptions());
-  
   // execute query
-  const products = await apiFeatures.mongooseQuery;
-  
-  console.log("Products found:", products.length);
+  const { mongooseQuery, pagination } = apiFeatures;
+  const products = await mongooseQuery;
 
   res.status(200).json({
     success: true,
+    pagination,
     length: products.length,
     data: { products },
   });

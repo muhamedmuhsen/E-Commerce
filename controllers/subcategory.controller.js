@@ -3,6 +3,7 @@ import asyncWrapper from "../middlewares/asyncWrapper.js";
 import Category from "../models/category.model.js";
 import SubCategory from "../models/subcategory.model.js";
 import ApiError from "../utils/ApiError.js";
+import ApiFeatures from "../utils/apiFeatures.js";
 
 const setCategoryIdToBody = (req, res, next) => {
   if (!req.body.category) {
@@ -64,16 +65,20 @@ const createSubCategory = asyncWrapper(async (req, res, next) => {
     @access Public
 */
 const getAllSubCategories = asyncWrapper(async (req, res, next) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
+  const totalSubCategories = await SubCategory.countDocuments();
 
-  const offset = (page - 1) * limit;
+  const apiFeatures = new ApiFeatures(req.query, SubCategory.find())
+    .filter()
+    .search()
+    .sorting()
+    .limitFields()
+    .Paginate(totalSubCategories);
 
-  const subcategories = await SubCategory.find(req.filterObject)
-    .skip(offset)
-    .limit(limit);
+  // execute query
+  const { mongooseQuery, pagination } = apiFeatures;
+  const subcategories = await mongooseQuery;
 
-  res.status(200).json({ success: true, page: page, data: { subcategories } });
+  res.status(200).json({ success: true, pagination, data: { subcategories } });
 });
 
 /*
