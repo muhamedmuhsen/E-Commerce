@@ -5,7 +5,6 @@ import slugify from "slugify";
 const commonRules = {
   id: check("id").isMongoId().withMessage("Invalid id"),
   name: check("name")
-    .notEmpty()
     .isLength({ min: 3, max: 32 })
     .withMessage("Category name must be between 3 and 32 characters")
     .custom((value, { req }) => {
@@ -14,19 +13,14 @@ const commonRules = {
     }),
 };
 
-const createBrandValidator = [commonRules.name, validateRequest];
+const createBrandValidator = [
+  commonRules.name.notEmpty().withMessage("Brand name is requried"),
+  validateRequest,
+];
 
 const updateBrandValidator = [
   commonRules.id,
-  check("name")
-    .isLength({ min: 3 })
-    .withMessage("Brand name too short")
-    .isLength({ max: 32 })
-    .withMessage("Brand name too long")
-    .custom((value, { req }) => {
-      req.body.slug = slugify(value);
-      return true;
-    }),
+  commonRules.name.optional(),
   // TODO(Validate Image Brand)
   validateRequest,
 ];

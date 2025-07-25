@@ -46,7 +46,6 @@ const commonRules = {
     .withMessage("Invalid mongoDB id"),
 
   name: check("name")
-    .notEmpty()
     .withMessage("username is required")
     .isLength({ min: 3, max: 32 })
     .withMessage("Brand name must be between 3 and 32 characters")
@@ -56,19 +55,16 @@ const commonRules = {
     }),
 
   email: check("email")
-    .notEmpty()
     .withMessage("email is required")
     .isEmail()
     .withMessage("please enter valid mail"),
 
   password: check("password")
-    .notEmpty()
     .withMessage("username is required")
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters long"),
 
   confirmPassword: check("passwordConfirm")
-    .notEmpty()
     .withMessage("Password confirmation required")
     .custom(checkIfPasswordMatches),
 
@@ -83,10 +79,16 @@ const commonRules = {
 };
 
 const createUserValidator = [
-  commonRules.name,
-  commonRules.email,
-  commonRules.password,
-  commonRules.confirmPassword,
+  commonRules.name.notEmpty().withMessage("username is requried"),
+  commonRules.email
+    .notEmpty()
+    .withMessage("email is requried")
+    .custom(checkIfEmailFound)
+    .withMessage("please try another mail"),
+  commonRules.password.notEmpty().withMessage("password is requried"),
+  commonRules.confirmPassword
+    .notEmpty()
+    .withMessage("confirm password field is requried"),
   commonRules.phone,
   commonRules.profileImage,
   commonRules.role,
@@ -98,28 +100,13 @@ const getUserValidtor = [commonRules.id, validateRequest];
 const updateUserValidator = [
   commonRules.id,
   hasAtLeastOneField,
-  check("name")
+  commonRules.name.optional(),
+  commonRules.email
     .optional()
-    .isLength({ min: 3, max: 32 })
-    .withMessage("Brand name must be between 3 and 32 characters")
-    .custom((value, { req }) => {
-      req.body.slug = slugify(value);
-      return true;
-    }),
-
-  ,
-  check("email")
-    .optional()
-    .isEmail()
-    .withMessage("please enter valid mail")
-    .custom(checkIfEmailFound),
-
-  check("password")
-    .optional()
-    .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters long"),
-
-  check("passwordConfirm").optional().custom(checkIfPasswordMatches),
+    .custom(checkIfEmailFound)
+    .withMessage("please try another mail"),
+  commonRules.password.optional(),
+  commonRules.confirmPassword.optional(),
   commonRules.phone,
   commonRules.profileImage,
   commonRules.role,

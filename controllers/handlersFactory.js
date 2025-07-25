@@ -56,19 +56,12 @@ const createOne = (Model) => {
     //   return next(new ApiError("Document name is required", 400));
     // }
 
-    // Not working
     if (Model.modelName === "SubCategory") {
       const ParentCategory = await Category.findById(category);
 
       if (!ParentCategory) {
         return next(new ApiError("Paretnt category not found", 404));
       }
-    }
-
-    if (Model.modelName === "User") {
-      // hash password
-      const hashpassword = await bcrypt.hash(document.password, 10);
-      document.password = hashpassword;
     }
 
     const addedDocument = new Model({
@@ -93,13 +86,7 @@ const updateOne = (Model) => {
       }
     );
 
-    if (Model === "Product") {
-      updatedDocument
-        .populate({ path: "category", select: "name -_id" })
-        .populate({ path: "subcategories", select: "name -_id" });
-    }
-
-    if (Model === "SubCategory") {
+    if (Model.modelName === "SubCategory") {
       if (!category) {
         return next(new ApiError("Parent Category name is required", 400));
       }

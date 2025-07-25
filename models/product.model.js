@@ -65,6 +65,8 @@ const ProductSchema = new Schema(
   { timestamps: true }
 );
 
+
+// TODO(populate subcategories if found)
 ProductSchema.pre(/^find/, function (next) {
   this.populate(
     { path: "category", select: "name -_id" },

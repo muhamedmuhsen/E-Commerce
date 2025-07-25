@@ -40,7 +40,7 @@ app.use("/api/v1/categories", categoryRoute);
 app.use("/api/v1/subcategories", subcategoryRoute);
 app.use("/api/v1/brands", brandRoute);
 app.use("/api/v1/products", productRoute);
-app.use("/api/v1/user",userRoute)
+app.use("/api/v1/users",userRoute)
 
 // 404 handler for unmatched routes using custom ApiError
 app.use((req, res, next) => {
