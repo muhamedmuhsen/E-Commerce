@@ -2,18 +2,22 @@ import { check } from "express-validator";
 import validateRequest from "../../middlewares/validateRequest.js";
 import slugify from "slugify";
 
-const createBrandValidator = [
-   check("name")
-      .isLength({ min: 3, max: 32 })
-      .withMessage("Brand name must be between 3 and 32 characters")
-      .custom((value, { req }) => {
-        req.body.slug = slugify(value);
-        return true;
-      }),
-  validateRequest,
-];
+const commonRules = {
+  id: check("id").isMongoId().withMessage("Invalid id"),
+  name: check("name")
+    .notEmpty()
+    .isLength({ min: 3, max: 32 })
+    .withMessage("Category name must be between 3 and 32 characters")
+    .custom((value, { req }) => {
+      req.body.slug = slugify(value);
+      return true;
+    }),
+};
+
+const createBrandValidator = [commonRules.name, validateRequest];
 
 const updateBrandValidator = [
+  commonRules.id,
   check("name")
     .isLength({ min: 3 })
     .withMessage("Brand name too short")
@@ -23,31 +27,13 @@ const updateBrandValidator = [
       req.body.slug = slugify(value);
       return true;
     }),
-  check("id")
-    .notEmpty()
-    .withMessage("Id is required")
-    .isMongoId()
-    .withMessage("Invalid Brand id "),
+  // TODO(Validate Image Brand)
   validateRequest,
 ];
 
-const deleteBrandValidator = [
-  check("id")
-    .notEmpty()
-    .withMessage("Id is required")
-    .isMongoId()
-    .withMessage("Invalid Brand id "),
-  validateRequest,
-];
+const deleteBrandValidator = [commonRules.id, validateRequest];
 
-const getSpecificBrandValidator = [
-  check("id")
-    .notEmpty()
-    .withMessage("Id is required")
-    .isMongoId()
-    .withMessage("Invalid Brand id "),
-  validateRequest,
-];
+const getSpecificBrandValidator = [commonRules.id, , validateRequest];
 
 export {
   createBrandValidator,

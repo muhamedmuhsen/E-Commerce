@@ -1,31 +1,20 @@
-import asyncWrapper from "../middlewares/asyncWrapper.js";
 import User from "../models/user.model.js";
-import ApiError from "../utils/ApiError.js";
+import {
+  createOne,
+  deleteOne,
+  getAll,
+  getOne,
+  updateOne,
+} from "./handlersFactory.js";
 
-const getSpecificUser = asyncWrapper(async (req, res, next) => {});
+const getSpecificUser = getOne(User);
 
-const createUser = asyncWrapper(async (req, res, next) => {
-  const user = req.body;
+const createUser = createOne(User);
 
-  if (!user) {
-    return next(new ApiError("all fields are required", 400));
-  }
+const updateUser = updateOne(User);
 
+const getAllUsers = getAll(User);
 
-
-  const addUser = new User({
-
-  });
-
-  await addUser.save();
-
-  res.status(201).json({ success: true, data: addUser });
-});
-
-const updateUser = asyncWrapper(async (req, res, next) => {});
-
-const getAllUsers = asyncWrapper(async (req, res, next) => {});
-
-const deleteUser = asyncWrapper(async (req, res, next) => {});
+const deleteUser = deleteOne(User);
 
 export { createUser, updateUser, getAllUsers, deleteUser, getSpecificUser };

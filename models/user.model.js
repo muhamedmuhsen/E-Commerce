@@ -9,6 +9,10 @@ const UserSchema = new Schema(
       minlength: [3, "username too short"],
       maxlength: [32, "username too long"],
     },
+    slug: {
+      type: String,
+      lowercase: true,
+    },
     email: {
       type: String,
       required: [true, "Email is required"],
@@ -19,13 +23,15 @@ const UserSchema = new Schema(
     password: {
       type: String,
       required: [true, "Password is required"],
-      minlength:[8,'Password must be at least 8 characters long']
+      minlength: [8, "Password must be at least 8 characters long"],
     },
-    role:{
-      type:String,
-      enum:['user','admin'],
-      default:'user'
-    }
+    phone: { type: String },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
+    profileImg: { type: String },
   },
   { timestamps: true }
 );

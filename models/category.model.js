@@ -9,7 +9,7 @@ const CategorySchema = new Schema(
       unique: true,
       trim: true,
       minlength: [2, "Category name must be at least 2 characters long"],
-      maxlength: [50, "Category name cannot exceed 50 characters"],
+      maxlength: [32, "Category name cannot exceed 32 characters"],
     },
     slug: {
       type: String,

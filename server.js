@@ -16,6 +16,7 @@ import brandRoute from "./routes/brand.route.js";
 import categoryRoute from "./routes/category.route.js";
 import productRoute from "./routes/product.route.js";
 import subcategoryRoute from "./routes/subcategory.route.js";
+import userRoute from './routes/user.route.js'
 import ApiError from "./utils/ApiError.js";
 
 dotenv.config({ path: "./config.env" });
@@ -39,6 +40,7 @@ app.use("/api/v1/categories", categoryRoute);
 app.use("/api/v1/subcategories", subcategoryRoute);
 app.use("/api/v1/brands", brandRoute);
 app.use("/api/v1/products", productRoute);
+app.use("/api/v1/user",userRoute)
 
 // 404 handler for unmatched routes using custom ApiError
 app.use((req, res, next) => {

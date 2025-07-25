@@ -1,39 +1,37 @@
 import { check } from "express-validator";
 import validateRequest from "../../middlewares/validateRequest.js";
 import slugify from "slugify";
-const createCategoryValidator = [
-  check("name")
+
+const commonRules = {
+  id: check("id").isMongoId().withMessage("Invalid id"),
+  name: check("name")
     .notEmpty()
-    .isLength({ min: 3, max: 50 })
-    .withMessage("Category name must be between 3 and 100 characters")
+    .isLength({ min: 3, max: 32 })
+    .withMessage("Category name must be between 3 and 32 characters")
     .custom((value, { req }) => {
       req.body.slug = slugify(value);
       return true;
     }),
+};
 
-  validateRequest,
-];
+const createCategoryValidator = [commonRules.name, validateRequest];
 
 const updateCategoryValidator = [
-  check("id").isMongoId().withMessage("Invalid id"),
+  commonRules.id,
   check("name")
     .optional()
-    .isLength({ min: 3, max: 50 })
-    .withMessage("Category name must be between 3 and 100 characters")
+    .isLength({ min: 3, max: 32 })
+    .withMessage("Category name must be between 3 and 32 characters")
     .custom((value, { req }) => {
       req.body.slug = slugify(value);
       return true;
     }),
-
   validateRequest,
 ];
 
-const getSpecificCategoryValidator = [
-  check("id").isMongoId().withMessage("Invalid id"),
-  validateRequest,
-];
+const getSpecificCategoryValidator = [commonRules.id, validateRequest];
 
-const deleteCategoryValidator = [getSpecificCategoryValidator];
+const deleteCategoryValidator = [commonRules.id, validateRequest];
 
 export {
   createCategoryValidator,

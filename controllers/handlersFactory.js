@@ -1,8 +1,7 @@
 import asyncWrapper from "../middlewares/asyncWrapper.js";
 import ApiError from "../utils/ApiError.js";
-import slugify from "slugify";
 import ApiFeatures from "../utils/apiFeatures.js";
-
+import bcrypt from "bcryptjs";
 /*
   Fix(if i used keyword for search on any other model excpet Product doesn't work)
 */
@@ -35,10 +34,6 @@ const deleteOne = (Model) => {
   return asyncWrapper(async (req, res, next) => {
     const { id } = req.params;
 
-    if (!id) {
-      return next(new ApiError("Invalid id", 400));
-    }
-
     const document = await Model.findByIdAndDelete(id);
 
     if (!document) {
@@ -69,8 +64,15 @@ const createOne = (Model) => {
       }
     }
 
+    if (Model === "User") {
+      // hash password
+      const password = document.password;
+      const salt = await bcrypt.genSalt(10);
+      const hashpassword = await bcrypt.hash(password, salt);
+      document.password = hashpassword;
+    }
+
     const addedDocument = new Model({
-      slug: slugify(document.name),
       ...document,
     });
 
