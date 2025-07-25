@@ -1,6 +1,7 @@
 import { body, check } from "express-validator";
 import validateRequest from "../../middlewares/validateRequest.js";
 import User from "../../models/user.model.js";
+import slugify from "slugify";
 
 const roles = ["user", "admin"];
 
@@ -43,6 +44,7 @@ const commonRules = {
     .withMessage("id is required")
     .isMongoId()
     .withMessage("Invalid mongoDB id"),
+
   name: check("name")
     .notEmpty()
     .withMessage("username is required")
@@ -52,12 +54,13 @@ const commonRules = {
       req.body.slug = slugify(value);
       return true;
     }),
-    
+
   email: check("email")
     .notEmpty()
     .withMessage("email is required")
     .isEmail()
     .withMessage("please enter valid mail"),
+
   password: check("password")
     .notEmpty()
     .withMessage("username is required")
@@ -75,6 +78,7 @@ const commonRules = {
     .withMessage("Invalid phone number only accepted Egy and SA Phone numbers"),
 
   profileImage: check("profileImg").optional(),
+
   role: check("role").optional().isIn(roles),
 };
 
@@ -97,8 +101,13 @@ const updateUserValidator = [
   check("name")
     .optional()
     .isLength({ min: 3, max: 32 })
-    .withMessage("Brand name must be between 3 and 32 characters"),
+    .withMessage("Brand name must be between 3 and 32 characters")
+    .custom((value, { req }) => {
+      req.body.slug = slugify(value);
+      return true;
+    }),
 
+  ,
   check("email")
     .optional()
     .isEmail()

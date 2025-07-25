@@ -50,13 +50,14 @@ const deleteOne = (Model) => {
 
 const createOne = (Model) => {
   return asyncWrapper(async (req, res, next) => {
-    const document = req.body;
+    let document = req.body;
 
     // if (!document || !document.name) {
     //   return next(new ApiError("Document name is required", 400));
     // }
 
-    if (Model === "SubCategory") {
+    // Not working
+    if (Model.modelName === "SubCategory") {
       const ParentCategory = await Category.findById(category);
 
       if (!ParentCategory) {
@@ -64,11 +65,9 @@ const createOne = (Model) => {
       }
     }
 
-    if (Model === "User") {
+    if (Model.modelName === "User") {
       // hash password
-      const password = document.password;
-      const salt = await bcrypt.genSalt(10);
-      const hashpassword = await bcrypt.hash(password, salt);
+      const hashpassword = await bcrypt.hash(document.password, 10);
       document.password = hashpassword;
     }
 
@@ -78,7 +77,9 @@ const createOne = (Model) => {
 
     await addedDocument.save();
 
-    res.status(201).json({ success: true, data: addedDocument });
+    const doc = addedDocument.toObject();
+    delete doc.password;
+    res.status(201).json({ success: true, data: doc });
   });
 };
 
