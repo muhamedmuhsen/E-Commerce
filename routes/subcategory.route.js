@@ -14,7 +14,7 @@ import {
   deleteSubCategoryValidator,
   getSpecificSubCategoryValidator,
   updateSubCategoryValidator,
-} from "../utils/validators/validateSubCategoryRequest.js"; // Fixed filename
+} from "../validators/validateSubCategoryRequest.js"; // Fixed filename
 
 // mergeParams allow us access parameters on other routes
 const router = express.Router({ mergeParams: true });

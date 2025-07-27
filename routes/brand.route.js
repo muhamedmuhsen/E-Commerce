@@ -13,7 +13,7 @@ import {
   deleteBrandValidator,
   getSpecificBrandValidator,
   updateBrandValidator
-} from '../utils/validators/validateBrandRequest.js';
+} from '../validators/validateBrandRequest.js';
 const router = express.Router();
 
 router.route("/").get(getAllBrand).post(createBrandValidator,createBrand);

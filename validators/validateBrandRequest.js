@@ -1,5 +1,5 @@
 import { check } from "express-validator";
-import validateRequest from "../../middlewares/validateRequest.js";
+import validateRequest from "../middlewares/validateRequest.js";
 import slugify from "slugify";
 
 const commonRules = {
@@ -14,7 +14,8 @@ const commonRules = {
 };
 
 const createBrandValidator = [
-  commonRules.name.notEmpty().withMessage("Brand name is requried"),
+  commonRules.name.notEmpty().withMessage("Brand name is requried").custom((val, {req})=>{console.log(req)
+  }),
   validateRequest,
 ];
 
@@ -27,7 +28,7 @@ const updateBrandValidator = [
 
 const deleteBrandValidator = [commonRules.id, validateRequest];
 
-const getSpecificBrandValidator = [commonRules.id, , validateRequest];
+const getSpecificBrandValidator = [commonRules.id, validateRequest]; 
 
 export {
   createBrandValidator,

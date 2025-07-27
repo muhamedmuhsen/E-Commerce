@@ -38,8 +38,9 @@ const UserSchema = new Schema(
 );
 
 UserSchema.pre("save", async function (next) {
+  console.log(this.password);
   if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(document.password, 10);
+  this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 

@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import asyncWrapper from "../middlewares/asyncWrapper.js";
 import {
   createOne,
   deleteOne,
@@ -6,6 +7,7 @@ import {
   getOne,
   updateOne,
 } from "./handlersFactory.js";
+import bcrypt from "bcryptjs";
 
 // TODO(handle profile image)
 
@@ -44,4 +46,27 @@ const getAllUsers = getAll(User);
 */
 const deleteUser = deleteOne(User);
 
-export { createUser, updateUser, getAllUsers, deleteUser, getSpecificUser };
+const changeUserPassword = asyncWrapper(async (req, res, next) => {
+  const updatedPassword = req.body.NewPassword;
+
+  const hashedPassword = await bcrypt.hash(updatedPassword, 10);
+
+  const updatedDocument = await User.findByIdAndUpdate(
+    req.params.id,
+    { password: hashedPassword },
+    {
+      new: true,
+    }
+  );
+
+  res.status(200).json({ success: true, data: updatedDocument });
+});
+
+export {
+  createUser,
+  updateUser,
+  getAllUsers,
+  deleteUser,
+  getSpecificUser,
+  changeUserPassword,
+};

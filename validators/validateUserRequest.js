@@ -1,7 +1,8 @@
 import { body, check } from "express-validator";
-import validateRequest from "../../middlewares/validateRequest.js";
-import User from "../../models/user.model.js";
+import validateRequest from "../middlewares/validateRequest.js";
+import User from "../models/user.model.js";
 import slugify from "slugify";
+import bcrypt from "bcryptjs";
 
 const roles = ["user", "admin"];
 
@@ -24,16 +25,27 @@ const hasAtLeastOneField = body().custom((val) => {
 });
 
 const checkIfPasswordMatches = (val, { req }) => {
+  
+
   if (val !== req.body.password) {
     throw new Error(`passwords don't match`);
   }
   return true;
 };
 
-const checkIfEmailFound = async (val) => {
-  const user = await User.findOne({ email: val });
-  if (!user) {
-    throw new Error("Email not found");
+const checkIfEmailFound = async (email) => {
+  const existingUser = await User.findOne({ email });
+
+  if (existingUser) {
+    throw new Error("Email already exists");
+  }
+  return true;
+};
+
+const checkIfEmailFoundForUpdate = async (email, { req }) => {
+  const existingUser = await User.findOne({ email });
+  if (existingUser && existingUser._id.toString() !== req.params.id) {
+    throw new Error("Email already exists");
   }
   return true;
 };
@@ -46,27 +58,20 @@ const commonRules = {
     .withMessage("Invalid mongoDB id"),
 
   name: check("name")
-    .withMessage("username is required")
     .isLength({ min: 3, max: 32 })
-    .withMessage("Brand name must be between 3 and 32 characters")
+    .withMessage("Username must be between 3 and 32 characters")
     .custom((value, { req }) => {
       req.body.slug = slugify(value);
       return true;
     }),
 
-  email: check("email")
-    .withMessage("email is required")
-    .isEmail()
-    .withMessage("please enter valid mail"),
+  email: check("email").isEmail().withMessage("please enter valid mail"),
 
   password: check("password")
-    .withMessage("username is required")
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters long"),
 
-  confirmPassword: check("passwordConfirm")
-    .withMessage("Password confirmation required")
-    .custom(checkIfPasswordMatches),
+  confirmPassword: check("confirmPassword").custom(checkIfPasswordMatches),
 
   phone: check("phone")
     .optional()
@@ -79,6 +84,9 @@ const commonRules = {
 };
 
 const createUserValidator = [
+  (req, res, next) => {
+    next();
+  },
   commonRules.name.notEmpty().withMessage("username is requried"),
   commonRules.email
     .notEmpty()
@@ -103,7 +111,7 @@ const updateUserValidator = [
   commonRules.name.optional(),
   commonRules.email
     .optional()
-    .custom(checkIfEmailFound)
+    .custom(checkIfEmailFoundForUpdate)
     .withMessage("please try another mail"),
   commonRules.password.optional(),
   commonRules.confirmPassword.optional(),
@@ -115,9 +123,57 @@ const updateUserValidator = [
 
 const deleteUserValidator = [commonRules.id, validateRequest];
 
+const changeUserPasswordValidator = [
+  (req, res, next) => {
+    next();
+  },
+  commonRules.id,
+  
+  check("password")
+    .notEmpty()
+    .withMessage("Current password is required")
+    .custom(async (val, { req }) => {
+      const user = await User.findById(req.params.id);
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      if (!user.password) {
+        throw new Error("User has no password set");
+      }
+
+      const isMatchedPassword = await bcrypt.compare(val, user.password);
+
+      if (!isMatchedPassword) {
+        throw new Error("Current password is incorrect");
+      }
+      return true;
+    }),
+    
+  check("newPassword")
+    .notEmpty()
+    .withMessage("New password is required")
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters long"),
+    
+  check("confirmNewPassword")
+    .notEmpty()
+    .withMessage("Confirm new password is required")
+    .custom((val, { req }) => {
+      if (val !== req.body.newPassword) {
+        throw new Error("Passwords do not match");
+      }
+      return true;
+    }),
+
+  validateRequest,
+];
+
 export {
   createUserValidator,
   updateUserValidator,
   deleteUserValidator,
   getUserValidtor,
+  changeUserPasswordValidator,
 };

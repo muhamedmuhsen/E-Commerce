@@ -13,7 +13,7 @@ import {
   deleteProductValidator,
   getSpecificProductValidator,
   updateProductValidator,
-} from "../utils/validators/validateProductRequest.js";
+} from "../validators/validateProductRequest.js";
 const router = express.Router();
 
 router

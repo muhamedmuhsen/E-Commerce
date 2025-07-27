@@ -2,6 +2,7 @@ import asyncWrapper from "../middlewares/asyncWrapper.js";
 import ApiError from "../utils/ApiError.js";
 import ApiFeatures from "../utils/apiFeatures.js";
 import bcrypt from "bcryptjs";
+import Category from "../models/category.model.js";
 /*
   Fix(if i used keyword for search on any other model excpet Product doesn't work)
 */
@@ -50,6 +51,8 @@ const deleteOne = (Model) => {
 
 const createOne = (Model) => {
   return asyncWrapper(async (req, res, next) => {
+    console.log(req.body);
+    
     let document = req.body;
 
     // if (!document || !document.name) {
@@ -57,12 +60,14 @@ const createOne = (Model) => {
     // }
 
     if (Model.modelName === "SubCategory") {
-      const ParentCategory = await Category.findById(category);
+      const ParentCategory = await Category.findById(req.body.category);
 
       if (!ParentCategory) {
         return next(new ApiError("Paretnt category not found", 404));
       }
     }
+
+    console.log(document);
 
     const addedDocument = new Model({
       ...document,
@@ -78,6 +83,12 @@ const createOne = (Model) => {
 
 const updateOne = (Model) => {
   return asyncWrapper(async (req, res, next) => {
+    if (Model.modelName === "User" && req.body.password) {
+      return next(
+        new ApiError("Use /change-password endpoint to update password", 400)
+      );
+    }
+
     const updatedDocument = await Model.findByIdAndUpdate(
       req.params.id,
       req.body,

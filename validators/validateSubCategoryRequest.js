@@ -1,5 +1,5 @@
 import { check } from "express-validator";
-import validateRequest from "../../middlewares/validateRequest.js";
+import validateRequest from "../middlewares/validateRequest.js";
 import slugify from "slugify";
 
 const commonRules = {
@@ -16,15 +16,14 @@ const commonRules = {
       return true;
     }),
 
-  category: check("category")
-    .withMessage("SubCategory must be belong to category")
-    .isMongoId()
-    .withMessage("Invalid category id "),
+  category: check("category").isMongoId().withMessage("Invalid category id "),
 };
 
 const createSubCategoryValidator = [
   commonRules.name.notEmpty(),
-  commonRules.category.notEmpty(),
+  commonRules.category
+    .notEmpty()
+    .withMessage("Category must be belong to category"),
   validateRequest,
 ];
 

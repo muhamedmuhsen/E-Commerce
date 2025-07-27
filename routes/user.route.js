@@ -6,6 +6,7 @@ import {
   getAllUsers,
   updateUser,
   getSpecificUser,
+  changeUserPassword,
 } from "../controllers/user.controller.js";
 import verifyToken from "../middlewares/verifyToken.js";
 import {
@@ -13,12 +14,15 @@ import {
   deleteUserValidator,
   getUserValidtor,
   updateUserValidator,
-} from "../utils/validators/validateUserRequest.js";
+  changeUserPasswordValidator,
+} from "../validators/validateUserRequest.js";
 // import validateUserRole from "../middlewares/validateUserRole.js";
 
 const router = express.Router();
 
 router.route("/").get(getAllUsers).post(createUserValidator, createUser);
+
+router.patch("/change-password/:id", changeUserPasswordValidator, changeUserPassword);
 
 router
   .route("/:id")

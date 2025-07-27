@@ -1,7 +1,7 @@
 import { body, check } from "express-validator";
-import validateRequest from "../../middlewares/validateRequest.js";
-import Category from "../../models/category.model.js";
-import SubCategory from "../../models/subcategory.model.js";
+import validateRequest from "../middlewares/validateRequest.js";
+import Category from "../models/category.model.js";
+import SubCategory from "../models/subcategory.model.js"; 
 import slugify from "slugify";
 // Common validation rules
 const commonValidationRules = {

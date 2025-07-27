@@ -14,7 +14,7 @@ import {
   deleteCategoryValidator,
   getSpecificCategoryValidator,
   updateCategoryValidator,
-} from "../utils/validators/validateCategoryRequest.js"
+} from "../validators/validateCategoryRequest.js"
 
 const router = express.Router();
 
