@@ -25,8 +25,6 @@ const hasAtLeastOneField = body().custom((val) => {
 });
 
 const checkIfPasswordMatches = (val, { req }) => {
-  
-
   if (val !== req.body.password) {
     throw new Error(`passwords don't match`);
   }
@@ -124,11 +122,11 @@ const updateUserValidator = [
 const deleteUserValidator = [commonRules.id, validateRequest];
 
 const changeUserPasswordValidator = [
-  (req, res, next) => {
-    next();
-  },
+  // (req, res, next) => {
+  //   next();
+  // },
   commonRules.id,
-  
+
   check("password")
     .notEmpty()
     .withMessage("Current password is required")
@@ -144,19 +142,21 @@ const changeUserPasswordValidator = [
       }
 
       const isMatchedPassword = await bcrypt.compare(val, user.password);
+      console.log(user);
+      console.log(isMatchedPassword);
 
       if (!isMatchedPassword) {
         throw new Error("Current password is incorrect");
       }
       return true;
     }),
-    
+
   check("newPassword")
     .notEmpty()
     .withMessage("New password is required")
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters long"),
-    
+
   check("confirmNewPassword")
     .notEmpty()
     .withMessage("Confirm new password is required")
