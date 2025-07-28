@@ -8,7 +8,7 @@ import {
   getSpecificUser,
   changeUserPassword,
 } from "../controllers/user.controller.js";
-import verifyToken from "../middlewares/verifyToken.js";
+import authenticateJWT from "../middlewares/authenticateJWT.js";
 import {
   createUserValidator,
   deleteUserValidator,
