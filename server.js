@@ -35,8 +35,8 @@ if (process.env.NODE_ENV === "development") {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Add Winston or Morgan for better logging
-app.use(morgan('combined'));
+// Add Morgan for better logging
+app.use(morgan('dev'));
 
 // routes
 app.use("/api/v1/auth", authRoute);

@@ -47,7 +47,9 @@ const getAllUsers = getAll(User);
 const deleteUser = deleteOne(User);
 
 const changeUserPassword = asyncWrapper(async (req, res, next) => {
-  const updatedPassword = req.body.NewPassword;
+  console.log(req.body);
+
+  const updatedPassword = req.body.newPassword;
 
   const hashedPassword = await bcrypt.hash(updatedPassword, 10);
 
