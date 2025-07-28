@@ -11,7 +11,12 @@ import ApiError from "../utils/ApiError.js";
 */
 const register = asyncWrapper(async (req, res, next) => {
   const user = req.body;
-  console.log(user);
+
+  const existingUser = await User.findOne({ email: user.email });
+
+  if (existingUser) {
+    return next(new ApiError("User already exists", 400));
+  }
 
   if (!user) {
     return next(new ApiError("all fields are required", 400));
@@ -31,9 +36,16 @@ const register = asyncWrapper(async (req, res, next) => {
 
   await newUser.save();
 
-  const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECERT, {
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
+
+  if (!token) {
+    return next(new ApiError("Invalid Token", 401));
+  }
+  console.log(token);
+
+  console.log(newUser);
 
   res
     .status(201)

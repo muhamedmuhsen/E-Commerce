@@ -47,7 +47,6 @@ const getAllUsers = getAll(User);
 const deleteUser = deleteOne(User);
 
 const changeUserPassword = asyncWrapper(async (req, res, next) => {
-  console.log(req.body);
 
   const updatedPassword = req.body.newPassword;
 

@@ -1,5 +1,3 @@
-import ApiError from "../utils/ApiError.js";
-
 const asyncWrapper = (fn) => {
   return async (req, res, next) => {
     try {
