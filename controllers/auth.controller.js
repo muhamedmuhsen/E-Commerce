@@ -12,28 +12,26 @@ import ApiError from "../utils/ApiError.js";
 
 // TODO(add validation layer)
 const register = asyncWrapper(async (req, res, next) => {
-  const user = req.body;
+  const { name, email, password, passwordConfirm } = req.body;
 
-  const existingUser = await User.findOne({ email: user.email });
+  const existingUser = await User.findOne({ email });
 
   if (existingUser) {
     return next(new ApiError("User already exists", 400));
   }
 
-  if (!user) {
+  if (!req.body) {
     return next(new ApiError("all fields are required", 400));
   }
 
-  if (user.password !== user.passwordConfirm) {
+  if (password !== passwordConfirm) {
     return next(new ApiError("the password doe not match", 400));
   }
 
-  const hashedPassword = await bcrypt.hash(user.password, 10);
-
   const newUser = new User({
-    name: user.name,
-    email: user.email,
-    password: hashedPassword,
+    name: req.body.name,
+    email: req.body.email,
+    password: req.body.password,
   });
 
   await newUser.save();
