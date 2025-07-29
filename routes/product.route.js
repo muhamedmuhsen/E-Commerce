@@ -14,17 +14,19 @@ import {
   getSpecificProductValidator,
   updateProductValidator,
 } from "../validators/validateProductRequest.js";
+import authenticateJWT from "../middlewares/authenticateJWT.js";
+
 const router = express.Router();
 
 router
   .route("/")
   .get(getAllProducts)
-  .post(createProductValidator, createProduct);
+  .post(createProductValidator, authenticateJWT, createProduct);
 
 router
   .route("/:id")
-  .put(updateProductValidator, updateProduct)
-  .delete(deleteProductValidator, deleteProduct)
+  .put(updateProductValidator, authenticateJWT, updateProduct)
+  .delete(deleteProductValidator, authenticateJWT, deleteProduct)
   .get(getSpecificProductValidator, getSpecificProduct);
 
 export default router;

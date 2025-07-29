@@ -1,5 +1,5 @@
 import express from "express";
-import subCategoryRoute from './subcategory.route.js'
+import subCategoryRoute from "./subcategory.route.js";
 import {
   createCategory,
   deleteCategory,
@@ -7,29 +7,27 @@ import {
   getSpecificCategory,
   updateCategory,
 } from "../controllers/category.controller.js";
-
-
 import {
   createCategoryValidator,
   deleteCategoryValidator,
   getSpecificCategoryValidator,
   updateCategoryValidator,
-} from "../validators/validateCategoryRequest.js"
+} from "../validators/validateCategoryRequest.js";
+import authenticateJWT from "../middlewares/authenticateJWT.js";
 
 const router = express.Router();
 
 router
   .route("/")
-  .get( getAllCategories)
-  .post(createCategoryValidator, createCategory);
+  .get(getAllCategories)
+  .post(createCategoryValidator, authenticateJWT, createCategory);
 router
   .route("/:id")
-  .put(updateCategoryValidator, updateCategory)
-  .delete(deleteCategoryValidator, deleteCategory)
+  .put(updateCategoryValidator, authenticateJWT, updateCategory)
+  .delete(deleteCategoryValidator, authenticateJWT, deleteCategory)
   .get(getSpecificCategoryValidator, getSpecificCategory);
 
-
 // TODO(add valdiator)
-router.use("/:id/subcategories",subCategoryRoute)
+router.use("/:id/subcategories", subCategoryRoute);
 
 export default router;
