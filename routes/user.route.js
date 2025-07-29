@@ -8,7 +8,6 @@ import {
   getSpecificUser,
   changeUserPassword,
 } from "../controllers/user.controller.js";
-import verifyToken from "../middlewares/verifyToken.js";
 import {
   createUserValidator,
   deleteUserValidator,
@@ -16,18 +15,26 @@ import {
   updateUserValidator,
   changeUserPasswordValidator,
 } from "../validators/validateUserRequest.js";
-// import validateUserRole from "../middlewares/validateUserRole.js";
+import authenticateJWT from "../middlewares/authenticateJWT.js";
 
 const router = express.Router();
 
-router.route("/").get(getAllUsers).post(createUserValidator, createUser);
+router
+  .route("/")
+  .get(getAllUsers)
+  .post(createUserValidator, authenticateJWT, createUser);
 
-router.patch("/change-password/:id", changeUserPasswordValidator, changeUserPassword);
+router.patch(
+  "/change-password/:id",
+  changeUserPasswordValidator,
+  authenticateJWT,
+  changeUserPassword
+);
 
 router
   .route("/:id")
-  .get(getUserValidtor, getSpecificUser)
-  .put(updateUserValidator, updateUser)
-  .delete(deleteUserValidator, deleteUser);
+  .get(getUserValidtor, authenticateJWT, getSpecificUser)
+  .put(updateUserValidator, authenticateJWT, updateUser)
+  .delete(deleteUserValidator, authenticateJWT, deleteUser);
 
 export default router;

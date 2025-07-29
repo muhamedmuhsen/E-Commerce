@@ -9,35 +9,44 @@ import ApiError from "../utils/ApiError.js";
     @route  POST /api/v1/auth/register
     @access Public
 */
-const register = asyncWrapper(async (req, res, next) => {
-  const user = req.body;
-  console.log(user);
 
-  if (!user) {
+// TODO(add validation layer)
+const register = asyncWrapper(async (req, res, next) => {
+  const { name, email, password, passwordConfirm } = req.body;
+
+  const existingUser = await User.findOne({ email });
+
+  if (existingUser) {
+    return next(new ApiError("User already exists", 400));
+  }
+
+  if (!req.body) {
     return next(new ApiError("all fields are required", 400));
   }
 
-  if (user.password !== user.passwordConfirm) {
+  if (password !== passwordConfirm) {
     return next(new ApiError("the password doe not match", 400));
   }
 
-  const hashedPassword = await bcrypt.hash(user.password, 10);
-
   const newUser = new User({
-    name: user.name,
-    email: user.email,
-    password: hashedPassword,
+    name: req.body.name,
+    email: req.body.email,
+    password: req.body.password,
   });
 
   await newUser.save();
 
-  const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECERT, {
+  const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
 
+  if (!token) {
+    return next(new ApiError("Invalid Token", 401));
+  }
+
   res
     .status(201)
-    .json({ succes: true, message: "User registered successfully", token });
+    .json({ success: true, message: "User registered successfully", token });
 });
 
 /*
@@ -47,31 +56,21 @@ const register = asyncWrapper(async (req, res, next) => {
 */
 const login = asyncWrapper(async (req, res, next) => {
   const { email, password } = req.body;
-  console.log(email, password);
-
-  if (!email && !password) {
+  if (!email || !password) {
     return next(new ApiError("all fields are required", 400));
   }
-
-  const dbUser = await User.findOne({ email: email });
-
-  if (!dbUser) {
-    return next(new ApiError("user not found", 404));
+  const searchUser = await User.findOne({ email });
+  if (!searchUser || !(await bcrypt.compare(password, searchUser.password))) {
+    return next(new ApiError("Invalid credentials", 401));
   }
 
-  const comparedPassword = await bcrypt.compare(password, dbUser.password);
-
-  if (!comparedPassword) {
-    return next(new ApiError("unauthorized user", 401));
-  }
-
-  const token = jwt.sign({ userId: dbUser._id }, process.env.JWT_SECERT, {
+  const token = jwt.sign({ id: searchUser._id }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
 
   res
     .status(200)
-    .json({ success: true, message: "logged in successfully" }, token);
+    .json({ success: true, message: "logged in successfully", token });
 });
 
 export { login, register };

@@ -15,6 +15,7 @@ import {
   getSpecificSubCategoryValidator,
   updateSubCategoryValidator,
 } from "../validators/validateSubCategoryRequest.js"; // Fixed filename
+import authenticateJWT from "../middlewares/authenticateJWT.js";
 
 // mergeParams allow us access parameters on other routes
 const router = express.Router({ mergeParams: true });
@@ -22,11 +23,20 @@ const router = express.Router({ mergeParams: true });
 router
   .route("/")
   .get(setFilterObject, getAllSubCategories)
-  .post(setCategoryIdToBody, createSubCategoryValidator, createSubCategory);
+  .post(
+    setCategoryIdToBody,
+    createSubCategoryValidator,
+    authenticateJWT,
+    createSubCategory
+  );
 router
   .route("/:id")
-  .put(updateSubCategoryValidator, updateSubCategory)
-  .delete(deleteSubCategoryValidator, deleteSubCategory)
-  .get(getSpecificSubCategoryValidator, getSpecificSubCategory);
+  .put(updateSubCategoryValidator, authenticateJWT, updateSubCategory)
+  .delete(deleteSubCategoryValidator, authenticateJWT, deleteSubCategory)
+  .get(
+    getSpecificSubCategoryValidator,
+    authenticateJWT,
+    getSpecificSubCategory
+  );
 
 export default router;
