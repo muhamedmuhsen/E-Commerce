@@ -47,17 +47,14 @@ const getAllUsers = getAll(User);
 const deleteUser = deleteOne(User);
 
 const changeUserPassword = asyncWrapper(async (req, res, next) => {
-
   const updatedPassword = req.body.newPassword;
 
   const hashedPassword = await bcrypt.hash(updatedPassword, 10);
 
   const updatedDocument = await User.findByIdAndUpdate(
     req.params.id,
-    { password: hashedPassword },
-    {
-      new: true,
-    }
+    { password: hashedPassword, passwordChangeAt: Date.now() },
+    { new: true }
   );
 
   res.status(200).json({ success: true, data: updatedDocument });
