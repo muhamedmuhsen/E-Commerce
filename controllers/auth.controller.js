@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import asyncWrapper from "../middlewares/asyncWrapper.js";
 import User from "../models/user.model.js";
 import ApiError from "../utils/ApiError.js";
+import crypto from "crypto";
+import sendEmail from "../utils/sendEmail.js";
 
 /*
     @desc   Register new user
@@ -25,7 +27,7 @@ const register = asyncWrapper(async (req, res, next) => {
   }
 
   if (password !== passwordConfirm) {
-    return next(new ApiError("the password doe not match", 400));
+    return next(new ApiError("the password does not match", 400));
   }
 
   const newUser = new User({
@@ -59,12 +61,12 @@ const login = asyncWrapper(async (req, res, next) => {
   if (!email || !password) {
     return next(new ApiError("all fields are required", 400));
   }
-  const searchUser = await User.findOne({ email });
-  if (!searchUser || !(await bcrypt.compare(password, searchUser.password))) {
+  const user = await User.findOne({ email });
+  if (!user || !(await bcrypt.compare(password, user.password))) {
     return next(new ApiError("Invalid credentials", 401));
   }
 
-  const token = jwt.sign({ id: searchUser._id }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
 
@@ -73,4 +75,97 @@ const login = asyncWrapper(async (req, res, next) => {
     .json({ success: true, message: "logged in successfully", token });
 });
 
-export { login, register };
+const forgetPassword = asyncWrapper(async (req, res, next) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return next(new ApiError("Wrong email", 404));
+  }
+
+  const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+  const hashedResetCode = crypto
+    .createHash("sha256")
+    .update(resetCode)
+    .digest("hex");
+
+  user.passwordResetCode = hashedResetCode;
+  user.passwordResetCodeExpire = Date.now() + 60 * 60 * 1000;
+  user.passwordResetCodeVerified = false;
+
+  await user.save();
+
+  // Send mail to the user with reset code (don't forget to enable less secure app in sent gmail account )
+  const message = `Hi ${user.name},\n We received a request to reset the password on your E-shop Account. \n ${resetCode} \n Enter this code to complete the reset. \n Thanks for helping us keep your account secure.\n The E-shop Team`;
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "password reset code, valid for 1 hour",
+      message,
+    });
+  } catch (err) {
+    user.passwordResetCode = undefined;
+    user.passwordResetCodeExpire = undefined;
+    user.passwordResetCodeVerified = undefined;
+    await user.save();
+
+    return next(new ApiError("error happened while sending email", 500));
+  }
+
+  res
+    .status(200)
+    .json({ success: true, message: "reset code sent successfully" });
+});
+
+const verifyResetCode = asyncWrapper(async (req, res, next) => {
+  const { resetCode } = req.body;
+
+  const hashedResetCode = crypto
+    .createHash("sha256")
+    .update(resetCode)
+    .digest("hex");
+
+  const user = await User.findOne({
+    passwordResetCode: hashedResetCode,
+    passwordResetCodeExpire: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return next(new ApiError("Invalid reset code", 400));
+  }
+
+  user.passwordResetCodeVerified = true;
+  await user.save();
+
+  res
+    .status(200)
+    .json({ success: true, message: "Reset code verified successfully" });
+});
+
+const resetPassword = asyncWrapper(async (req, res, next) => {
+  const { email, newPassword } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return next(new ApiError("user not found", 404));
+  }
+
+  if (!user.passwordResetCodeVerified) {
+    return next(new ApiError("reset code not verified", 400));
+  }
+
+  user.password = newPassword;
+  user.passwordResetCode = undefined;
+  user.passwordResetCodeExpire = undefined;
+  user.passwordResetCodeVerified = undefined;
+  await user.save();
+
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "1h",
+  });
+
+  res
+    .status(200)
+    .json({ success: true, message: "Password reseted successfully", token });
+});
+export { login, register, forgetPassword, verifyResetCode, resetPassword };
