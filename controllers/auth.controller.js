@@ -141,4 +141,31 @@ const verifyResetCode = asyncWrapper(async (req, res, next) => {
     .status(200)
     .json({ success: true, message: "Reset code verified successfully" });
 });
-export { login, register, forgetPassword, verifyResetCode };
+
+const resetPassword = asyncWrapper(async (req, res, next) => {
+  const { email, newPassword } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return next(new ApiError("user not found", 404));
+  }
+
+  if (!user.passwordResetCodeVerified) {
+    return next(new ApiError("reset code not verified", 400));
+  }
+
+  user.password = newPassword;
+  user.passwordResetCode = undefined;
+  user.passwordResetCodeExpire = undefined;
+  user.passwordResetCodeVerified = undefined;
+  await user.save();
+
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "1h",
+  });
+
+  res
+    .status(200)
+    .json({ success: true, message: "Password reseted successfully", token });
+});
+export { login, register, forgetPassword, verifyResetCode, resetPassword };

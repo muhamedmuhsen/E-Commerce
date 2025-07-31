@@ -13,6 +13,6 @@ router.post("/register", register);
 router.post("/login", login);
 router.post("/forgetPassword", forgetPassword);
 router.post("/verifyResetCode", verifyResetCode);
-//router.post("/resetPassword", resetPassword);
+//router.put("/resetPassword", resetPassword);
 
 export default router;
