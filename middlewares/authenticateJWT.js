@@ -21,7 +21,7 @@ export default asyncWrapper(async (req, res, next) => {
   const user = await User.findById(decode.id);
 
   if (!user || user.role !== "admin") {
-    return next(new ApiError("Unauthorized user", 401));
+    return next(new ApiError("Unauthorized user", 403));
   }
 
   // check if the user change the password after token creation
