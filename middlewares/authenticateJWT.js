@@ -24,6 +24,15 @@ export default asyncWrapper(async (req, res, next) => {
     return next(new ApiError("Unauthorized user", 401));
   }
 
+  // check if the user change the password after token creation
+  const passwordChangedTime = parseInt(
+    user.passwordChangeAt.getTime() / 1000,
+    10
+  );
+  if (passwordChangedTime > decode.iat) {
+    return next(new ApiError("Access denied, please login again", 401));
+  }
+
   req.user = user;
   next();
 });
