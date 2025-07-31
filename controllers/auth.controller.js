@@ -27,7 +27,7 @@ const register = asyncWrapper(async (req, res, next) => {
   }
 
   if (password !== passwordConfirm) {
-    return next(new ApiError("the password doe not match", 400));
+    return next(new ApiError("the password does not match", 400));
   }
 
   const newUser = new User({
@@ -61,12 +61,12 @@ const login = asyncWrapper(async (req, res, next) => {
   if (!email || !password) {
     return next(new ApiError("all fields are required", 400));
   }
-  const searchUser = await User.findOne({ email });
-  if (!searchUser || !(await bcrypt.compare(password, searchUser.password))) {
+  const user = await User.findOne({ email });
+  if (!user || !(await bcrypt.compare(password, user.password))) {
     return next(new ApiError("Invalid credentials", 401));
   }
 
-  const token = jwt.sign({ id: searchUser._id }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
 
@@ -76,7 +76,7 @@ const login = asyncWrapper(async (req, res, next) => {
 });
 
 const forgetPassword = asyncWrapper(async (req, res, next) => {
-  const email = req.body;
+  const { email } = req.body;
 
   const user = await User.findOne({ email });
   if (!user) {
@@ -95,17 +95,50 @@ const forgetPassword = asyncWrapper(async (req, res, next) => {
 
   await user.save();
 
-  // Send mail to the user with reset code
+  // Send mail to the user with reset code (don't forget to enable less secure app in sent gmail account )
   const message = `Hi ${user.name},\n We received a request to reset the password on your E-shop Account. \n ${resetCode} \n Enter this code to complete the reset. \n Thanks for helping us keep your account secure.\n The E-shop Team`;
-  await sendEmail({
-    email: user.email,
-    subject: "password reset code, valid for 1 hour",
-    message,
-  });
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "password reset code, valid for 1 hour",
+      message,
+    });
+  } catch (err) {
+    user.passwordResetCode = undefined;
+    user.passwordResetCodeExpire = undefined;
+    user.passwordResetCodeVerified = undefined;
+    await user.save();
+
+    return next(new ApiError("error happened while sending email", 500));
+  }
 
   res
     .status(200)
     .json({ success: true, message: "reset code sent successfully" });
 });
 
-export { login, register, forgetPassword };
+const verifyResetCode = asyncWrapper(async (req, res, next) => {
+  const { resetCode } = req.body;
+
+  const hashedResetCode = crypto
+    .createHash("sha256")
+    .update(resetCode)
+    .digest("hex");
+
+  const user = await User.findOne({
+    passwordResetCode: hashedResetCode,
+    passwordResetCodeExpire: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return next(new ApiError("Invalid reset code", 400));
+  }
+
+  user.passwordResetCodeVerified = true;
+  await user.save();
+
+  res
+    .status(200)
+    .json({ success: true, message: "Reset code verified successfully" });
+});
+export { login, register, forgetPassword, verifyResetCode };

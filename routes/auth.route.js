@@ -3,7 +3,7 @@ import {
   login,
   register,
   forgetPassword,
-  // verifyResetCode,
+  verifyResetCode,
   // resetPassword,
 } from "../controllers/auth.controller.js";
 
@@ -12,7 +12,7 @@ const router = express.Router();
 router.post("/register", register);
 router.post("/login", login);
 router.post("/forgetPassword", forgetPassword);
-//router.post("/verifyResetCode", verifyResetCode);
+router.post("/verifyResetCode", verifyResetCode);
 //router.post("/resetPassword", resetPassword);
 
 export default router;
