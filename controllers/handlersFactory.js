@@ -81,6 +81,8 @@ const createOne = (Model) => {
   });
 };
 
+
+// TODO(review because i update first and then validate while this is wrong)
 const updateOne = (Model) => {
   return asyncWrapper(async (req, res, next) => {
     if (Model.modelName === "User" && req.body.password) {

@@ -17,11 +17,15 @@ export default asyncWrapper(async (req, res, next) => {
 
   const decode = jwt.verify(token, process.env.JWT_SECRET);
 
-  // TODO(check if the user found in another function)
   const user = await User.findById(decode.id);
 
-  if (!user || user.role !== "admin") {
-    return next(new ApiError("Unauthorized user", 403));
+  if (!user) {
+    return next(
+      new ApiError(
+        "The user that belong to this token does no longer exist",
+        401
+      )
+    );
   }
 
   // check if the user change the password after token creation

@@ -5,8 +5,10 @@ import {
   deleteUser,
   getAllUsers,
   updateUser,
-  getSpecificUser,
+  getUser,
   changeUserPassword,
+  getLoggedUser,
+  allowed,
 } from "../controllers/user.controller.js";
 import {
   createUserValidator,
@@ -19,22 +21,25 @@ import authenticateJWT from "../middlewares/authenticateJWT.js";
 
 const router = express.Router();
 
-router
-  .route("/")
-  .get(getAllUsers)
-  .post(createUserValidator, authenticateJWT, createUser);
+router.use(authenticateJWT);
+
+router.get("/getMe", getLoggedUser, getUser);
+
+// Protected Routes
+router.use(allowed("admin", "manager"));
+
+router.route("/").get(getAllUsers).post(createUserValidator, createUser);
 
 router.patch(
   "/change-password/:id",
   changeUserPasswordValidator,
-  authenticateJWT,
   changeUserPassword
 );
 
 router
   .route("/:id")
-  .get(getUserValidtor, authenticateJWT, getSpecificUser)
-  .put(updateUserValidator, authenticateJWT, updateUser)
-  .delete(deleteUserValidator, authenticateJWT, deleteUser);
+  .get(getUserValidtor, getUser)
+  .put(updateUserValidator, updateUser)
+  .delete(deleteUserValidator, deleteUser);
 
 export default router;

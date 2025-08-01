@@ -75,6 +75,11 @@ const login = asyncWrapper(async (req, res, next) => {
     .json({ success: true, message: "logged in successfully", token });
 });
 
+/*
+    @desc   Forget password - send reset code to user email
+    @route  POST /api/v1/auth/forgetPassword
+    @access Public
+*/
 const forgetPassword = asyncWrapper(async (req, res, next) => {
   const { email } = req.body;
 
@@ -117,6 +122,11 @@ const forgetPassword = asyncWrapper(async (req, res, next) => {
     .json({ success: true, message: "reset code sent successfully" });
 });
 
+/*
+    @desc   Verify password reset code
+    @route  POST /api/v1/auth/verifyResetCode
+    @access Public
+*/
 const verifyResetCode = asyncWrapper(async (req, res, next) => {
   const { resetCode } = req.body;
 
@@ -142,6 +152,11 @@ const verifyResetCode = asyncWrapper(async (req, res, next) => {
     .json({ success: true, message: "Reset code verified successfully" });
 });
 
+/*
+    @desc   Reset password with new password
+    @route  POST /api/v1/auth/resetPassword
+    @access Public
+*/
 const resetPassword = asyncWrapper(async (req, res, next) => {
   const { email, newPassword } = req.body;
 

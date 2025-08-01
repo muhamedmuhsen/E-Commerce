@@ -16,7 +16,7 @@ import bcrypt from "bcryptjs";
     @route  GET /api/v1/users/:id
     @access Private
 */
-const getSpecificUser = getOne(User);
+const getUser = getOne(User);
 
 /*
     @desc   Create new user
@@ -46,6 +46,11 @@ const getAllUsers = getAll(User);
 */
 const deleteUser = deleteOne(User);
 
+/*
+    @desc   Change user password by ID
+    @route  PUT/PATCH /api/v1/users/:id/changePassword
+    @access Private
+*/
 const changeUserPassword = asyncWrapper(async (req, res, next) => {
   const updatedPassword = req.body.newPassword;
 
@@ -60,11 +65,36 @@ const changeUserPassword = asyncWrapper(async (req, res, next) => {
   res.status(200).json({ success: true, data: updatedDocument });
 });
 
+/*
+    @desc   Get logged user data
+    @route  GET /api/v1/users/getMe
+    @access Private/Protect
+*/
+const getLoggedUser = asyncWrapper(async (req, res, next) => {
+  console.log(req.user._id);
+
+  req.params.id = req.user._id;
+  next();
+});
+
+const allowed = (...roles) => {
+  return asyncWrapper(async (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new ApiError("You are not allowed to access this route", 403)
+      );
+    }
+    next();
+  });
+};
+
 export {
   createUser,
   updateUser,
   getAllUsers,
   deleteUser,
-  getSpecificUser,
+  getUser,
   changeUserPassword,
+  getLoggedUser,
+  allowed,
 };
