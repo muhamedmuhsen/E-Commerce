@@ -96,7 +96,6 @@ const updateLoggedUserPassword = asyncWrapper(async (req, res, next) => {
 });
 
 const updateLoggedUserData = asyncWrapper(async (req, res, next) => {
-
   const user = await User.findByIdAndUpdate(
     req.user._id,
     { name: req.body.name, email: req.body.email, phone: req.body.phone },
@@ -104,6 +103,20 @@ const updateLoggedUserData = asyncWrapper(async (req, res, next) => {
   );
 
   res.status(200).json({ success: true, data: user });
+});
+
+const deactivate = asyncWrapper(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      isActive: false,
+    },
+    { new: true }
+  );
+
+  res
+    .status(200)
+    .json({ success: true, message: "account deactivated successuflly." });
 });
 
 const allowed = (...roles) => {
@@ -128,4 +141,5 @@ export {
   allowed,
   updateLoggedUserPassword,
   updateLoggedUserData,
+  deactivate,
 };

@@ -11,6 +11,7 @@ import {
   updateLoggedUserPassword,
   updateLoggedUserData,
   allowed,
+  deactivate,
 } from "../controllers/user.controller.js";
 import {
   createUserValidator,
@@ -27,6 +28,7 @@ const router = express.Router();
 router.use(authenticateJWT);
 
 router.get("/getMe", getLoggedUser, getUser);
+router.delete("/deactivate-me", getLoggedUser, deactivate);
 router.put(
   "/update-me",
   getLoggedUser,
