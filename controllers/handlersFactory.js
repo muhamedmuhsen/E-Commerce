@@ -51,8 +51,6 @@ const deleteOne = (Model) => {
 
 const createOne = (Model) => {
   return asyncWrapper(async (req, res, next) => {
-    console.log(req.body);
-    
     let document = req.body;
 
     // if (!document || !document.name) {
@@ -73,14 +71,16 @@ const createOne = (Model) => {
       ...document,
     });
 
+    console.log(addedDocument);
+
     await addedDocument.save();
 
     const doc = addedDocument.toObject();
+
     delete doc.password;
     res.status(201).json({ success: true, data: doc });
   });
 };
-
 
 // TODO(review because i update first and then validate while this is wrong)
 const updateOne = (Model) => {

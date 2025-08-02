@@ -77,23 +77,18 @@ const getLoggedUser = asyncWrapper(async (req, res, next) => {
   next();
 });
 
-/*
-    @desc   Update logged user password
-    @route  PATCH /api/v1/users/update-my-password
-    @access Private/Protect
-*/
 const updateLoggedUserPassword = asyncWrapper(async (req, res, next) => {
-  const user = await User.findByIdAndUpdate(
+  const updatedPassword = req.body.newPassword;
+
+  const hashedPassword = await bcrypt.hash(updatedPassword, 10);
+
+  const updatedDocument = await User.findByIdAndUpdate(
     req.user._id,
-    { password: req.body.newPassword, passwordChangeAt: Date.now() },
+    { password: hashedPassword, passwordChangeAt: Date.now() },
     { new: true }
   );
 
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
-  });
-
-  res.status(200).json({ success: true, data: user, token });
+  res.status(200).json({ success: true, data: updatedDocument });
 });
 
 const allowed = (...roles) => {

@@ -8,6 +8,7 @@ import {
   getUser,
   changeUserPassword,
   getLoggedUser,
+  updateLoggedUserPassword,
   allowed,
 } from "../controllers/user.controller.js";
 import {
@@ -24,12 +25,7 @@ const router = express.Router();
 router.use(authenticateJWT);
 
 router.get("/getMe", getLoggedUser, getUser);
-router.patch(
-  "/update-my-password",
-  getLoggedUser,
-  changeUserPasswordValidator,
-  changeUserPassword
-);
+router.patch("/update-my-password", getLoggedUser, updateLoggedUserPassword);
 
 // Protected Routes
 router.use(allowed("admin", "manager"));
