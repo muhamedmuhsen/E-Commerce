@@ -80,11 +80,11 @@ const getLoggedUser = asyncWrapper(async (req, res, next) => {
 const updateLoggedUserPassword = asyncWrapper(async (req, res, next) => {
   const updatedPassword = req.body.newPassword;
 
-  //const hashedPassword = await bcrypt.hash(updatedPassword, 10);
+  const hashedPassword = await bcrypt.hash(updatedPassword, 10);
 
   const updatedDocument = await User.findByIdAndUpdate(
     req.user._id,
-    { password: req.body.newPassword, passwordChangeAt: Date.now() },
+    { password: hashedPassword, passwordChangeAt: Date.now() },
     { new: true }
   );
 
@@ -111,4 +111,5 @@ export {
   changeUserPassword,
   getLoggedUser,
   allowed,
+  updateLoggedUserPassword,
 };
