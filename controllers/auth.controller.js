@@ -57,14 +57,19 @@ const register = asyncWrapper(async (req, res, next) => {
     @access Public
 */
 const login = asyncWrapper(async (req, res, next) => {
+  console.log(req.body);
+
   const { email, password } = req.body;
   if (!email || !password) {
     return next(new ApiError("all fields are required", 400));
   }
   const user = await User.findOne({ email });
+  
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return next(new ApiError("Invalid credentials", 401));
   }
+
+  console.log(user, "/n", email, "/n", password);
 
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: "1h",
