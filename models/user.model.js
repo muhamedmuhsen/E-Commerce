@@ -26,6 +26,7 @@ const UserSchema = new Schema(
       required: [true, "Password is required"],
       minlength: [8, "Password must be at least 8 characters long"],
     },
+    isActive: { type: Boolean, default: true },
     passwordChangeAt: Date,
     passwordResetCode: String,
     passwordResetCodeExpire: Date,
@@ -42,13 +43,8 @@ const UserSchema = new Schema(
 );
 
 UserSchema.pre("save", async function (next) {
-  console.log(this.password);
-
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 10);
-
-  console.log("password after hashing: ", this.password);
-
   next();
 });
 

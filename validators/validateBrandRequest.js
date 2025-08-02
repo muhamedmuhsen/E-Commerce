@@ -14,8 +14,7 @@ const commonRules = {
 };
 
 const createBrandValidator = [
-  commonRules.name.notEmpty().withMessage("Brand name is requried").custom((val, {req})=>{console.log(req)
-  }),
+  commonRules.name.notEmpty().withMessage("Brand name is requried"),
   validateRequest,
 ];
 
@@ -28,7 +27,7 @@ const updateBrandValidator = [
 
 const deleteBrandValidator = [commonRules.id, validateRequest];
 
-const getSpecificBrandValidator = [commonRules.id, validateRequest]; 
+const getSpecificBrandValidator = [commonRules.id, validateRequest];
 
 export {
   createBrandValidator,

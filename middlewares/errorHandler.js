@@ -2,8 +2,6 @@ import pkg from "jsonwebtoken";
 const { JsonWebTokenError, TokenExpiredError } = pkg;
 
 export default (err, req, res, next) => {
-  console.error(err.stack); // Log the error for debugging
-  console.log(err);
 
   // Use the statusCode from the error object, or default to 500
   let statusCode = err.statusCode || 500;
@@ -29,5 +27,6 @@ export default (err, req, res, next) => {
     status: status,
     code: statusCode,
     message: err.message || "Internal Server Error",
+    stack: err.stack,
   });
 };

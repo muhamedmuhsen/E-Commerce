@@ -61,8 +61,10 @@ const changeUserPassword = asyncWrapper(async (req, res, next) => {
     { password: hashedPassword, passwordChangeAt: Date.now() },
     { new: true }
   );
-
-  res.status(200).json({ success: true, data: updatedDocument });
+  const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
+    expiresIn: "1h",
+  });
+  res.status(200).json({ success: true, data: updatedDocument, token });
 });
 
 /*
@@ -71,8 +73,6 @@ const changeUserPassword = asyncWrapper(async (req, res, next) => {
     @access Private/Protect
 */
 const getLoggedUser = asyncWrapper(async (req, res, next) => {
-  console.log(req.user._id);
-
   req.params.id = req.user._id;
   next();
 });
@@ -88,7 +88,35 @@ const updateLoggedUserPassword = asyncWrapper(async (req, res, next) => {
     { new: true }
   );
 
-  res.status(200).json({ success: true, data: updatedDocument });
+  const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
+    expiresIn: "1h",
+  });
+
+  res.status(200).json({ success: true, data: updatedDocument, token });
+});
+
+const updateLoggedUserData = asyncWrapper(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { name: req.body.name, email: req.body.email, phone: req.body.phone },
+    { new: true }
+  );
+
+  res.status(200).json({ success: true, data: user });
+});
+
+const deactivate = asyncWrapper(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      isActive: false,
+    },
+    { new: true }
+  );
+
+  res
+    .status(200)
+    .json({ success: true, message: "account deactivated successuflly." });
 });
 
 const allowed = (...roles) => {
@@ -112,4 +140,6 @@ export {
   getLoggedUser,
   allowed,
   updateLoggedUserPassword,
+  updateLoggedUserData,
+  deactivate,
 };

@@ -42,10 +42,6 @@ const register = asyncWrapper(async (req, res, next) => {
     expiresIn: "1h",
   });
 
-  if (!token) {
-    return next(new ApiError("Invalid Token", 401));
-  }
-
   res
     .status(201)
     .json({ success: true, message: "User registered successfully", token });
@@ -57,7 +53,6 @@ const register = asyncWrapper(async (req, res, next) => {
     @access Public
 */
 const login = asyncWrapper(async (req, res, next) => {
-  console.log(req.body);
 
   const { email, password } = req.body;
   if (!email || !password) {
@@ -68,8 +63,6 @@ const login = asyncWrapper(async (req, res, next) => {
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return next(new ApiError("Invalid credentials", 401));
   }
-
-  console.log(user, "/n", email, "/n", password);
 
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: "1h",
