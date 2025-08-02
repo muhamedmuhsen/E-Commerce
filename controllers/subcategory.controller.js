@@ -15,8 +15,6 @@ const setCategoryIdToBody = (req, res, next) => {
 const setFilterObject = (req, res, next) => {
   let filterObject = {};
 
-  console.log(req.params);
-
   if (req.params.id) {
     filterObject = { category: req.params.id };
   }

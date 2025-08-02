@@ -119,12 +119,21 @@ const updateUserValidator = [
   validateRequest,
 ];
 
+const updateLoggedUserValidator = [
+  hasAtLeastOneField,
+  commonRules.name.optional(),
+  commonRules.email
+    .optional()
+    .custom(checkIfEmailFoundForUpdate)
+    .withMessage("please try another mail")
+  ,commonRules.phone,
+  commonRules.profileImage,
+  validateRequest,
+];
 const deleteUserValidator = [commonRules.id, validateRequest];
 
 const changeUserPasswordValidator = [
-  // (req, res, next) => {
-  //   next();
-  // },
+
   commonRules.id,
 
   check("password")
@@ -142,9 +151,6 @@ const changeUserPasswordValidator = [
       }
 
       const isMatchedPassword = await bcrypt.compare(val, user.password);
-      console.log(user);
-      console.log(isMatchedPassword);
-
       if (!isMatchedPassword) {
         throw new Error("Current password is incorrect");
       }
@@ -176,4 +182,5 @@ export {
   deleteUserValidator,
   getUserValidtor,
   changeUserPasswordValidator,
+  updateLoggedUserValidator,
 };

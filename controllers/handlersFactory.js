@@ -65,13 +65,11 @@ const createOne = (Model) => {
       }
     }
 
-    console.log(document);
 
     const addedDocument = new Model({
       ...document,
     });
 
-    console.log(addedDocument);
 
     await addedDocument.save();
 

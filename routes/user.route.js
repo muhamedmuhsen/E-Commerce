@@ -9,6 +9,7 @@ import {
   changeUserPassword,
   getLoggedUser,
   updateLoggedUserPassword,
+  updateLoggedUserData,
   allowed,
 } from "../controllers/user.controller.js";
 import {
@@ -17,6 +18,7 @@ import {
   getUserValidtor,
   updateUserValidator,
   changeUserPasswordValidator,
+  updateLoggedUserValidator,
 } from "../validators/validateUserRequest.js";
 import authenticateJWT from "../middlewares/authenticateJWT.js";
 
@@ -25,7 +27,18 @@ const router = express.Router();
 router.use(authenticateJWT);
 
 router.get("/getMe", getLoggedUser, getUser);
-router.patch("/update-my-password", getLoggedUser, updateLoggedUserPassword);
+router.put(
+  "/update-me",
+  getLoggedUser,
+  updateLoggedUserValidator,
+  updateLoggedUserData
+);
+router.patch(
+  "/update-my-password",
+  getLoggedUser,
+  changeUserPasswordValidator,
+  updateLoggedUserPassword
+);
 
 // Protected Routes
 router.use(allowed("admin", "manager"));
