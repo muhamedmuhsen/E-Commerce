@@ -77,6 +77,20 @@ const getLoggedUser = asyncWrapper(async (req, res, next) => {
   next();
 });
 
+const updateLoggedUserPassword = asyncWrapper(async (req, res, next) => {
+  const updatedPassword = req.body.newPassword;
+
+  //const hashedPassword = await bcrypt.hash(updatedPassword, 10);
+
+  const updatedDocument = await User.findByIdAndUpdate(
+    req.user._id,
+    { password: req.body.newPassword, passwordChangeAt: Date.now() },
+    { new: true }
+  );
+
+  res.status(200).json({ success: true, data: updatedDocument });
+});
+
 const allowed = (...roles) => {
   return asyncWrapper(async (req, res, next) => {
     if (!roles.includes(req.user.role)) {
