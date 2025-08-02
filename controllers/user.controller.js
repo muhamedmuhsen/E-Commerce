@@ -77,6 +77,25 @@ const getLoggedUser = asyncWrapper(async (req, res, next) => {
   next();
 });
 
+/*
+    @desc   Update logged user password
+    @route  PATCH /api/v1/users/update-my-password
+    @access Private/Protect
+*/
+const updateLoggedUserPassword = asyncWrapper(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { password: req.body.newPassword, passwordChangeAt: Date.now() },
+    { new: true }
+  );
+
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "1h",
+  });
+
+  res.status(200).json({ success: true, data: user, token });
+});
+
 const allowed = (...roles) => {
   return asyncWrapper(async (req, res, next) => {
     if (!roles.includes(req.user.role)) {
@@ -97,4 +116,5 @@ export {
   changeUserPassword,
   getLoggedUser,
   allowed,
+  updateLoggedUserPassword,
 };
