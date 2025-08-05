@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import morgan from "morgan";
 import dbConnection from "./config/database.js";
-
+import { rateLimit } from "express-rate-limit";
 // Import all models FIRST to register them with Mongoose
 import "./models/brand.model.js";
 import "./models/category.model.js";
@@ -16,7 +16,7 @@ import brandRoute from "./routes/brand.route.js";
 import categoryRoute from "./routes/category.route.js";
 import productRoute from "./routes/product.route.js";
 import subcategoryRoute from "./routes/subcategory.route.js";
-import userRoute from './routes/user.route.js'
+import userRoute from "./routes/user.route.js";
 import ApiError from "./utils/ApiError.js";
 
 dotenv.config({ path: "./config.env" });
@@ -31,12 +31,19 @@ if (process.env.NODE_ENV === "development") {
   console.log(`Environment: ${process.env.NODE_ENV}`);
 }
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  message: "Too many requests, please try again later.",
+});
+
 // Middlewares
-app.use(express.json());
+app.use("/api", limiter);
+app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // Add Morgan for better logging
-app.use(morgan('dev'));
+app.use(morgan("dev"));
 
 // routes
 app.use("/api/v1/auth", authRoute);
@@ -44,7 +51,7 @@ app.use("/api/v1/categories", categoryRoute);
 app.use("/api/v1/subcategories", subcategoryRoute);
 app.use("/api/v1/brands", brandRoute);
 app.use("/api/v1/products", productRoute);
-app.use("/api/v1/users",userRoute)
+app.use("/api/v1/users", userRoute);
 
 // 404 handler for unmatched routes using custom ApiError
 app.use((req, res, next) => {
