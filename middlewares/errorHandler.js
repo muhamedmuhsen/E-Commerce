@@ -27,6 +27,6 @@ export default (err, req, res, next) => {
     status: status,
     code: statusCode,
     message: err.message || "Internal Server Error",
-    stack: err.stack,
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }), 
   });
 };

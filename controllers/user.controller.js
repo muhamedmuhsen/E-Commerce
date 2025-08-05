@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
 import asyncWrapper from "../middlewares/asyncWrapper.js";
+import createToken from "../utils/createToken.js";
 import {
   createOne,
   deleteOne,
@@ -61,9 +62,7 @@ const changeUserPassword = asyncWrapper(async (req, res, next) => {
     { password: hashedPassword, passwordChangeAt: Date.now() },
     { new: true }
   );
-  const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
-  });
+  const token=createToken(updatedDocument._id);
   res.status(200).json({ success: true, data: updatedDocument, token });
 });
 
@@ -88,9 +87,7 @@ const updateLoggedUserPassword = asyncWrapper(async (req, res, next) => {
     { new: true }
   );
 
-  const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
-  });
+  const token = createToken(updatedDocument._id);
 
   res.status(200).json({ success: true, data: updatedDocument, token });
 });
@@ -119,17 +116,6 @@ const deactivate = asyncWrapper(async (req, res, next) => {
     .json({ success: true, message: "account deactivated successuflly." });
 });
 
-const allowed = (...roles) => {
-  return asyncWrapper(async (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return next(
-        new ApiError("You are not allowed to access this route", 403)
-      );
-    }
-    next();
-  });
-};
-
 export {
   createUser,
   updateUser,
@@ -138,7 +124,6 @@ export {
   getUser,
   changeUserPassword,
   getLoggedUser,
-  allowed,
   updateLoggedUserPassword,
   updateLoggedUserData,
   deactivate,

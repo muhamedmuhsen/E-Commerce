@@ -2,7 +2,11 @@ import dotenv from "dotenv";
 import express from "express";
 import morgan from "morgan";
 import dbConnection from "./config/database.js";
-import { rateLimit } from "express-rate-limit";
+import helmet from "helmet";
+import cors from "cors";
+import mongoSanitize from "express-mongo-sanitize";
+import compression from "compression";
+import limiter from './utils/ratelimiting.js'
 // Import all models FIRST to register them with Mongoose
 import "./models/brand.model.js";
 import "./models/category.model.js";
@@ -31,14 +35,12 @@ if (process.env.NODE_ENV === "development") {
   console.log(`Environment: ${process.env.NODE_ENV}`);
 }
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 20,
-  message: "Too many requests, please try again later.",
-});
-
 // Middlewares
 app.use("/api", limiter);
+app.use(helmet());
+app.use(cors());
+app.use(mongoSanitize());
+app.use(compression());
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
 

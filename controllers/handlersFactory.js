@@ -99,10 +99,10 @@ const updateOne = (Model) => {
     );
 
     if (Model.modelName === "SubCategory") {
-      if (!category) {
+      if (!req.body.category) {
         return next(new ApiError("Parent Category name is required", 400));
       }
-      const ParentCategory = await Category.findById(category);
+      const ParentCategory = await Category.findById(req.body.category);
 
       if (!ParentCategory) {
         return next(new ApiError("Paretnt category not found", 404));

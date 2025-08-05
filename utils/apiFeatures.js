@@ -76,7 +76,7 @@ class ApiFeatures {
       // Validate the sort field - use actual field names from Product model
       const allowedSortFields = [
         "price",
-        "title",
+        "name",
         "createdAt",
         "ratingsAverage",
         "sold",
@@ -110,8 +110,7 @@ class ApiFeatures {
   }
 
   limitFields() {
-    
-    if (!this.queryString) {
+    if (this.queryString) {
       let selectedFields = [];
       if (this.queryString.fields) {
         const fieldsArr = this.queryString.fields.split(",").join(" ");
@@ -150,7 +149,7 @@ class ApiFeatures {
       const query = {};
       if (model === "Product") {
         query.$or = [
-          { title: { $regex: this.queryString.keyword, $options: "i" } },
+          { name: { $regex: this.queryString.keyword, $options: "i" } },
           { description: { $regex: this.queryString.keyword, $options: "i" } },
         ];
       } else {

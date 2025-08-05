@@ -1,5 +1,5 @@
 import express from "express";
-
+import allowed from "../middlewares/isAllowed.js";
 import {
   createUser,
   deleteUser,
@@ -10,7 +10,6 @@ import {
   getLoggedUser,
   updateLoggedUserPassword,
   updateLoggedUserData,
-  allowed,
   deactivate,
 } from "../controllers/user.controller.js";
 import {

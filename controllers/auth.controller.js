@@ -1,11 +1,10 @@
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import asyncWrapper from "../middlewares/asyncWrapper.js";
 import User from "../models/user.model.js";
 import ApiError from "../utils/ApiError.js";
 import crypto from "crypto";
 import sendEmail from "../utils/sendEmail.js";
-
+import createToken from "../utils/createToken.js";
 /*
     @desc   Register new user
     @route  POST /api/v1/auth/register
@@ -14,22 +13,6 @@ import sendEmail from "../utils/sendEmail.js";
 
 // TODO(add validation layer)
 const register = asyncWrapper(async (req, res, next) => {
-  const { name, email, password, passwordConfirm } = req.body;
-
-  const existingUser = await User.findOne({ email });
-
-  if (existingUser) {
-    return next(new ApiError("User already exists", 400));
-  }
-
-  if (!req.body) {
-    return next(new ApiError("all fields are required", 400));
-  }
-
-  if (password !== passwordConfirm) {
-    return next(new ApiError("the password does not match", 400));
-  }
-
   const newUser = new User({
     name: req.body.name,
     email: req.body.email,
@@ -37,11 +20,7 @@ const register = asyncWrapper(async (req, res, next) => {
   });
 
   await newUser.save();
-
-  const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
-  });
-
+  const token = createToken(newUser._id);
   res
     .status(201)
     .json({ success: true, message: "User registered successfully", token });
@@ -53,21 +32,7 @@ const register = asyncWrapper(async (req, res, next) => {
     @access Public
 */
 const login = asyncWrapper(async (req, res, next) => {
-
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return next(new ApiError("all fields are required", 400));
-  }
-  const user = await User.findOne({ email });
-  
-  if (!user || !(await bcrypt.compare(password, user.password))) {
-    return next(new ApiError("Invalid credentials", 401));
-  }
-
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
-  });
-
+  const token = createToken(newUser._id);
   res
     .status(200)
     .json({ success: true, message: "logged in successfully", token });
