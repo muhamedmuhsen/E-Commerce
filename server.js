@@ -4,18 +4,10 @@ import morgan from "morgan";
 import dbConnection from "./config/database.js";
 import helmet from "helmet";
 import cors from "cors";
-import mongoSanitize from "express-mongo-sanitize";
+import mongoSanitize from 'express-mongo-sanitize';
 import compression from "compression";
 import limiter from "./utils/ratelimiting.js";
 import hpp from "hpp";
-
-// Import all models FIRST to register them with Mongoose
-import "./models/brand.model.js";
-import "./models/category.model.js";
-import "./models/product.model.js";
-import "./models/subcategory.model.js";
-
-// Then import other modules
 import errorHandler from "./middlewares/errorHandler.js";
 import authRoute from "./routes/auth.route.js";
 import brandRoute from "./routes/brand.route.js";
@@ -37,13 +29,23 @@ if (process.env.NODE_ENV === "development") {
   console.log(`Environment: ${process.env.NODE_ENV}`);
 }
 
+// Middleware that make req.query writable again before calling mongoSanitize() using this middleware:
+app.use((req, res, next) => {
+  Object.defineProperty(req, 'query', {
+    ...Object.getOwnPropertyDescriptor(req, 'query'),
+    value: req.query,
+    writable: true,
+  });
+  next();
+});
+
 // Middlewares
 app.use("/api", limiter);
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
+app.use(mongoSanitize()); //-> error here because the req.query is read-only 
 app.use(helmet());
 app.use(cors());
-//app.use(mongoSanitize());
 //app.use(compression());
 app.use(hpp());
 

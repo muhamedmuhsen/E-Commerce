@@ -69,15 +69,11 @@ class ApiFeatures {
 
   sorting() {
     if (this.queryString.sort) {
-
-      // Parse the sort parameter
-      const sort = this.queryString.sort;
-
-      let lastSort;
+      let sort = this.queryString.sort;
       if (Array.isArray(sort)) {
-        lastSort = sort[sort.length - 1];
+        sort = sort[sort.length - 1];
       }
-      const [sortField, sortDirection = "desc"] = lastSort.split(":");
+      const [sortField, sortDirection = "desc"] = sort.split(":");
 
       // Validate the sort field - use actual field names from Product model
       const allowedSortFields = [
