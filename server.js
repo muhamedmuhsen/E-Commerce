@@ -4,7 +4,7 @@ import morgan from "morgan";
 import dbConnection from "./config/database.js";
 import helmet from "helmet";
 import cors from "cors";
-import mongoSanitize from 'express-mongo-sanitize';
+import mongoSanitize from "express-mongo-sanitize";
 import compression from "compression";
 import limiter from "./utils/ratelimiting.js";
 import hpp from "hpp";
@@ -16,6 +16,7 @@ import productRoute from "./routes/product.route.js";
 import subcategoryRoute from "./routes/subcategory.route.js";
 import userRoute from "./routes/user.route.js";
 import ApiError from "./utils/ApiError.js";
+import xss from "xss-clean";
 
 dotenv.config({ path: "./config.env" });
 
@@ -29,10 +30,10 @@ if (process.env.NODE_ENV === "development") {
   console.log(`Environment: ${process.env.NODE_ENV}`);
 }
 
-// Middleware that make req.query writable again before calling mongoSanitize() using this middleware:
+// Middleware that make req.query writable again before calling mongoSanitize()
 app.use((req, res, next) => {
-  Object.defineProperty(req, 'query', {
-    ...Object.getOwnPropertyDescriptor(req, 'query'),
+  Object.defineProperty(req, "query", {
+    ...Object.getOwnPropertyDescriptor(req, "query"),
     value: req.query,
     writable: true,
   });
@@ -43,11 +44,12 @@ app.use((req, res, next) => {
 app.use("/api", limiter);
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
-app.use(mongoSanitize()); //-> error here because the req.query is read-only 
+app.use(mongoSanitize()); //-> error here because the req.query is read-only
 app.use(helmet());
 app.use(cors());
 //app.use(compression());
 app.use(hpp());
+app.use(xss());
 
 // Morgan for better logging
 app.use(morgan("dev"));
