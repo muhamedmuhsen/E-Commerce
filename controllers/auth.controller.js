@@ -32,7 +32,8 @@ const register = asyncWrapper(async (req, res, next) => {
     @access Public
 */
 const login = asyncWrapper(async (req, res, next) => {
-  const token = createToken(newUser._id);
+  const user = await User.findOne({ email: req.body.email });
+  const token = createToken(user._id);
   res
     .status(200)
     .json({ success: true, message: "logged in successfully", token });

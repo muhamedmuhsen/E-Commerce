@@ -3,7 +3,7 @@ import validateRequest from "../middlewares/validateRequest.js";
 import slugify from "slugify";
 import User from "../models/user.model.js";
 
-const register = [
+const registerValidator = [
   check("name")
     .isLength({ min: 3, max: 32 })
     .withMessage("Username must be between 3 and 32 characters")
@@ -33,15 +33,15 @@ const register = [
     .notEmpty()
     .withMessage("Confirm new password is required")
     .custom((val, { req }) => {
-      if (val !== req.body.newPassword) {
-        throw new Error("Passwords do not match");
+      if (val !== req.body.password) {
+        throw new UnauthorizedError("Passwords do not match");
       }
       return true;
     }),
   validateRequest,
 ];
 
-const login = [
+const loginValidator = [
   check("email")
     .notEmpty()
     .withMessage("Email is required")
@@ -60,9 +60,13 @@ const login = [
     .withMessage("password is required")
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters long")
-    .custom(async (val) => {
-      if (!(await bcrypt.compare(password, user.password))) {
+    .custom(async (val, { req }) => {
+      const user = await User.findOne({ email: req.body.email });
+
+      if (!(await bcrypt.compare(val, user.password))) {
         throw new Error("Invalid credentials");
       }
     }),
 ];
+
+export { registerValidator, loginValidator };

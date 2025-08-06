@@ -52,6 +52,17 @@ const deleteUser = deleteOne(User);
     @route  PUT/PATCH /api/v1/users/:id/changePassword
     @access Private
 */
+
+/*
+    @desc   Get logged user data
+    @route  GET /api/v1/users/getMe
+    @access Private/Protect
+*/
+const getLoggedUser = asyncWrapper(async (req, res, next) => {
+  req.params.id = req.user._id;
+  next();
+});
+
 const changeUserPassword = asyncWrapper(async (req, res, next) => {
   const updatedPassword = req.body.newPassword;
 
@@ -62,18 +73,8 @@ const changeUserPassword = asyncWrapper(async (req, res, next) => {
     { password: hashedPassword, passwordChangeAt: Date.now() },
     { new: true }
   );
-  const token=createToken(updatedDocument._id);
+  const token = createToken(updatedDocument._id);
   res.status(200).json({ success: true, data: updatedDocument, token });
-});
-
-/*
-    @desc   Get logged user data
-    @route  GET /api/v1/users/getMe
-    @access Private/Protect
-*/
-const getLoggedUser = asyncWrapper(async (req, res, next) => {
-  req.params.id = req.user._id;
-  next();
 });
 
 const updateLoggedUserPassword = asyncWrapper(async (req, res, next) => {
@@ -103,14 +104,13 @@ const updateLoggedUserData = asyncWrapper(async (req, res, next) => {
 });
 
 const deactivate = asyncWrapper(async (req, res, next) => {
-  const user = await User.findByIdAndUpdate(
+  await User.findByIdAndUpdate(
     req.user._id,
     {
       isActive: false,
     },
     { new: true }
   );
-
   res
     .status(200)
     .json({ success: true, message: "account deactivated successuflly." });

@@ -69,9 +69,15 @@ class ApiFeatures {
 
   sorting() {
     if (this.queryString.sort) {
+
       // Parse the sort parameter
       const sort = this.queryString.sort;
-      const [sortField, sortDirection = "desc"] = sort.split(":");
+
+      let lastSort;
+      if (Array.isArray(sort)) {
+        lastSort = sort[sort.length - 1];
+      }
+      const [sortField, sortDirection = "desc"] = lastSort.split(":");
 
       // Validate the sort field - use actual field names from Product model
       const allowedSortFields = [
@@ -81,6 +87,7 @@ class ApiFeatures {
         "ratingsAverage",
         "sold",
       ];
+
       if (!allowedSortFields.includes(sortField)) {
         // Skip invalid sort instead of throwing error to prevent breaking the query
         console.warn(`Invalid sort field: ${sortField}. Using default sort.`);
