@@ -2,8 +2,14 @@ import slugify from "slugify";
 import asyncWrapper from "../middlewares/asyncWrapper.js";
 import Category from "../models/category.model.js";
 import SubCategory from "../models/subcategory.model.js";
-import ApiError from "../utils/ApiError.js";
-import { createOne, deleteOne, getAll, getOne, updateOne } from "./handlersFactory.js";
+import { BadRequestError, NotFoundError } from "../utils/ApiErrors.js";
+import {
+  createOne,
+  deleteOne,
+  getAll,
+  getOne,
+  updateOne,
+} from "./handlersFactory.js";
 
 const setCategoryIdToBody = (req, res, next) => {
   if (!req.body.category) {
@@ -55,7 +61,7 @@ const deleteSubCategory = deleteOne(SubCategory);
     @route  GET /api/v1/subcategories/:id
     @access Public
 */
-const getSpecificSubCategory = getOne(SubCategory)
+const getSpecificSubCategory = getOne(SubCategory);
 
 /*
     @desc   Get subcategories by category ID
@@ -66,7 +72,7 @@ const getSubCategoriesByCategory = asyncWrapper(async (req, res, next) => {
   const categoryId = req.params.categoryId;
 
   if (!categoryId) {
-    return next(new ApiError("Invalid category ID", 400));
+    return next(new BadRequestError("Invalid category ID", 400));
   }
 
   const subcategories = await SubCategory.find({ category: categoryId });
@@ -78,22 +84,21 @@ const createSubCategoryOnCategory = asyncWrapper(async (req, res, next) => {
   const id = req.params.id;
   const subCategory = req.body;
   if (!id) {
-    return next(new ApiError("Invalid id", 400));
+    return next(new BadRequestError("Invalid id", 400));
   }
 
   if (!subCategory) {
-    return next(new ApiError("subcategory name is required", 400));
+    return next(new BadRequestError("subcategory name is required", 400));
   }
 
   const ParentCategory = await Category.findById(id);
 
   if (!ParentCategory) {
-    return next(new ApiError("Paretnt category not found", 404));
+    return next(new NotFoundError("Paretnt category not found", 404));
   }
 
   const newSubCategory = new SubCategory({
     category: ParentCategory._id,
-    slug: slugify(subCategory.name),
     name: subCategory.name,
   });
 

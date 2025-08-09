@@ -69,18 +69,21 @@ class ApiFeatures {
 
   sorting() {
     if (this.queryString.sort) {
-      // Parse the sort parameter
-      const sort = this.queryString.sort;
+      let sort = this.queryString.sort;
+      if (Array.isArray(sort)) {
+        sort = sort[sort.length - 1];
+      }
       const [sortField, sortDirection = "desc"] = sort.split(":");
 
       // Validate the sort field - use actual field names from Product model
       const allowedSortFields = [
         "price",
-        "title",
+        "name",
         "createdAt",
         "ratingsAverage",
         "sold",
       ];
+
       if (!allowedSortFields.includes(sortField)) {
         // Skip invalid sort instead of throwing error to prevent breaking the query
         console.warn(`Invalid sort field: ${sortField}. Using default sort.`);
@@ -110,8 +113,7 @@ class ApiFeatures {
   }
 
   limitFields() {
-    
-    if (!this.queryString) {
+    if (this.queryString) {
       let selectedFields = [];
       if (this.queryString.fields) {
         const fieldsArr = this.queryString.fields.split(",").join(" ");
@@ -150,7 +152,7 @@ class ApiFeatures {
       const query = {};
       if (model === "Product") {
         query.$or = [
-          { title: { $regex: this.queryString.keyword, $options: "i" } },
+          { name: { $regex: this.queryString.keyword, $options: "i" } },
           { description: { $regex: this.queryString.keyword, $options: "i" } },
         ];
       } else {

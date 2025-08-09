@@ -1,16 +1,20 @@
 import express from "express";
 import {
-  login,
-  register,
-  forgetPassword,
-  verifyResetCode,
-  resetPassword,
+  loginSController as login,
+  registerController as register,
+  forgetPasswordController as forgetPassword,
+  verifyResetCodeController as verifyResetCode,
+  resetPasswordController as resetPassword,
 } from "../controllers/auth.controller.js";
+import {
+  loginValidator,
+  registerValidator,
+} from "../validators/validateAuthRequest.js";
 
 const router = express.Router();
 
-router.post("/register", register);
-router.post("/login", login);
+router.post("/register", registerValidator, register);
+router.post("/login", loginValidator, login);
 router.post("/forgetPassword", forgetPassword);
 router.post("/verifyResetCode", verifyResetCode);
 router.put("/resetPassword", resetPassword);

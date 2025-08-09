@@ -1,5 +1,5 @@
 import asyncWrapper from "../middlewares/asyncWrapper.js";
-import ApiError from "../utils/ApiError.js";
+import { ApiError, NotFoundError } from "../utils/ApiErrors.js";
 import ApiFeatures from "../utils/apiFeatures.js";
 import bcrypt from "bcryptjs";
 import Category from "../models/category.model.js";
@@ -38,7 +38,7 @@ const deleteOne = (Model) => {
     const document = await Model.findByIdAndDelete(id);
 
     if (!document) {
-      return next(new ApiError("Document not found", 404));
+      return next(new NotFoundError("Document not found"));
     }
 
     res.status(200).json({
@@ -61,15 +61,13 @@ const createOne = (Model) => {
       const ParentCategory = await Category.findById(req.body.category);
 
       if (!ParentCategory) {
-        return next(new ApiError("Paretnt category not found", 404));
+        return next(new NotFoundError("Paretnt category not found"));
       }
     }
-
 
     const addedDocument = new Model({
       ...document,
     });
-
 
     await addedDocument.save();
 
@@ -83,10 +81,9 @@ const createOne = (Model) => {
 // TODO(review because i update first and then validate while this is wrong)
 const updateOne = (Model) => {
   return asyncWrapper(async (req, res, next) => {
-    
     if (Model.modelName === "User" && req.body.password) {
       return next(
-        new ApiError("Use /change-password endpoint to update password", 400)
+        new BadRequestError("Use /change-password endpoint to update password")
       );
     }
 
@@ -99,18 +96,18 @@ const updateOne = (Model) => {
     );
 
     if (Model.modelName === "SubCategory") {
-      if (!category) {
-        return next(new ApiError("Parent Category name is required", 400));
+      if (!req.body.category) {
+        return next(new BadRequestError("Parent Category name is required"));
       }
-      const ParentCategory = await Category.findById(category);
+      const ParentCategory = await Category.findById(req.body.category);
 
       if (!ParentCategory) {
-        return next(new ApiError("Paretnt category not found", 404));
+        return next(new NotFoundError("Paretnt category not found"));
       }
     }
 
     if (!updatedDocument) {
-      return next(new ApiError("Document not found", 404));
+      return next(new NotFoundError("Document not found"));
     }
 
     res.status(200).json({ success: true, data: updatedDocument });
@@ -122,12 +119,12 @@ const getOne = (Model) => {
     const { id } = req.params;
 
     if (!id) {
-      return next(new ApiError("Invalid id", 400));
+      return next(new BadRequestError("Invalid id"));
     }
     const document = await Model.findById(id);
 
     if (!document) {
-      return next(new ApiError("document not found", 404));
+      return next(new NotFoundError("document not found"));
     }
 
     if (Model == "Product") {

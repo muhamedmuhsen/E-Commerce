@@ -3,7 +3,7 @@ import asyncWrapper from "../middlewares/asyncWrapper.js";
 import "../models/category.model.js"; // Also register Category model
 import Product from "../models/product.model.js";
 import "../models/subcategory.model.js"; // This registers the model
-import ApiError from "../utils/ApiError.js";
+import {ApiError} from "../utils/ApiErrors.js";
 import ApiFeatures from "../utils/apiFeatures.js";
 import {
   createOne,

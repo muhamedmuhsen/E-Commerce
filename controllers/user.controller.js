@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
 import asyncWrapper from "../middlewares/asyncWrapper.js";
+import createToken from "../utils/createToken.js";
 import {
   createOne,
   deleteOne,
@@ -51,6 +52,17 @@ const deleteUser = deleteOne(User);
     @route  PUT/PATCH /api/v1/users/:id/changePassword
     @access Private
 */
+
+/*
+    @desc   Get logged user data
+    @route  GET /api/v1/users/getMe
+    @access Private/Protect
+*/
+const getLoggedUser = asyncWrapper(async (req, res, next) => {
+  req.params.id = req.user._id;
+  next();
+});
+
 const changeUserPassword = asyncWrapper(async (req, res, next) => {
   const updatedPassword = req.body.newPassword;
 
@@ -61,20 +73,8 @@ const changeUserPassword = asyncWrapper(async (req, res, next) => {
     { password: hashedPassword, passwordChangeAt: Date.now() },
     { new: true }
   );
-  const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
-  });
+  const token = createToken(updatedDocument._id);
   res.status(200).json({ success: true, data: updatedDocument, token });
-});
-
-/*
-    @desc   Get logged user data
-    @route  GET /api/v1/users/getMe
-    @access Private/Protect
-*/
-const getLoggedUser = asyncWrapper(async (req, res, next) => {
-  req.params.id = req.user._id;
-  next();
 });
 
 const updateLoggedUserPassword = asyncWrapper(async (req, res, next) => {
@@ -88,9 +88,7 @@ const updateLoggedUserPassword = asyncWrapper(async (req, res, next) => {
     { new: true }
   );
 
-  const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
-  });
+  const token = createToken(updatedDocument._id);
 
   res.status(200).json({ success: true, data: updatedDocument, token });
 });
@@ -106,29 +104,17 @@ const updateLoggedUserData = asyncWrapper(async (req, res, next) => {
 });
 
 const deactivate = asyncWrapper(async (req, res, next) => {
-  const user = await User.findByIdAndUpdate(
+  await User.findByIdAndUpdate(
     req.user._id,
     {
       isActive: false,
     },
     { new: true }
   );
-
   res
     .status(200)
     .json({ success: true, message: "account deactivated successuflly." });
 });
-
-const allowed = (...roles) => {
-  return asyncWrapper(async (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return next(
-        new ApiError("You are not allowed to access this route", 403)
-      );
-    }
-    next();
-  });
-};
 
 export {
   createUser,
@@ -138,7 +124,6 @@ export {
   getUser,
   changeUserPassword,
   getLoggedUser,
-  allowed,
   updateLoggedUserPassword,
   updateLoggedUserData,
   deactivate,
