@@ -1,10 +1,10 @@
 import express from "express";
 import {
-  login,
-  register,
-  forgetPassword,
-  verifyResetCode,
-  resetPassword,
+  loginSController as login,
+  registerController as register,
+  forgetPasswordController as forgetPassword,
+  verifyResetCodeController as verifyResetCode,
+  resetPasswordController as resetPassword,
 } from "../controllers/auth.controller.js";
 import {
   loginValidator,

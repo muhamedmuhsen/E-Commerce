@@ -15,7 +15,7 @@ import categoryRoute from "./routes/category.route.js";
 import productRoute from "./routes/product.route.js";
 import subcategoryRoute from "./routes/subcategory.route.js";
 import userRoute from "./routes/user.route.js";
-import ApiError from "./utils/ApiError.js";
+import { ApiError } from "./utils/ApiErrors.js";
 import xss from "xss-clean";
 
 dotenv.config({ path: "./config.env" });
