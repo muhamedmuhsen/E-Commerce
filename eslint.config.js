@@ -1,0 +1,72 @@
+import js from "@eslint/js";
+import globals from "globals";
+
+export default [
+  js.configs.recommended,
+
+  {
+    files: ["**/*.js"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      "spaced-comment": "off",
+      "no-console": "off",
+      "consistent-return": "off",
+      "func-names": "off",
+      "object-shorthand": "off",
+      "no-process-exit": "off",
+      "no-param-reassign": "off",
+      "no-return-await": "error",
+      "no-underscore-dangle": "off",
+      "class-methods-use-this": "off",
+      "no-undef": "error",
+      "prefer-destructuring": ["warn", { object: true, array: false }],
+      "no-unused-vars": ["warn", { argsIgnorePattern: "req|res|next|val" }],
+      "require-await": "error",
+      "no-async-promise-executor": "error",
+      "no-await-in-loop": "warn",
+      "no-promise-executor-return": "error",
+      "prefer-promise-reject-errors": "error",
+      "@typescript-eslint/await-thenable": "error",
+      "promise/always-return": "error",
+      "no-return-await": "error",
+      "promise/always-return": "error",
+      "@typescript-eslint/await-thenable": "error",
+    },
+  },
+
+  {
+    ignores: [
+      "node_modules/",
+      "build/",
+      "dist/",
+      ".env*",
+      "config.env",
+      "logs/",
+      "*.log",
+      "coverage/",
+      "*.db",
+      "*.sqlite",
+      "*.sqlite3",
+      "uploads/",
+      "public/uploads/",
+      ".vscode/",
+      ".idea/",
+      ".DS_Store",
+      "Thumbs.db",
+      "tmp/",
+      "temp/",
+      "*.tmp",
+      "*.backup",
+      "package-lock.json",
+      "yarn.lock",
+      ".eslintcache",
+      "*.min.js",
+    ],
+  },
+];

@@ -51,9 +51,6 @@ app.use(cors());
 app.use(hpp());
 app.use(xss());
 
-// Morgan for better logging
-app.use(morgan("dev"));
-
 // routes
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/categories", categoryRoute);

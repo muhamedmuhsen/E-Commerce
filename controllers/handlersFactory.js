@@ -1,8 +1,17 @@
 import asyncWrapper from "../middlewares/asyncWrapper.js";
-import { ApiError, NotFoundError } from "../utils/ApiErrors.js";
+import {
+  ApiError,
+  NotFoundError,
+  BadRequestError,
+} from "../utils/ApiErrors.js";
 import ApiFeatures from "../utils/apiFeatures.js";
 import bcrypt from "bcryptjs";
 import Category from "../models/category.model.js";
+import {
+  createOneService,
+  deleteOneService,
+  updateOneService,
+} from "../services/factory.service.js";
 /*
   Fix(if i used keyword for search on any other model excpet Product doesn't work)
 */
@@ -12,9 +21,9 @@ const getAll = (Model) => {
 
     const apiFeatures = new ApiFeatures(req.query, Model.find())
       .filter()
-      .sorting()
-      .search("Product")
+      .search(Model.modelName)
       .limitFields()
+      .sorting()
       .Paginate(totalDocuments);
 
     // execute query
@@ -35,16 +44,14 @@ const deleteOne = (Model) => {
   return asyncWrapper(async (req, res, next) => {
     const { id } = req.params;
 
-    const document = await Model.findByIdAndDelete(id);
-
+    const document = await Model.findById(id);
     if (!document) {
-      return next(new NotFoundError("Document not found"));
+      return next(new NotFoundError(`${Model.modelName} not found`));
     }
-
+    await deleteOneService(Model, id);
     res.status(200).json({
       success: true,
       message: "Document deleted successfully",
-      data: document,
     });
   });
 };
@@ -65,16 +72,9 @@ const createOne = (Model) => {
       }
     }
 
-    const addedDocument = new Model({
-      ...document,
-    });
+    const data = await createOneService(Model, document);
 
-    await addedDocument.save();
-
-    const doc = addedDocument.toObject();
-
-    delete doc.password;
-    res.status(201).json({ success: true, data: doc });
+    res.status(201).json({ success: true, data });
   });
 };
 
@@ -87,14 +87,6 @@ const updateOne = (Model) => {
       );
     }
 
-    const updatedDocument = await Model.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-      }
-    );
-
     if (Model.modelName === "SubCategory") {
       if (!req.body.category) {
         return next(new BadRequestError("Parent Category name is required"));
@@ -105,6 +97,12 @@ const updateOne = (Model) => {
         return next(new NotFoundError("Paretnt category not found"));
       }
     }
+
+    const updatedDocument = await updateOneService(
+      Model,
+      req.params.id,
+      req.body
+    );
 
     if (!updatedDocument) {
       return next(new NotFoundError("Document not found"));
@@ -127,8 +125,10 @@ const getOne = (Model) => {
       return next(new NotFoundError("document not found"));
     }
 
-    if (Model == "Product") {
-      document.populate("category", "name").populate("subcategories", "name");
+    if (Model.modelName == "Product") {
+      await document
+        .populate("category", "name")
+        .populate("subcategories", "name");
     }
 
     res.status(200).json({ success: true, data: document });
