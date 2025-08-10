@@ -2,12 +2,11 @@ import pkg from "jsonwebtoken";
 const { JsonWebTokenError, TokenExpiredError } = pkg;
 
 export default (err, req, res, next) => {
-
   // Use the statusCode from the error object, or default to 500
   let statusCode = err.statusCode || 500;
 
   // Use the status from the error object, or default based on statusCode
-  let status = err.status;
+  let { status } = err;
   if (!status) {
     status = statusCode >= 400 && statusCode < 500 ? "fail" : "error";
   }
@@ -24,9 +23,10 @@ export default (err, req, res, next) => {
 
   res.status(statusCode).json({
     success: false,
-    status: status,
-    code: statusCode,
-    message: err.message || "Internal Server Error",
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }), 
+    error: {
+      message: err.message || "Internal Server Error",
+      statusCode: statusCode,
+    },
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
   });
 };

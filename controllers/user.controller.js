@@ -67,7 +67,7 @@ const deleteUser = deleteOne(User);
     @route  GET /api/v1/users/getMe
     @access Private/Protect
 */
-const getLoggedUser = asyncWrapper(async (req, res, next) => {
+const getLoggedUser = asyncWrapper( (req, res, next) => {
   req.params.id = req.user._id;
   next();
 });
@@ -79,7 +79,7 @@ const changeUserPassword = asyncWrapper(async (req, res, next) => {
     return next(new NotFoundError('User not found'));
   }
 
-  const isMatchedPassword = await bcrypt.compare(val, user.password);
+  const isMatchedPassword = await bcrypt.compare(req.body.password, user.password);
   if (!isMatchedPassword) {
     return next(new UnauthorizedError('Current password is incorrect'));
   }
