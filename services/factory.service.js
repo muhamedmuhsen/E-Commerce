@@ -25,6 +25,7 @@ const createOneService = async (Model, document) => {
   const doc = addedDocument.toObject();
 
   delete doc.password;
+  console.log(doc);
 
   return doc;
 };

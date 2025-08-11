@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import slugify from "slugify";
 //import validator from "validator";
 
 const CategorySchema = new Schema(
@@ -32,6 +33,10 @@ const CategorySchema = new Schema(
   },
   { timestamps: true }
 );
+CategorySchema.pre("save", function (next) {
+  this.slug = slugify(this.name);
+  next();
+});
 
 const CategoryModel = mongoose.model("Category", CategorySchema);
 
