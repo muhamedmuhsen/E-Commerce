@@ -1,100 +1,65 @@
-import { body, check } from 'express-validator';
-import validateRequest from '../middlewares/validateRequest.js';
-import User from '../models/user.model.js';
-import slugify from 'slugify';
-import bcrypt from 'bcryptjs';
+import { check } from "express-validator";
+import validateRequest from "../middlewares/validateRequest.js";
+import User from "../models/user.model.js";
+import {
+  mongoIdValidator,
+  nameValidator,
+  emailValidator,
+  passwordValidator,
+  phoneValidator,
+  roleValidator,
+  atLeastOneFieldValidator,
+  emailExistsValidator,
+} from "./commonValidators.js";
 
-const roles = ['user', 'admin'];
-
-const hasAtLeastOneField = body().custom((val) => {
-  const updateFields = [
-    'name',
-    'email',
-    'password',
-    'phone',
-    'role',
-    'profileImg',
-  ];
-  const hasAtLeastOneField = updateFields.some(
-    (field) => val[field] !== undefined
-  );
-  if (!hasAtLeastOneField) {
-    throw new Error('At least one field is required to update');
-  }
-  return true;
-});
-
-const checkIfPasswordMatches = (val, { req }) => {
-  if (val !== req.body.password) {
-    throw new Error(`passwords don't match`);
-  }
-  return true;
-};
-
-const checkIfEmailFound = async (email) => {
-  const existingUser = await User.findOne({ email });
-
-  if (existingUser) {
-    throw new Error('Email already exists');
-  }
-  return true;
-};
-
-const checkIfEmailFoundForUpdate = async (email, { req }) => {
-  const existingUser = await User.findOne({ email });
-  if (existingUser && existingUser._id.toString() !== req.params.id) {
-    throw new Error('Email already exists');
-  }
-  return true;
-};
+const userUpdateFields = [
+  "name",
+  "email",
+  "password",
+  "phone",
+  "role",
+  "profileImg",
+];
 
 const commonRules = {
-  id: check('id')
+  id: mongoIdValidator("id", "Invalid mongoDB id")
     .notEmpty()
-    .withMessage('id is required')
-    .isMongoId()
-    .withMessage('Invalid mongoDB id'),
+    .withMessage("id is required"),
 
-  name: check('name')
-    .isLength({ min: 3, max: 32 })
-    .withMessage('Username must be between 3 and 32 characters')
-    .custom((value, { req }) => {
-      req.body.slug = slugify(value);
-      return true;
-    }),
+  name: nameValidator("name", 3, 32),
 
-  email: check('email').isEmail().withMessage('please enter valid mail'),
+  email: emailValidator,
 
-  password: check('password')
-    .isLength({ min: 8 })
-    .withMessage('Password must be at least 8 characters long'),
+  password: passwordValidator,
 
-  confirmPassword: check('confirmPassword').custom(checkIfPasswordMatches),
+  confirmPassword: check("confirmPassword").custom((val, { req }) => {
+    if (val !== req.body.password) {
+      throw new Error(`passwords don't match`);
+    }
+    return true;
+  }),
 
-  phone: check('phone')
-    .optional()
-    .isMobilePhone(['ar-EG', 'ar-SA'])
-    .withMessage('Invalid phone number only accepted Egy and SA Phone numbers'),
+  phone: phoneValidator,
 
-  profileImage: check('profileImg').optional(),
+  profileImage: check("profileImg").optional(),
 
-  role: check('role').optional().isIn(roles),
+  role: roleValidator(["user", "admin"]),
+
+  emailExists: emailExistsValidator(User, false),
+
+  emailExistsForUpdate: emailExistsValidator(User, true),
+
+  hasAtLeastOneField: atLeastOneFieldValidator(userUpdateFields),
 };
 
 const createUserValidator = [
-  (req, res, next) => {
-    next();
-  },
-  commonRules.name.notEmpty().withMessage('username is requried'),
-  commonRules.email
-    .notEmpty()
-    .withMessage('email is requried')
-    .custom(checkIfEmailFound)
-    .withMessage('please try another mail'),
-  commonRules.password.notEmpty().withMessage('password is requried'),
+  commonRules.name.notEmpty().withMessage("username is required"),
+  commonRules.email.notEmpty().withMessage("email is required"),
+  commonRules.emailExists,
+  commonRules.password.notEmpty().withMessage("password is required"),
   commonRules.confirmPassword
     .notEmpty()
-    .withMessage('confirm password field is requried'),
+    .withMessage("confirm password field is required"),
   commonRules.phone,
   commonRules.profileImage,
   commonRules.role,
@@ -105,12 +70,10 @@ const getUserValidtor = [commonRules.id, validateRequest];
 
 const updateUserValidator = [
   commonRules.id,
-  hasAtLeastOneField,
+  commonRules.hasAtLeastOneField,
   commonRules.name.optional(),
-  commonRules.email
-    .optional()
-    .custom(checkIfEmailFoundForUpdate)
-    .withMessage('please try another mail'),
+  commonRules.email.optional(),
+  commonRules.emailExistsForUpdate,
   commonRules.password.optional(),
   commonRules.confirmPassword.optional(),
   commonRules.phone,
@@ -120,38 +83,34 @@ const updateUserValidator = [
 ];
 
 const updateLoggedUserValidator = [
-  hasAtLeastOneField,
+  commonRules.hasAtLeastOneField,
   commonRules.name.optional(),
-  commonRules.email
-    .optional()
-    .custom(checkIfEmailFoundForUpdate)
-    .withMessage('please try another mail'),
+  commonRules.email.optional(),
+  commonRules.emailExistsForUpdate,
   commonRules.phone,
   commonRules.profileImage,
   validateRequest,
 ];
+
 const deleteUserValidator = [commonRules.id, validateRequest];
 
 const changeUserPasswordValidator = [
   commonRules.id,
 
-  check('password')
-    .notEmpty()
-    .isLength({ min: 8 })
-    .withMessage('Password must be at least 8 characters long'),
+  passwordValidator.withMessage("Current password is required"),
 
-  check('newPassword')
+  check("newPassword")
     .notEmpty()
-    .withMessage('New password is required')
+    .withMessage("New password is required")
     .isLength({ min: 8 })
-    .withMessage('Password must be at least 8 characters long'),
+    .withMessage("New password must be at least 8 characters long"),
 
-  check('confirmNewPassword')
+  check("confirmNewPassword")
     .notEmpty()
-    .withMessage('Confirm new password is required')
+    .withMessage("Confirm new password is required")
     .custom((val, { req }) => {
       if (val !== req.body.newPassword) {
-        throw new Error('Passwords do not match');
+        throw new Error("Passwords do not match");
       }
       return true;
     }),

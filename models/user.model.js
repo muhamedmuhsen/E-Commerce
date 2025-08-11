@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import validator from "validator";
 import bcrypt from "bcryptjs";
+import slugify from "slugify";
 
 const UserSchema = new Schema(
   {
@@ -43,6 +44,7 @@ const UserSchema = new Schema(
 );
 
 UserSchema.pre("save", async function (next) {
+  this.slug = slugify(this.name);
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();

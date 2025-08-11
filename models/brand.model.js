@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import slugify from "slugify";
 
 const BrandSchema = new Schema(
   {
@@ -17,5 +18,9 @@ const BrandSchema = new Schema(
   },
   { timestamps: true }
 );
+BrandSchema.pre("save", function (next) {
+  this.slug = slugify(this.name);
+  next();
+});
 
 export default mongoose.model("brands", BrandSchema);

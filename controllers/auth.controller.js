@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import asyncWrapper from "../middlewares/asyncWrapper.js";
 import User from "../models/user.model.js";
 import {
@@ -6,7 +7,6 @@ import {
   BadRequestError,
 } from "../utils/ApiErrors.js";
 import hashingPassword from "../utils/hashingPassword.js";
-import bcrypt from "bcryptjs";
 import {
   registerService,
   loginService,
@@ -21,16 +21,6 @@ import {
     @access Public
 */
 const registerController = asyncWrapper(async (req, res, next) => {
-  const existingUser = await User.findOne({ email: req.body.email });
-
-  if (existingUser) {
-    return next(new BadRequestError("User already exists"));
-  }
-
-  if (req.body.passwordConfirm !== req.body.password) {
-    return next(UnauthorizedError("Passwords do not match"));
-  }
-
   const { token } = await registerService(
     req.body.name,
     req.body.email,

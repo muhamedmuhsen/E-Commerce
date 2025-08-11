@@ -1,29 +1,19 @@
-import slugify from "slugify";
-import { check } from "express-validator";
 import validateRequest from "../middlewares/validateRequest.js";
+import { mongoIdValidator, nameValidator } from "./commonValidators.js";
 
 const commonRules = {
-  id: check("id")
+  id: mongoIdValidator("id", "Invalid subcategory id")
     .notEmpty()
-    .withMessage("id is required")
-    .isMongoId()
-    .withMessage("Invalid id"),
-  name: check("name")
-    .isLength({ min: 3, max: 50 })
-    .withMessage("SubCategory name must be between 3 and 50 characters")
-    .custom((value, { req }) => {
-      req.body.slug = slugify(value);
-      return true;
-    }),
-
-  category: check("category").isMongoId().withMessage("Invalid category id "),
+    .withMessage("id is required"),
+  name: nameValidator("name", 3, 50),
+  category: mongoIdValidator("category", "Invalid category id"),
 };
 
 const createSubCategoryValidator = [
   commonRules.name.notEmpty(),
   commonRules.category
     .notEmpty()
-    .withMessage("Category must be belong to category"),
+    .withMessage("Category must belong to category"),
   validateRequest,
 ];
 

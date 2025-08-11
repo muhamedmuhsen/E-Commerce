@@ -1,47 +1,57 @@
 import { check } from "express-validator";
 import validateRequest from "../middlewares/validateRequest.js";
-import slugify from "slugify";
+import {
+  emailValidator,
+  passwordValidator,
+  passwordConfirmValidator,
+  nameValidator,
+} from "./commonValidators.js";
+import User from "../models/user.model.js";
+
+// Check if email already exists
+const checkEmailExists = check("email").custom(async (email) => {
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    throw new Error("Email already exists");
+  }
+  return true;
+});
 
 const registerValidator = [
-  check("name")
-    .isLength({ min: 3, max: 32 })
-    .withMessage("Username must be between 3 and 32 characters")
-    .custom((value, { req }) => {
-      req.body.slug = slugify(value);
-      return true;
-    }),
-  check("email")
-    .notEmpty()
-    .withMessage("Email is required")
-    .isEmail()
-    .withMessage("you must write valid mail"),
-  check("password")
-    .notEmpty()
-    .withMessage("password is required")
-    .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters long"),
-
-  check("passwordConfirm")
-    .notEmpty()
-    .withMessage("Confirm new password is required"),
-
+  nameValidator("name"),
+  emailValidator,
+  checkEmailExists,
+  passwordValidator,
+  passwordConfirmValidator,
   validateRequest,
 ];
 
-const loginValidator = [
-  check("email")
-    .notEmpty()
-    .withMessage("Email is required")
-    .isEmail()
-    .withMessage("you must write valid mail")
-    ,
+const loginValidator = [emailValidator, passwordValidator, validateRequest];
 
-  check("password")
+// Add missing validators for other auth routes
+const forgetPasswordValidator = [emailValidator, validateRequest];
+
+const verifyResetCodeValidator = [
+  check("resetCode")
     .notEmpty()
-    .withMessage("Password is required")
-    .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters long"),
+    .withMessage("Reset code is required")
+    .isLength({ min: 6, max: 6 })
+    .withMessage("Reset code must be 6 digits")
+    .isNumeric()
+    .withMessage("Reset code must be numeric"),
   validateRequest,
 ];
 
-export { registerValidator, loginValidator };
+const resetPasswordValidator = [
+  passwordValidator,
+  passwordConfirmValidator,
+  validateRequest,
+];
+
+export {
+  registerValidator,
+  loginValidator,
+  forgetPasswordValidator,
+  verifyResetCodeValidator,
+  resetPasswordValidator,
+};
