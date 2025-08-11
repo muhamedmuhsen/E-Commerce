@@ -1,6 +1,6 @@
+import slugify from "slugify";
 import { check } from "express-validator";
 import validateRequest from "../middlewares/validateRequest.js";
-import slugify from "slugify";
 
 const commonRules = {
   id: check("id")

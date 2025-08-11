@@ -5,34 +5,32 @@ import {
   BadRequestError,
 } from "../utils/ApiErrors.js";
 import ApiFeatures from "../utils/apiFeatures.js";
-import Category from "../models/category.model.js";
 import {
   createOneService,
   deleteOneService,
+  getAllService,
   updateOneService,
+  getOneService,
 } from "../services/factory.service.js";
 /*
   Fix(if i used keyword for search on any other model excpet Product doesn't work)
 */
 const getAll = (Model) => {
   return asyncWrapper(async (req, res, next) => {
-    const totalDocuments = await Model.countDocuments();
+    const { query } = req;
 
-    const apiFeatures = new ApiFeatures(req.query, Model.find())
-      .filter()
-      .search(Model.modelName)
-      .limitFields()
-      .sorting()
-      .Paginate(totalDocuments);
-
-    const { mongooseQuery, pagination } = apiFeatures;
-
-    const documents = await mongooseQuery;
+    if (!query) {
+      return next(new NotFoundError("No query found"));
+    }
+    const { documents, totalDocuments, pagination } = await getAllService(
+      Model,
+      query
+    );
 
     res.status(200).json({
       success: true,
       pagination,
-      length: documents.length,
+      length: totalDocuments,
       data: { documents },
     });
   });
@@ -42,11 +40,11 @@ const deleteOne = (Model) => {
   return asyncWrapper(async (req, res, next) => {
     const { id } = req.params;
 
-    const document = await Model.findById(id);
-    if (!document) {
+    const deletedDocument = await deleteOneService(Model, id);
+    if (!deletedDocument) {
       return next(new NotFoundError(`${Model.modelName} not found`));
     }
-    await deleteOneService(Model, id);
+    
     res.status(200).json({
       success: true,
       message: "Document deleted successfully",
@@ -57,45 +55,13 @@ const deleteOne = (Model) => {
 const createOne = (Model) => {
   return asyncWrapper(async (req, res, next) => {
     const document = req.body;
-
-    // if (!document || !document.name) {
-    //   return next(new ApiError("Document name is required", 400));
-    // }
-
-    if (Model.modelName === "SubCategory") {
-      const ParentCategory = await Category.findById(req.body.category);
-
-      if (!ParentCategory) {
-        return next(new NotFoundError("Paretnt category not found"));
-      }
-    }
-
     const data = await createOneService(Model, document);
-
     res.status(201).json({ success: true, data });
   });
 };
 
-// TODO(review because i update first and then validate while this is wrong)
 const updateOne = (Model) => {
   return asyncWrapper(async (req, res, next) => {
-    if (Model.modelName === "User" && req.body.password) {
-      return next(
-        new BadRequestError("Use /change-password endpoint to update password")
-      );
-    }
-
-    if (Model.modelName === "SubCategory") {
-      if (!req.body.category) {
-        return next(new BadRequestError("Parent Category name is required"));
-      }
-      const ParentCategory = await Category.findById(req.body.category);
-
-      if (!ParentCategory) {
-        return next(new NotFoundError("Paretnt category not found"));
-      }
-    }
-
     const updatedDocument = await updateOneService(
       Model,
       req.params.id,
@@ -117,16 +83,11 @@ const getOne = (Model) => {
     if (!id) {
       return next(new BadRequestError("Invalid id"));
     }
-    const document = await Model.findById(id);
+
+    const document = await getOneService(Model, id);
 
     if (!document) {
       return next(new NotFoundError("document not found"));
-    }
-
-    if (Model.modelName === "Product") {
-      await document
-        .populate("category", "name")
-        .populate("subcategories", "name");
     }
 
     res.status(200).json({ success: true, data: document });
