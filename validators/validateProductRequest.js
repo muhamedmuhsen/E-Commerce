@@ -1,45 +1,34 @@
-import { check } from "express-validator";
+import { body, check } from "express-validator";
 import validateRequest from "../middlewares/validateRequest.js";
 import Category from "../models/category.model.js";
-import SubCategory from "../models/subcategory.model.js";
-import {
-  mongoIdValidator,
-  nameValidator,
-  stringLengthValidator,
-  numericValidator,
-  integerValidator,
-  arrayValidator,
-  atLeastOneFieldValidator,
-} from "./commonValidators.js";
+import SubCategory from "../models/subcategory.model.js"; 
+import slugify from "slugify";
+// Common validation rules
+const commonValidationRules = {
+  name: check("name")
+    .isLength({ min: 3, max: 100 })
+    .withMessage("Product name must be between 3 and 100 characters")
+    .custom((value, { req }) => {
+      req.body.slug = slugify(value);
+      return true;
+    }),
 
-// Product-specific validation rules
-const productValidationRules = {
-  name: nameValidator("name", 3, 100),
+  description: check("description")
+    .isLength({ min: 20, max: 2000 })
+    .withMessage("Product description must be between 20 and 2000 characters"),
 
-  description: stringLengthValidator(
-    "description",
-    20,
-    2000,
-    "Product description must be between 20 and 2000 characters"
-  ),
+  quantity: check("quantity")
+    .isInt({ min: 0 })
+    .withMessage("Product quantity must be a positive number"),
 
-  quantity: integerValidator(
-    "quantity",
-    0,
-    "Product quantity must be a positive number"
-  ),
+  sold: check("sold")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Product sold must be a positive number"),
 
-  sold: integerValidator(
-    "sold",
-    0,
-    "Product sold must be a positive number"
-  ).optional(),
-
-  price: numericValidator(
-    "price",
-    0,
-    "Product price must be a positive number"
-  ),
+  price: check("price")
+    .isFloat({ min: 0 })
+    .withMessage("Product price must be a positive number"),
 
   priceAfterDiscount: check("priceAfterDiscount")
     .optional()
@@ -54,43 +43,42 @@ const productValidationRules = {
       return true;
     }),
 
-  colors: arrayValidator(
-    "colors",
-    "Available colors should be array of strings"
-  ),
+  colors: check("colors")
+    .optional()
+    .isArray()
+    .withMessage("Available colors should be array of strings"),
 
   imageCover: check("imageCover")
     .notEmpty()
     .withMessage("Product image cover is required"),
 
-  images: arrayValidator("images", "Product images should be array of strings"),
+  images: check("images")
+    .optional()
+    .isArray()
+    .withMessage("Product images should be array of strings"),
 
-  category: mongoIdValidator("category", "Invalid category id").custom(
-    async (value) => {
+  category: check("category")
+    .isMongoId()
+    .withMessage("Invalid category id")
+    .custom(async (value) => {
       const category = await Category.findById(value).lean();
       if (!category) {
         throw new Error("Category not found");
       }
       return true;
-    }
-  ),
+    }),
 
   ratingsAverage: check("ratingsAverage")
     .optional()
     .isFloat({ min: 1, max: 5 })
     .withMessage("Rating must be between 1.0 and 5.0"),
 
-  ratingsQuantity: integerValidator(
-    "ratingsQuantity",
-    0,
-    "Ratings quantity must be a positive number"
-  ).optional(),
+  ratingsQuantity: check("ratingsQuantity")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Ratings quantity must be a positive number"),
 
-  brand: mongoIdValidator("brand", "Invalid brand id").optional(),
-
-  id: mongoIdValidator("id", "Invalid product id")
-    .notEmpty()
-    .withMessage("Product id is required"),
+  brand: check("brand").optional().isMongoId().withMessage("Invalid brand id"),
 };
 
 // Subcategories validation for create/update
@@ -134,106 +122,116 @@ const validateSubcategories = (isArray = true) => {
 
         return true;
       });
+  } else {
+    // For single subcategory (update validator)
+    return baseValidation
+      .isMongoId()
+      .withMessage("Invalid subcategory id")
+      .custom(async (value) => {
+        const subcategory = await SubCategory.findById(value).lean();
+        if (!subcategory) {
+          throw new Error("Subcategory not found");
+        }
+        return true;
+      });
   }
-
-  // For single subcategory (update validator)
-  return baseValidation
-    .isMongoId()
-    .withMessage("Invalid subcategory id")
-    .custom(async (value) => {
-      const subcategory = await SubCategory.findById(value).lean();
-      if (!subcategory) {
-        throw new Error("Subcategory not found");
-      }
-      return true;
-    });
 };
-
-// Product update fields for "at least one field" validation
-const productUpdateFields = [
-  "name",
-  "description",
-  "quantity",
-  "sold",
-  "price",
-  "priceAfterDiscount",
-  "colors",
-  "imageCover",
-  "images",
-  "category",
-  "subcategories",
-  "brand",
-  "ratingsAverage",
-  "ratingsQuantity",
-];
 
 // Create product validator
 const createProductValidator = [
-  productValidationRules.name
-    .notEmpty()
-    .withMessage("Product name is required"),
-  productValidationRules.description
+  commonValidationRules.name.notEmpty().withMessage("Product name is required"),
+  commonValidationRules.description
     .notEmpty()
     .withMessage("Product description is required"),
-  productValidationRules.quantity
+  commonValidationRules.quantity
     .notEmpty()
     .withMessage("Product quantity is required"),
-  productValidationRules.sold,
-  productValidationRules.price
+  commonValidationRules.sold,
+  commonValidationRules.price
     .notEmpty()
     .withMessage("Product price is required"),
-  productValidationRules.priceAfterDiscount,
-  productValidationRules.colors,
-  productValidationRules.imageCover,
-  productValidationRules.images,
-  productValidationRules.category
+  commonValidationRules.priceAfterDiscount,
+  commonValidationRules.colors,
+  commonValidationRules.imageCover,
+  commonValidationRules.images,
+  commonValidationRules.category
     .notEmpty()
     .withMessage("Product must belong to a category"),
-  productValidationRules.ratingsAverage,
-  productValidationRules.ratingsQuantity,
+  commonValidationRules.ratingsAverage,
+  commonValidationRules.ratingsQuantity,
   validateSubcategories(true),
   validateRequest,
 ];
 
 // Update product validator
 const updateProductValidator = [
-  productValidationRules.id,
+  check("id")
+    .notEmpty()
+    .withMessage("Product id is required")
+    .isMongoId()
+    .withMessage("Invalid product id"),
 
   // Make all fields optional for updates
-  productValidationRules.name.optional(),
-  productValidationRules.description.optional(),
-  productValidationRules.quantity.optional(),
-  productValidationRules.sold,
-  productValidationRules.price.optional(),
-  productValidationRules.priceAfterDiscount.custom((value, { req }) => {
+  commonValidationRules.name.optional(),
+  commonValidationRules.description.optional(),
+  commonValidationRules.quantity.optional(),
+  commonValidationRules.sold,
+  commonValidationRules.price.optional(),
+  commonValidationRules.priceAfterDiscount.custom((value, { req }) => {
     if (value && req.body.price && value >= req.body.price) {
       throw new Error("Price after discount must be lower than original price");
     }
     return true;
   }),
-  productValidationRules.colors,
+  commonValidationRules.colors,
 
   check("imageCover")
     .optional()
     .notEmpty()
     .withMessage("Product image cover cannot be empty"),
 
-  productValidationRules.images,
-  productValidationRules.category.optional(),
+  commonValidationRules.images,
+  commonValidationRules.category.optional(),
   validateSubcategories(false), // Single subcategory for updates
-  productValidationRules.brand,
-  productValidationRules.ratingsAverage,
-  productValidationRules.ratingsQuantity,
+  commonValidationRules.brand,
+  commonValidationRules.ratingsAverage,
+  commonValidationRules.ratingsQuantity,
 
   // Ensure at least one field is provided for update
-  atLeastOneFieldValidator(productUpdateFields),
+  body().custom((value) => {
+    const updateFields = [
+      "name",
+      "description",
+      "quantity",
+      "sold",
+      "price",
+      "priceAfterDiscount",
+      "colors",
+      "imageCover",
+      "images",
+      "category",
+      "subcategories",
+      "brand",
+      "ratingsAverage",
+      "ratingsQuantity",
+    ];
+
+    const hasAtLeastOneField = updateFields.some(
+      (field) => value[field] !== undefined
+    );
+
+    if (!hasAtLeastOneField) {
+      throw new Error("At least one field is required to update");
+    }
+    return true;
+  }),
 
   validateRequest,
 ];
 
 // Get specific product validator
 const getSpecificProductValidator = [
-  mongoIdValidator("id", "Invalid product id"),
+  check("id").isMongoId().withMessage("Invalid product id"),
   validateRequest,
 ];
 

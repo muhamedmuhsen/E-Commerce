@@ -1,57 +1,47 @@
 import { check } from "express-validator";
 import validateRequest from "../middlewares/validateRequest.js";
-import {
-  emailValidator,
-  passwordValidator,
-  passwordConfirmValidator,
-  nameValidator,
-} from "./commonValidators.js";
-import User from "../models/user.model.js";
-
-// Check if email already exists
-const checkEmailExists = check("email").custom(async (email) => {
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    throw new Error("Email already exists");
-  }
-  return true;
-});
+import slugify from "slugify";
 
 const registerValidator = [
-  nameValidator("name"),
-  emailValidator,
-  checkEmailExists,
-  passwordValidator,
-  passwordConfirmValidator,
-  validateRequest,
-];
-
-const loginValidator = [emailValidator, passwordValidator, validateRequest];
-
-// Add missing validators for other auth routes
-const forgetPasswordValidator = [emailValidator, validateRequest];
-
-const verifyResetCodeValidator = [
-  check("resetCode")
+  check("name")
+    .isLength({ min: 3, max: 32 })
+    .withMessage("Username must be between 3 and 32 characters")
+    .custom((value, { req }) => {
+      req.body.slug = slugify(value);
+      return true;
+    }),
+  check("email")
     .notEmpty()
-    .withMessage("Reset code is required")
-    .isLength({ min: 6, max: 6 })
-    .withMessage("Reset code must be 6 digits")
-    .isNumeric()
-    .withMessage("Reset code must be numeric"),
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("you must write valid mail"),
+  check("password")
+    .notEmpty()
+    .withMessage("password is required")
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters long"),
+
+  check("passwordConfirm")
+    .notEmpty()
+    .withMessage("Confirm new password is required"),
+
   validateRequest,
 ];
 
-const resetPasswordValidator = [
-  passwordValidator,
-  passwordConfirmValidator,
+const loginValidator = [
+  check("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("you must write valid mail")
+    ,
+
+  check("password")
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters long"),
   validateRequest,
 ];
 
-export {
-  registerValidator,
-  loginValidator,
-  forgetPasswordValidator,
-  verifyResetCodeValidator,
-  resetPasswordValidator,
-};
+export { registerValidator, loginValidator };

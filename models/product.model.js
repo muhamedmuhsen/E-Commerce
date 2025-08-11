@@ -1,5 +1,4 @@
 import mongoose, { Schema } from "mongoose";
-import slugify from "slugify";
 
 const ProductSchema = new Schema(
   {
@@ -66,15 +65,11 @@ const ProductSchema = new Schema(
   { timestamps: true }
 );
 
-ProductSchema.pre("save", function (next) {
-  this.slug = slugify(this.name);
-  next();
-});
 
 // TODO(populate subcategories if found)
 ProductSchema.pre(/^find/, function (next) {
   this.populate(
-    { path: "category", select: "name -_id" }
+    { path: "category", select: "name -_id" },
     //{ path: "subcategories", select: "name -_id" }
   );
   next();

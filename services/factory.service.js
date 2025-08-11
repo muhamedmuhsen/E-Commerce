@@ -28,6 +28,7 @@ const createOneService = async (Model, document) => {
 
   return doc;
 };
+
 const updateOneService = async (Model, id, body) => {
   // Handle User password validation
   if (Model.modelName === "User" && body.password) {
