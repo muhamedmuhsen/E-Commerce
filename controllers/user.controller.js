@@ -1,23 +1,23 @@
-import User from '../models/user.model.js';
-import asyncWrapper from '../middlewares/asyncWrapper.js';
+import bcrypt from "bcryptjs";
+import User from "../models/user.model.js";
+import asyncWrapper from "../middlewares/asyncWrapper.js";
 import {
   createOne,
   deleteOne,
   getAll,
   getOne,
   updateOne,
-} from './handlersFactory.js';
-import bcrypt from 'bcryptjs';
+} from "./handlersFactory.js";
 import {
   changeUserPasswordService,
   updateLoggedUserDataService,
   deactivateService,
-} from '../services/user.service.js';
+} from "../services/user.service.js";
 import {
   NotFoundError,
   UnauthorizedError,
   BadRequestError,
-} from '../utils/ApiErrors.js';
+} from "../utils/ApiErrors.js";
 
 // TODO(handle profile image)
 
@@ -67,7 +67,7 @@ const deleteUser = deleteOne(User);
     @route  GET /api/v1/users/getMe
     @access Private/Protect
 */
-const getLoggedUser = asyncWrapper( (req, res, next) => {
+const getLoggedUser = asyncWrapper((req, res, next) => {
   req.params.id = req.user._id;
   next();
 });
@@ -76,59 +76,62 @@ const changeUserPassword = asyncWrapper(async (req, res, next) => {
   const user = await User.findById(req.params.id);
 
   if (!user) {
-    return next(new NotFoundError('User not found'));
+    return next(new NotFoundError("User not found"));
   }
 
-  const isMatchedPassword = await bcrypt.compare(req.body.password, user.password);
+  const isMatchedPassword = await bcrypt.compare(
+    req.body.password,
+    user.password
+  );
   if (!isMatchedPassword) {
-    return next(new UnauthorizedError('Current password is incorrect'));
+    return next(new UnauthorizedError("Current password is incorrect"));
   }
 
   const token = await changeUserPasswordService(user._id, req.body.newPassword);
 
   res
     .status(200)
-    .json({ success: true, message: 'Password changed successfully', token });
+    .json({ success: true, message: "Password changed successfully", token });
 });
 
 const updateLoggedUserPassword = asyncWrapper(async (req, res, next) => {
   const user = await User.findById(req.user._id);
   if (!user) {
-    return next(new NotFoundError('User not found'));
+    return next(new NotFoundError("User not found"));
   }
 
   if (!(await bcrypt.compare(req.body.password, user.password))) {
-    return next(new UnauthorizedError('Current password is incorrect'));
+    return next(new UnauthorizedError("Current password is incorrect"));
   }
 
   const token = await changeUserPasswordService(user._id, req.body.newPassword);
 
   res
     .status(200)
-    .json({ success: true, message: 'Password changed successfully', token });
+    .json({ success: true, message: "Password changed successfully", token });
 });
 
 const updateLoggedUserData = asyncWrapper(async (req, res, next) => {
   const user = await updateLoggedUserDataService(req.user._id, req.body);
 
   if (!user) {
-    return next(new NotFoundError('User not found'));
+    return next(new NotFoundError("User not found"));
   }
 
   res
     .status(200)
-    .json({ success: true, message: 'user updated successfully', data: user });
+    .json({ success: true, message: "user updated successfully", data: user });
 });
 
 const deactivate = asyncWrapper(async (req, res, next) => {
   const user = await deactivateService(req.user._id);
 
   if (!user) {
-    return next(new NotFoundError('User not found'));
+    return next(new NotFoundError("User not found"));
   }
   res
     .status(200)
-    .json({ success: true, message: 'Account deactivated successuflly.' });
+    .json({ success: true, message: "Account deactivated successuflly." });
 });
 
 export {

@@ -5,7 +5,6 @@ import {
   BadRequestError,
 } from "../utils/ApiErrors.js";
 import ApiFeatures from "../utils/apiFeatures.js";
-import bcrypt from "bcryptjs";
 import Category from "../models/category.model.js";
 import {
   createOneService,
@@ -26,7 +25,6 @@ const getAll = (Model) => {
       .sorting()
       .Paginate(totalDocuments);
 
-    // execute query
     const { mongooseQuery, pagination } = apiFeatures;
 
     const documents = await mongooseQuery;
@@ -58,7 +56,7 @@ const deleteOne = (Model) => {
 
 const createOne = (Model) => {
   return asyncWrapper(async (req, res, next) => {
-    let document = req.body;
+    const document = req.body;
 
     // if (!document || !document.name) {
     //   return next(new ApiError("Document name is required", 400));
@@ -125,7 +123,7 @@ const getOne = (Model) => {
       return next(new NotFoundError("document not found"));
     }
 
-    if (Model.modelName == "Product") {
+    if (Model.modelName === "Product") {
       await document
         .populate("category", "name")
         .populate("subcategories", "name");

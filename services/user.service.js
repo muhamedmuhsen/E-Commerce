@@ -1,6 +1,6 @@
-import User from '../models/user.model.js';
-import bcrypt from 'bcryptjs';
-import createToken from '../utils/createToken.js';
+import bcrypt from "bcryptjs";
+import User from "../models/user.model.js";
+import createToken from "../utils/createToken.js";
 
 const changeUserPasswordService = async (id, password) => {
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -29,7 +29,6 @@ const deactivateService = async (id) => {
   );
   return user;
 };
-
 
 export {
   changeUserPasswordService,
