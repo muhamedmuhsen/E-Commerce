@@ -44,7 +44,7 @@ const deleteOne = (Model) => {
     if (!deletedDocument) {
       return next(new NotFoundError(`${Model.modelName} not found`));
     }
-    
+
     res.status(200).json({
       success: true,
       message: "Document deleted successfully",
@@ -55,6 +55,7 @@ const deleteOne = (Model) => {
 const createOne = (Model) => {
   return asyncWrapper(async (req, res, next) => {
     const document = req.body;
+
     const data = await createOneService(Model, document);
     res.status(201).json({ success: true, data });
   });

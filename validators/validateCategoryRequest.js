@@ -1,16 +1,11 @@
 import { check } from "express-validator";
 import validateRequest from "../middlewares/validateRequest.js";
-import slugify from "slugify";
 
 const commonRules = {
   id: check("id").isMongoId().withMessage("Invalid id"),
   name: check("name")
     .isLength({ min: 3, max: 32 })
-    .withMessage("Category name must be between 3 and 32 characters")
-    .custom((value, { req }) => {
-      req.body.slug = slugify(value);
-      return true;
-    }),
+    .withMessage("Category name must be between 3 and 32 characters"),
 };
 
 const createCategoryValidator = [
