@@ -1,146 +1,41 @@
 {
-  "env": {
-    "node": true,
-    "es2022": true,
-    "mocha": true
-  },
-  "extends": ["eslint:recommended"],
-  "parserOptions": {
-    "ecmaVersion": "latest",
-    "sourceType": "module"
-  },
+  "extends": ["airbnb", "prettier", "plugin:node/recommended"],
+  "plugins": ["prettier"],
   "rules": {
-    // Error Prevention
-    "no-console": "warn",
-    "no-debugger": "error",
-    "no-unused-vars": [
-      "error",
-      {
-        "argsIgnorePattern": "^_",
-        "varsIgnorePattern": "^_"
-      }
-    ],
+    // "prettier/prettier": "error",
+    "spaced-comment": "off",
+    "no-console": "off",
+    "consistent-return": "off",
+    "object-shorthand": "off",
+    "no-process-exit": "off",
+    "no-param-reassign": "off",
+    "no-return-await": "off",
+    "no-underscore-dangle": "off",
+    "class-methods-use-this": "off",
     "no-undef": "error",
-    "no-unreachable": "error",
-    "no-duplicate-imports": "error",
-
-    // Code Quality
-    "prefer-const": "error",
     "no-var": "error",
-    "no-use-before-define": ["error", { "functions": false }],
-    "eqeqeq": ["error", "always"],
-    "curly": ["error", "all"],
-    "no-eval": "error",
-    "no-implied-eval": "error",
-    "no-new-func": "error",
-
     // Async/Await Best Practices
     "require-await": "error",
     "no-async-promise-executor": "error",
     "no-await-in-loop": "warn",
     "no-promise-executor-return": "error",
-
-    // Security
-    "no-new-require": "error",
-    "no-path-concat": "error",
-
-    // Style and Formatting
-    "indent": ["error", 2, { "SwitchCase": 1 }],
-    "quotes": ["error", "single", { "allowTemplateLiterals": true }],
-    "semi": ["error", "always"],
-    "comma-trailing": ["error", "never"],
-    "comma-spacing": ["error", { "before": false, "after": true }],
-    "key-spacing": ["error", { "beforeColon": false, "afterColon": true }],
-    "space-before-blocks": "error",
-    "space-before-function-paren": [
-      "error",
-      {
-        "anonymous": "always",
-        "named": "never",
-        "asyncArrow": "always"
-      }
-    ],
-    "space-in-parens": ["error", "never"],
-    "space-infix-ops": "error",
-    "object-curly-spacing": ["error", "always"],
-    "array-bracket-spacing": ["error", "never"],
-    "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
-
-    // Line breaks and spacing
-    "eol-last": ["error", "always"],
-    "no-trailing-spaces": "error",
-    "no-multiple-empty-lines": ["error", { "max": 2, "maxEOF": 1 }],
-    "newline-before-return": "error",
-
+    "node/no-unsupported-features/es-syntax": "off",
     // Function and variable naming
-    "camelcase": ["error", { "properties": "never" }],
+    "camelcase": ["warn", { "properties": "never" }],
     "func-names": ["warn", "as-needed"],
-
-    // Object and Array formatting
-    "object-shorthand": ["error", "always"],
-    "prefer-destructuring": [
+    // Import/Export (ES Modules)
+    "no-duplicate-imports": "warn",
+    "prefer-destructuring": ["warn", { "object": true, "array": false }],
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "req|res|next|val" }],
+    "import/extensions": [
       "error",
+      "ignorePackages",
       {
-        "array": false,
-        "object": true
+        "js": "always"
       }
     ],
-    "prefer-template": "error",
-
-    // Arrow functions
-    "arrow-spacing": ["error", { "before": true, "after": true }],
-    "arrow-parens": ["error", "always"],
-    "prefer-arrow-callback": "error",
-
-    // Import/Export (ES Modules)
-    "no-duplicate-imports": "error",
-
-    // Node.js specific
-    "no-process-exit": "error",
-    "no-sync": "warn",
-
-    // Error handling
-    "handle-callback-err": "error",
-
-    // Performance
-    "no-loop-func": "error",
-
-    // Express.js specific patterns
-    "no-unused-expressions": [
-      "error",
-      {
-        "allowShortCircuit": true,
-        "allowTernary": true
-      }
-    ]
-  },
-  "globals": {
-    "process": "readonly",
-    "Buffer": "readonly",
-    "__dirname": "readonly",
-    "__filename": "readonly",
-    "global": "readonly"
-  },
-  "overrides": [
-    {
-      "files": ["*.test.js", "*.spec.js", "**/test/**/*.js"],
-      "rules": {
-        "no-console": "off",
-        "no-unused-expressions": "off"
-      }
-    },
-    {
-      "files": ["server.js", "**/config/**/*.js"],
-      "rules": {
-        "no-console": "off"
-      }
-    },
-    {
-      "files": ["**/utils/dummy/**/*.js", "**/seeder.js"],
-      "rules": {
-        "no-console": "off",
-        "no-process-exit": "off"
-      }
-    }
-  ]
+    "arrow-body-style": "off",
+    "no-restricted-syntax": "off",
+    "no-restricted-globals": "off"
+  }
 }

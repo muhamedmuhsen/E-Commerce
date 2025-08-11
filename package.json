@@ -5,7 +5,9 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "clear && nodemon server.js"
+    "start": "clear && nodemon server.js",
+     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+  "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix"
   },
   "keywords": [],
   "author": "",

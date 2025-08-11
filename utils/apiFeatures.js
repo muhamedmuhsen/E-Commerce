@@ -69,7 +69,7 @@ class ApiFeatures {
 
   sorting() {
     if (this.queryString.sort) {
-      let sort = this.queryString.sort;
+      let { sort } = this.queryString;
       if (Array.isArray(sort)) {
         sort = sort[sort.length - 1];
       }
@@ -130,6 +130,7 @@ class ApiFeatures {
         this.mongooseQuery = this.mongooseQuery.populate({
           path: "category",
           select: "name -_id",
+          strictPopulate: false,
         });
       }
 
@@ -140,6 +141,7 @@ class ApiFeatures {
         this.mongooseQuery = this.mongooseQuery.populate({
           path: "subcategories",
           select: "name -_id",
+          strictPopulate: false,
         });
       }
     }
