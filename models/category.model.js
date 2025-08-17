@@ -33,6 +33,10 @@ const CategorySchema = new Schema(
   },
   { timestamps: true }
 );
+CategorySchema.pre("save", function (next) {
+  this.slug = slugify(this.name);
+  next();
+});
 
 CategorySchema.pre("save", function (next) {
   this.slug = slugify(this.name);
