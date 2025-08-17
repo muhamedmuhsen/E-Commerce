@@ -29,7 +29,6 @@ router.use(authenticateJWT);
 router.get("/get-me", getLoggedUser, getUser);
 router.delete("/deactivate-me", getLoggedUser, deactivate);
 
-// TODO(fix validation)
 router.put(
   "/update-me",
   updateLoggedUserValidator,

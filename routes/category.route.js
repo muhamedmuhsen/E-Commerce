@@ -27,8 +27,6 @@ router
   .delete(deleteCategoryValidator, authenticateJWT, deleteCategory)
   .get(getSpecificCategoryValidator, getSpecificCategory);
 
-// TODO(add valdiator)
-// TODO(fix fetch subategories of category)
 router.use("/:id/subcategories", subCategoryRoute);
 
 export default router;

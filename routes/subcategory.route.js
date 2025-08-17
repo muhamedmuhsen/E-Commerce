@@ -14,7 +14,7 @@ import {
   deleteSubCategoryValidator,
   getSpecificSubCategoryValidator,
   updateSubCategoryValidator,
-} from "../validators/validateSubCategoryRequest.js"; // Fixed filename
+} from "../validators/validateSubCategoryRequest.js";
 import authenticateJWT from "../middlewares/authenticateJWT.js";
 
 // mergeParams allow us access parameters on other routes

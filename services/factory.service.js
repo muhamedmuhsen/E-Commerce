@@ -55,19 +55,18 @@ const updateOneService = async (Model, id, body) => {
 };
 
 const getAllService = async (Model, query) => {
-  const totalDocuments = await Model.countDocuments();
-
   const apiFeatures = new ApiFeatures(query, Model.find())
     .filter()
     .search(Model.modelName)
     .limitFields()
-    .sorting()
-    .Paginate(totalDocuments);
+    .sorting();
 
-  const { mongooseQuery, pagination } = apiFeatures;
+  let { mongooseQuery, _ } = apiFeatures;
 
   const documents = await mongooseQuery;
-
+  const totalDocuments = documents.length;
+  apiFeatures.Paginate(totalDocuments);
+  let { pagination } = apiFeatures;
   return { documents, totalDocuments, pagination };
 };
 

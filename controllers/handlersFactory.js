@@ -12,11 +12,16 @@ import {
 */
 const getAll = (Model) => {
   return asyncWrapper(async (req, res, next) => {
-    const { query } = req;
+    let { query } = req;
 
     if (!query) {
       return next(new NotFoundError("No query found"));
     }
+    if (req.filterObject) {
+      query = req.filterObject;
+    }
+    console.log(query);
+
     const { documents, totalDocuments, pagination } = await getAllService(
       Model,
       query
