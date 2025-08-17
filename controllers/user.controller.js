@@ -13,11 +13,7 @@ import {
   updateLoggedUserDataService,
   deactivateService,
 } from "../services/user.service.js";
-import {
-  NotFoundError,
-  UnauthorizedError,
-  BadRequestError,
-} from "../utils/ApiErrors.js";
+import { NotFoundError, UnauthorizedError } from "../utils/ApiErrors.js";
 
 // TODO(handle profile image)
 
@@ -69,6 +65,8 @@ const deleteUser = deleteOne(User);
 */
 const getLoggedUser = asyncWrapper((req, res, next) => {
   req.params.id = req.user._id;
+  console.log(req.params.id);
+
   next();
 });
 

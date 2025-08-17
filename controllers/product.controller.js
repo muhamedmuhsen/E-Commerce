@@ -54,7 +54,7 @@ const getSpecificProduct = getOne(Product);
     @access Public
 */
 const getProductsByCategory = asyncWrapper(async (req, res, next) => {
-  const categoryId = req.params.categoryId;
+  const {categoryId} = req.params;
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
 
@@ -83,7 +83,7 @@ const getProductsByCategory = asyncWrapper(async (req, res, next) => {
     @access Public
 */
 const getProductsBySubcategory = asyncWrapper(async (req, res, next) => {
-  const subcategoryId = req.params.subcategoryId;
+  const {subcategoryId} = req.params;
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
 

@@ -25,6 +25,8 @@ const setFilterObject = (req, res, next) => {
     filterObject = { category: req.params.id };
   }
   req.filterObject = filterObject;
+  console.log(filterObject);
+
   next();
 };
 
