@@ -32,8 +32,8 @@ router.delete("/deactivate-me", getLoggedUser, deactivate);
 // TODO(fix validation)
 router.put(
   "/update-me",
-  getLoggedUser,
   updateLoggedUserValidator,
+  getLoggedUser,
   updateLoggedUserData
 );
 router.patch(

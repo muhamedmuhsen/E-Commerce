@@ -47,7 +47,7 @@ const updateUserValidator = [
 ];
 
 const updateLoggedUserValidator = [
-  atLeastOneField,
+  atLeastOneField(["name", "email", "profileImg"]),
   name("username"),
   email()
     .optional()

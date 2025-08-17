@@ -65,6 +65,8 @@ const deleteUser = deleteOne(User);
 */
 const getLoggedUser = asyncWrapper((req, res, next) => {
   req.params.id = req.user._id;
+  console.log(req.params.id);
+
   next();
 });
 

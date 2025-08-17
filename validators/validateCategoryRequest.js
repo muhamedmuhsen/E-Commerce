@@ -1,7 +1,4 @@
-import { check } from "express-validator";
 import validateRequest from "../middlewares/validateRequest.js";
-import slugify from "slugify";
-
 import { mongoId, name } from "./commonValidators.js";
 
 const createCategoryValidator = [
