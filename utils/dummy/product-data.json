@@ -1,0 +1,240 @@
+[
+  {
+    "name": "iPhone 15 Pro Max",
+    "quantity": 50,
+    "price": 1199.99,
+    "priceAfterDiscount": 1099.99,
+    "category": "507f1f77bcf86cd799439011",
+    "subcategories": ["507f1f77bcf86cd799439012", "507f1f77bcf86cd799439013"],
+    "description": "The most advanced iPhone yet with titanium design, Action Button, and the most powerful Pro camera system ever. Features A17 Pro chip for incredible performance and efficiency.",
+    "brand": "Apple",
+    "imageCover": "https://example.com/images/iphone15pro-cover.jpg",
+    "image": [
+      "https://example.com/images/iphone15pro-1.jpg",
+      "https://example.com/images/iphone15pro-2.jpg",
+      "https://example.com/images/iphone15pro-3.jpg"
+    ],
+    "ratingsAverage": 4.8,
+    "colors": [
+      "Natural Titanium",
+      "Blue Titanium",
+      "White Titanium",
+      "Black Titanium"
+    ],
+    "ratingsQuantity": 245,
+    "sold": 15
+  },
+  {
+    "name": "MacBook Pro 16-inch M3 Max",
+    "quantity": 25,
+    "price": 3499.99,
+    "priceAfterDiscount": 3299.99,
+    "category": "507f1f77bcf86cd799439011",
+    "subcategories": ["507f1f77bcf86cd799439014"],
+    "description": "The most powerful MacBook Pro ever. Built for Apple Intelligence. With M3 Max chip, up to 128GB unified memory, and stunning Liquid Retina XDR display.",
+    "brand": "Apple",
+    "imageCover": "https://example.com/images/macbook-pro-16-cover.jpg",
+    "image": [
+      "https://example.com/images/macbook-pro-16-1.jpg",
+      "https://example.com/images/macbook-pro-16-2.jpg"
+    ],
+    "ratingsAverage": 4.9,
+    "colors": ["Space Black", "Silver"],
+    "ratingsQuantity": 89,
+    "sold": 8
+  },
+  {
+    "name": "Nike Air Force 1 '07",
+    "quantity": 120,
+    "price": 110.0,
+    "priceAfterDiscount": 89.99,
+    "category": "507f1f77bcf86cd799439015",
+    "subcategories": ["507f1f77bcf86cd799439016"],
+    "description": "The radiance lives on in the Nike Air Force 1 '07, the basketball original that puts a fresh spin on what you know best: durably stitched overlays, clean finishes and the perfect amount of flash.",
+    "brand": "Nike",
+    "imageCover": "https://example.com/images/air-force-1-cover.jpg",
+    "image": [
+      "https://example.com/images/air-force-1-white.jpg",
+      "https://example.com/images/air-force-1-black.jpg",
+      "https://example.com/images/air-force-1-side.jpg"
+    ],
+    "ratingsAverage": 4.5,
+    "colors": ["White", "Black", "Red", "Blue", "Green"],
+    "ratingsQuantity": 1250,
+    "sold": 45
+  },
+  {
+    "name": "Samsung 55-inch QLED 4K Smart TV",
+    "quantity": 35,
+    "price": 899.99,
+    "priceAfterDiscount": 799.99,
+    "category": "507f1f77bcf86cd799439011",
+    "subcategories": ["507f1f77bcf86cd799439017"],
+    "description": "Experience brilliant picture quality with Quantum Dot technology. 4K UHD resolution brings your content to life with incredible detail and vibrant colors.",
+    "brand": "Samsung",
+    "imageCover": "https://example.com/images/samsung-qled-55-cover.jpg",
+    "image": [
+      "https://example.com/images/samsung-qled-55-front.jpg",
+      "https://example.com/images/samsung-qled-55-back.jpg"
+    ],
+    "ratingsAverage": 4.3,
+    "colors": ["Titan Gray"],
+    "ratingsQuantity": 167,
+    "sold": 12
+  },
+  {
+    "name": "Adidas Ultraboost 22",
+    "quantity": 80,
+    "price": 190.0,
+    "priceAfterDiscount": 152.0,
+    "category": "507f1f77bcf86cd799439015",
+    "subcategories": ["507f1f77bcf86cd799439018"],
+    "description": "Made with a series of recycled materials, this upper features at least 50% recycled content. The midsole contains at least 4% bio-based materials.",
+    "brand": "Adidas",
+    "imageCover": "https://example.com/images/ultraboost-22-cover.jpg",
+    "image": [
+      "https://example.com/images/ultraboost-22-black.jpg",
+      "https://example.com/images/ultraboost-22-white.jpg",
+      "https://example.com/images/ultraboost-22-blue.jpg"
+    ],
+    "ratingsAverage": 4.6,
+    "colors": ["Core Black", "Cloud White", "Solar Red", "Tech Indigo"],
+    "ratingsQuantity": 892,
+    "sold": 67
+  },
+  {
+    "name": "Sony WH-1000XM5 Wireless Headphones",
+    "quantity": 65,
+    "price": 399.99,
+    "priceAfterDiscount": 349.99,
+    "category": "507f1f77bcf86cd799439011",
+    "subcategories": ["507f1f77bcf86cd799439019"],
+    "description": "Industry-leading noise canceling with Dual Noise Sensor technology. Up to 30-hour battery life with quick charge. Crystal clear hands-free calling and voice assistant compatibility.",
+    "brand": "Sony",
+    "imageCover": "https://example.com/images/sony-wh1000xm5-cover.jpg",
+    "image": [
+      "https://example.com/images/sony-wh1000xm5-black.jpg",
+      "https://example.com/images/sony-wh1000xm5-silver.jpg"
+    ],
+    "ratingsAverage": 4.7,
+    "colors": ["Black", "Silver"],
+    "ratingsQuantity": 534,
+    "sold": 23
+  },
+  {
+    "name": "Levi's 501 Original Fit Jeans",
+    "quantity": 200,
+    "price": 89.5,
+    "priceAfterDiscount": 69.99,
+    "category": "507f1f77bcf86cd799439020",
+    "subcategories": ["507f1f77bcf86cd799439021"],
+    "description": "The original blue jean since 1873. Cut to sit at your waist with a straight leg and a button fly. Made with our classic vintage-inspired fit.",
+    "brand": "Levi's",
+    "imageCover": "https://example.com/images/levis-501-cover.jpg",
+    "image": [
+      "https://example.com/images/levis-501-blue.jpg",
+      "https://example.com/images/levis-501-black.jpg",
+      "https://example.com/images/levis-501-wash.jpg"
+    ],
+    "ratingsAverage": 4.4,
+    "colors": ["Stonewash", "Black", "Dark Blue", "Light Blue"],
+    "ratingsQuantity": 678,
+    "sold": 89
+  },
+  {
+    "name": "Nintendo Switch OLED Model",
+    "quantity": 40,
+    "price": 349.99,
+    "category": "507f1f77bcf86cd799439011",
+    "subcategories": ["507f1f77bcf86cd799439022"],
+    "description": "Meet the newest member of the Nintendo Switch family. In addition to all the features of the original Nintendo Switch, the Nintendo Switch OLED model features a vibrant 7-inch OLED screen.",
+    "brand": "Nintendo",
+    "imageCover": "https://example.com/images/nintendo-switch-oled-cover.jpg",
+    "image": [
+      "https://example.com/images/nintendo-switch-oled-neon.jpg",
+      "https://example.com/images/nintendo-switch-oled-white.jpg"
+    ],
+    "ratingsAverage": 4.8,
+    "colors": ["Neon Red/Blue", "White"],
+    "ratingsQuantity": 423,
+    "sold": 18
+  },
+  {
+    "name": "The North Face Resolve 2 Jacket",
+    "quantity": 75,
+    "price": 99.0,
+    "priceAfterDiscount": 79.99,
+    "category": "507f1f77bcf86cd799439020",
+    "subcategories": ["507f1f77bcf86cd799439023"],
+    "description": "Waterproof, breathable and seam-sealed, this versatile rain jacket is an essential layer for unpredictable weather. Stows in its own pocket for easy packing.",
+    "brand": "The North Face",
+    "imageCover": "https://example.com/images/tnf-resolve-2-cover.jpg",
+    "image": [
+      "https://example.com/images/tnf-resolve-2-black.jpg",
+      "https://example.com/images/tnf-resolve-2-blue.jpg",
+      "https://example.com/images/tnf-resolve-2-red.jpg"
+    ],
+    "ratingsAverage": 4.2,
+    "colors": ["TNF Black", "Shady Blue", "Fiery Red", "New Taupe Green"],
+    "ratingsQuantity": 234,
+    "sold": 31
+  },
+  {
+    "name": "Instant Pot Duo 7-in-1 Electric Pressure Cooker",
+    "quantity": 95,
+    "price": 79.95,
+    "priceAfterDiscount": 59.99,
+    "category": "507f1f77bcf86cd799439024",
+    "subcategories": ["507f1f77bcf86cd799439025"],
+    "description": "7 appliances in 1: Pressure Cooker, Slow Cooker, Rice Cooker, Yogurt Maker, Steamer, Sauté Pan, and Food Warmer. Cook up to 70% faster than traditional cooking methods.",
+    "brand": "Instant Pot",
+    "imageCover": "https://example.com/images/instant-pot-duo-cover.jpg",
+    "image": [
+      "https://example.com/images/instant-pot-duo-front.jpg",
+      "https://example.com/images/instant-pot-duo-open.jpg"
+    ],
+    "ratingsAverage": 4.6,
+    "colors": ["Stainless Steel"],
+    "ratingsQuantity": 1876,
+    "sold": 142
+  },
+  {
+    "name": "Dyson V15 Detect Cordless Vacuum",
+    "quantity": 30,
+    "price": 749.99,
+    "priceAfterDiscount": 649.99,
+    "category": "507f1f77bcf86cd799439024",
+    "subcategories": ["507f1f77bcf86cd799439026"],
+    "description": "Powerful suction with laser dust detection. Precisely detects and measures dust particles, automatically adapting suction power. Up to 60 minutes of run time.",
+    "brand": "Dyson",
+    "imageCover": "https://example.com/images/dyson-v15-cover.jpg",
+    "image": [
+      "https://example.com/images/dyson-v15-main.jpg",
+      "https://example.com/images/dyson-v15-accessories.jpg"
+    ],
+    "ratingsAverage": 4.5,
+    "colors": ["Nickel/Yellow"],
+    "ratingsQuantity": 298,
+    "sold": 19
+  },
+  {
+    "name": "Fitbit Charge 5 Advanced Fitness Tracker",
+    "quantity": 110,
+    "price": 199.95,
+    "priceAfterDiscount": 149.99,
+    "category": "507f1f77bcf86cd799439011",
+    "subcategories": ["507f1f77bcf86cd799439027"],
+    "description": "Advanced fitness and health tracker with built-in GPS, stress management tools, sleep score, and up to 7 days of battery life. Includes 6-month Fitbit Premium membership.",
+    "brand": "Fitbit",
+    "imageCover": "https://example.com/images/fitbit-charge5-cover.jpg",
+    "image": [
+      "https://example.com/images/fitbit-charge5-black.jpg",
+      "https://example.com/images/fitbit-charge5-blue.jpg",
+      "https://example.com/images/fitbit-charge5-white.jpg"
+    ],
+    "ratingsAverage": 4.3,
+    "colors": ["Black", "Lunar White", "Steel Blue"],
+    "ratingsQuantity": 756,
+    "sold": 68
+  }
+]

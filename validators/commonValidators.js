@@ -1,5 +1,6 @@
 import { body, check } from "express-validator";
 import SubCategory from "../models/subcategory.model.js";
+import Category from "../models/category.model.js";
 
 const roles = ["user", "admin"];
 
@@ -12,21 +13,25 @@ export const mongoId = (fieldName = "id") =>
     .withMessage(`Invalid ${fieldName}`);
 
 // Name validation with slug generation and configurable length
-export const name = (
-  Model,
-  fieldName = "name",
-  minLength = 3,
-  maxLength = 32
-) =>
-  check(fieldName)
+export const name = (entityName = "Name", minLength = 3, maxLength = 32) =>
+  check("name")
     .isLength({ min: minLength, max: maxLength })
     .withMessage(
-      `${Model} must be between ${minLength} and ${maxLength} characters`
+      `${entityName} name must be between ${minLength} and ${maxLength} characters`
     );
 
-// Category validation
+// Category validation with existence check
 export const category = (fieldName = "category") =>
-  check(fieldName).isMongoId().withMessage(`Invalid ${fieldName} id`);
+  check(fieldName)
+    .isMongoId()
+    .withMessage(`Invalid ${fieldName} id`)
+    .custom(async (value) => {
+      const categoryFound = await Category.findById(value).lean();
+      if (!categoryFound) {
+        throw new Error("Category not found");
+      }
+      return true;
+    });
 
 // Email validation
 export const email = (fieldName = "email") =>
@@ -72,9 +77,31 @@ export const profileImage = () => check("profileImg").optional();
 export const role = () => check("role").optional().isIn(roles);
 
 // Generic "at least one field" validation
-export const atLeastOneField = (fields) =>
+export const atLeastOneField = (fields = []) =>
   body().custom((val) => {
-    const hasAtLeastOneField = fields.some((field) => val[field] !== undefined);
+    // Default fields for products if none provided
+    const defaultProductFields = [
+      "name",
+      "description",
+      "quantity",
+      "sold",
+      "price",
+      "priceAfterDiscount",
+      "colors",
+      "imageCover",
+      "images",
+      "category",
+      "subcategories",
+      "brand",
+      "ratingsAverage",
+      "ratingsQuantity",
+    ];
+
+    const fieldsToCheck = fields.length > 0 ? fields : defaultProductFields;
+
+    const hasAtLeastOneField = fieldsToCheck.some(
+      (field) => val[field] !== undefined
+    );
     if (!hasAtLeastOneField) {
       throw new Error("At least one field is required to update");
     }
@@ -136,3 +163,63 @@ export const subcategories = (isArray = true) => {
       return true;
     });
 };
+
+export const brand = () =>
+  check("brand").optional().isMongoId().withMessage("Invalid brand id");
+
+export const ratingsQuantity = () =>
+  check("ratingsQuantity")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Ratings quantity must be a positive number");
+
+export const description = () =>
+  check("description")
+    .isLength({ min: 20, max: 2000 })
+    .withMessage("Product description must be between 20 and 2000 characters");
+export const quantity = () =>
+  check("quantity")
+    .isInt({ min: 0 })
+    .withMessage("Product quantity must be a positive number");
+
+export const sold = () =>
+  check("sold")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Product sold must be a positive number");
+
+export const price = () =>
+  check("price")
+    .isFloat({ min: 0 })
+    .withMessage("Product price must be a positive number");
+
+export const priceAfterDiscount = () =>
+  check("priceAfterDiscount")
+    .optional()
+    .isFloat({ min: 0 })
+    .withMessage("Product price after discount must be a positive number")
+    .custom((value, { req }) => {
+      if (value && value >= req.body.price) {
+        throw new Error(
+          "Price after discount must be lower than original price"
+        );
+      }
+      return true;
+    });
+
+export const colors = () => check("colors").optional().isArray();
+
+export const imageCover = () =>
+  check("imageCover").notEmpty().withMessage("Product image cover is required");
+
+export const images = () =>
+  check("images")
+    .optional()
+    .isArray()
+    .withMessage("Product images should be array of strings");
+
+export const ratingsAverage = () =>
+  check("ratingsAverage")
+    .optional()
+    .isFloat({ min: 1, max: 5 })
+    .withMessage("Rating must be between 1.0 and 5.0");

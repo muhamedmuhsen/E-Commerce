@@ -73,10 +73,10 @@ ProductSchema.pre("save", function (next) {
 
 // TODO(populate subcategories if found)
 ProductSchema.pre(/^find/, function (next) {
-  this.populate(
-    { path: "category", select: "name -_id" }
-    //{ path: "subcategories", select: "name -_id" }
-  );
+  this.populate([
+    { path: "category", select: "name -_id" },
+    { path: "subcategories", select: "name -_id" },
+  ]);
   next();
 });
 

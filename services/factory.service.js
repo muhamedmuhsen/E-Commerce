@@ -77,13 +77,6 @@ const getOneService = async (Model, id) => {
     return null;
   }
 
-  // Handle population for Product model
-  if (Model.modelName === "Product") {
-    await document
-      .populate("category", "name")
-      .populate("subcategories", "name");
-  }
-
   return document;
 };
 export {
