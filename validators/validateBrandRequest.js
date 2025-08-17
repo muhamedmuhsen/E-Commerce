@@ -1,33 +1,21 @@
-import { check } from "express-validator";
 import validateRequest from "../middlewares/validateRequest.js";
-import slugify from "slugify";
-
-const commonRules = {
-  id: check("id").isMongoId().withMessage("Invalid id"),
-  name: check("name")
-    .isLength({ min: 3, max: 32 })
-    .withMessage("Category name must be between 3 and 32 characters")
-    .custom((value, { req }) => {
-      req.body.slug = slugify(value);
-      return true;
-    }),
-};
+import { mongoId, name } from "./commonValidators.js";
 
 const createBrandValidator = [
-  commonRules.name.notEmpty().withMessage("Brand name is requried"),
+  name("Brand").notEmpty().withMessage("Brand name is required"),
   validateRequest,
 ];
 
 const updateBrandValidator = [
-  commonRules.id,
-  commonRules.name.optional(),
+  mongoId(),
+  name("Brand"),
   // TODO(Validate Image Brand)
   validateRequest,
 ];
 
-const deleteBrandValidator = [commonRules.id, validateRequest];
+const deleteBrandValidator = [mongoId(), validateRequest];
 
-const getSpecificBrandValidator = [commonRules.id, validateRequest];
+const getSpecificBrandValidator = [mongoId(), validateRequest];
 
 export {
   createBrandValidator,

@@ -1,42 +1,22 @@
-import slugify from "slugify";
-import { check } from "express-validator";
 import validateRequest from "../middlewares/validateRequest.js";
-
-const commonRules = {
-  id: check("id")
-    .notEmpty()
-    .withMessage("id is required")
-    .isMongoId()
-    .withMessage("Invalid id"),
-  name: check("name")
-    .isLength({ min: 3, max: 50 })
-    .withMessage("SubCategory name must be between 3 and 50 characters")
-    .custom((value, { req }) => {
-      req.body.slug = slugify(value);
-      return true;
-    }),
-
-  category: check("category").isMongoId().withMessage("Invalid category id "),
-};
+import { mongoId, name, category } from "./commonValidators.js";
 
 const createSubCategoryValidator = [
-  commonRules.name.notEmpty(),
-  commonRules.category
-    .notEmpty()
-    .withMessage("Category must be belong to category"),
+  name("SubCategory").notEmpty(),
+  category().notEmpty().withMessage("Category must be belong to category"),
   validateRequest,
 ];
 
 const updateSubCategoryValidator = [
-  commonRules.id,
-  commonRules.name.optional(),
-  commonRules.category.optional(),
+  mongoId(),
+  name("SubCategory").optional(),
+  category().optional(),
   validateRequest,
 ];
 
-const getSpecificSubCategoryValidator = [commonRules.id, validateRequest];
+const getSpecificSubCategoryValidator = [mongoId(), validateRequest];
 
-const deleteSubCategoryValidator = [commonRules.id, validateRequest];
+const deleteSubCategoryValidator = [mongoId(), validateRequest];
 
 export {
   createSubCategoryValidator,

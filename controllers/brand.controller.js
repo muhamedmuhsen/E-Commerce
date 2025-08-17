@@ -8,8 +8,6 @@ import {
 } from "./handlersFactory.js";
 
 // TODO(handle profile image)
-
-
 /*
     @desc   get all the brands on the app
     @route  GET /api/v1/brands/

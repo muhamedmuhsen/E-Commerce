@@ -15,7 +15,7 @@ import {
 import {
   createUserValidator,
   deleteUserValidator,
-  getUserValidtor,
+  getUserValidator,
   updateUserValidator,
   changeUserPasswordValidator,
   updateLoggedUserValidator,
@@ -26,8 +26,10 @@ const router = express.Router();
 
 router.use(authenticateJWT);
 
-router.get("/getMe", getLoggedUser, getUser);
+router.get("/get-me", getLoggedUser, getUser);
 router.delete("/deactivate-me", getLoggedUser, deactivate);
+
+// TODO(fix validation)
 router.put(
   "/update-me",
   getLoggedUser,
@@ -54,7 +56,7 @@ router.patch(
 
 router
   .route("/:id")
-  .get(getUserValidtor, getUser)
+  .get(getUserValidator, getUser)
   .put(updateUserValidator, updateUser)
   .delete(deleteUserValidator, deleteUser);
 

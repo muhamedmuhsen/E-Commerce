@@ -13,11 +13,7 @@ import {
   updateLoggedUserDataService,
   deactivateService,
 } from "../services/user.service.js";
-import {
-  NotFoundError,
-  UnauthorizedError,
-  BadRequestError,
-} from "../utils/ApiErrors.js";
+import { NotFoundError, UnauthorizedError } from "../utils/ApiErrors.js";
 
 // TODO(handle profile image)
 

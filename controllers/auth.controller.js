@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import asyncWrapper from "../middlewares/asyncWrapper.js";
 import User from "../models/user.model.js";
 import {
@@ -6,7 +7,6 @@ import {
   BadRequestError,
 } from "../utils/ApiErrors.js";
 import hashingPassword from "../utils/hashingPassword.js";
-import bcrypt from "bcryptjs";
 import {
   registerService,
   loginService,
@@ -71,7 +71,7 @@ const forgetPasswordController = asyncWrapper(async (req, res, next) => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    return next(new NotFoundError("email not found", 404));
+    return next(new NotFoundError("Email not found"));
   }
 
   await forgetPasswordService(user);
@@ -128,7 +128,7 @@ const resetPasswordController = asyncWrapper(async (req, res, next) => {
 
   res
     .status(200)
-    .json({ success: true, message: "Password reseted successfully", token });
+    .json({ success: true, message: "Password rested successfully", token });
 });
 export {
   loginSController,
