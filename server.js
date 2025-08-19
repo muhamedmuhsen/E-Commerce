@@ -15,10 +15,11 @@ import categoryRoute from "./routes/category.route.js";
 import productRoute from "./routes/product.route.js";
 import subcategoryRoute from "./routes/subcategory.route.js";
 import userRoute from "./routes/user.route.js";
+import cartRoute from "./routes/cart.route.js";
 import { ApiError } from "./utils/ApiErrors.js";
 import xss from "xss-clean";
 
-dotenv.config({ path: "./config.env" });
+dotenv.config({ path: "./.env" });
 
 const app = express();
 
@@ -58,6 +59,7 @@ app.use("/api/v1/subcategories", subcategoryRoute);
 app.use("/api/v1/brands", brandRoute);
 app.use("/api/v1/products", productRoute);
 app.use("/api/v1/users", userRoute);
+app.use("/api/v1/carts", cartRoute);
 
 // 404 handler for unmatched routes using custom ApiError
 app.use((req, res, next) => {

@@ -196,6 +196,7 @@ sessions/
 *.tmp
 
 # Private
-notes.txt
+note.txt
 todo.txt
 .github
+.env

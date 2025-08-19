@@ -15,7 +15,11 @@ const changeUserPasswordService = async (id, password) => {
 };
 
 const updateLoggedUserDataService = async (id, body) => {
-  const user = await User.findByIdAndUpdate(id, { ...body }, { new: true });
+  const user = await User.findByIdAndUpdate(
+    id,
+    { ...body },
+    { new: true }
+  ).lean();
   return user;
 };
 
@@ -26,7 +30,7 @@ const deactivateService = async (id) => {
       isActive: false,
     },
     { new: true }
-  );
+  ).lean();
   return user;
 };
 

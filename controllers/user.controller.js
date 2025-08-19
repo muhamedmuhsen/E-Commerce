@@ -65,13 +65,11 @@ const deleteUser = deleteOne(User);
 */
 const getLoggedUser = asyncWrapper((req, res, next) => {
   req.params.id = req.user._id;
-  console.log(req.params.id);
-
   next();
 });
 
 const changeUserPassword = asyncWrapper(async (req, res, next) => {
-  const user = await User.findById(req.params.id);
+  const user = await User.findById(req.params.id).lean();
 
   if (!user) {
     return next(new NotFoundError("User not found"));
@@ -93,7 +91,7 @@ const changeUserPassword = asyncWrapper(async (req, res, next) => {
 });
 
 const updateLoggedUserPassword = asyncWrapper(async (req, res, next) => {
-  const user = await User.findById(req.user._id);
+  const user = await User.findById(req.user._id).lean();
   if (!user) {
     return next(new NotFoundError("User not found"));
   }

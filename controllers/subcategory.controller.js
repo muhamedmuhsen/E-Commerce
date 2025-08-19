@@ -77,7 +77,7 @@ const getSubCategoriesByCategory = asyncWrapper(async (req, res, next) => {
     return next(new BadRequestError("Invalid category ID", 400));
   }
 
-  const subcategories = await SubCategory.find({ category: categoryId });
+  const subcategories = await SubCategory.find({ category: categoryId }).lean();
 
   res.status(200).json({ success: true, data: subcategories });
 });
@@ -93,7 +93,7 @@ const createSubCategoryOnCategory = asyncWrapper(async (req, res, next) => {
     return next(new BadRequestError("subcategory name is required", 400));
   }
 
-  const ParentCategory = await Category.findById(id);
+  const ParentCategory = await Category.findById(id).lean();
 
   if (!ParentCategory) {
     return next(new NotFoundError("Paretnt category not found", 404));
@@ -106,7 +106,7 @@ const createSubCategoryOnCategory = asyncWrapper(async (req, res, next) => {
 
   await newSubCategory.save();
 
-  res.status(201).json({ success: true, data: newSubCategory });
+  res.status(201).json({ success: true, data: newSubCategory.lean() });
 });
 
 export {

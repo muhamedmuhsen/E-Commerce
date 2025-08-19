@@ -3,7 +3,7 @@ import asyncWrapper from "../middlewares/asyncWrapper.js";
 import "../models/category.model.js"; // Also register Category model
 import Product from "../models/product.model.js";
 import "../models/subcategory.model.js"; // This registers the model
-import {ApiError} from "../utils/ApiErrors.js";
+import { ApiError } from "../utils/ApiErrors.js";
 import ApiFeatures from "../utils/apiFeatures.js";
 import {
   createOne,
@@ -54,7 +54,7 @@ const getSpecificProduct = getOne(Product);
     @access Public
 */
 const getProductsByCategory = asyncWrapper(async (req, res, next) => {
-  const {categoryId} = req.params;
+  const { categoryId } = req.params;
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
 
@@ -68,7 +68,8 @@ const getProductsByCategory = asyncWrapper(async (req, res, next) => {
     .populate("category", "name")
     .populate("subcategories", "name")
     .skip(offset)
-    .limit(limit);
+    .limit(limit)
+    .lean();
 
   res.status(200).json({
     success: true,
@@ -83,7 +84,7 @@ const getProductsByCategory = asyncWrapper(async (req, res, next) => {
     @access Public
 */
 const getProductsBySubcategory = asyncWrapper(async (req, res, next) => {
-  const {subcategoryId} = req.params;
+  const { subcategoryId } = req.params;
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
 
@@ -97,7 +98,8 @@ const getProductsBySubcategory = asyncWrapper(async (req, res, next) => {
     .populate("category", "name")
     .populate("subcategories", "name")
     .skip(offset)
-    .limit(limit);
+    .limit(limit)
+    .lean();
 
   res.status(200).json({
     success: true,

@@ -71,7 +71,6 @@ ProductSchema.pre("save", function (next) {
   next();
 });
 
-// TODO(populate subcategories if found)
 ProductSchema.pre(/^find/, function (next) {
   this.populate([
     { path: "category", select: "name -_id" },
