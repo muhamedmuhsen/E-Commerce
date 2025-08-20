@@ -8,11 +8,13 @@ export const addToCartService = async (productId, color, user) => {
 
   if (!cart) {
     cart = await Cart.create({
-      cartItems: {
-        product: existingProduct,
-        color,
-        price: existingProduct.price,
-      },
+      cartItems: [
+        {
+          product: existingProduct,
+          color,
+          price: existingProduct.price,
+        },
+      ],
       user,
     });
   } else {
@@ -32,8 +34,8 @@ export const addToCartService = async (productId, color, user) => {
         price: existingProduct.price,
       });
     }
+    await cart.save();
   }
-  await cart.save();
   return cart;
 };
 
@@ -48,24 +50,17 @@ export const removeSpecificCartItemService = async (productId, user) => {
     return null;
   }
 
-  const updatedCart = await Cart.findOneAndUpdate(
-    {
-      user,
-    },
-    {
-      $pull: { cartItems: { product: productId } },
-    },
-    { new: true }
+  cart.cartItems = cart.cartItems.filter(
+    (item) => item.product.toString() !== productId
   );
 
-  await updatedCart.save();
+  await cart.save();
 
-  return updatedCart;
+  return cart;
 };
 
 export const removeAllFromCartService = async (userId) => {
   const cart = await Cart.findOneAndDelete({ user: userId });
-  console.log(cart);
 
   if (!cart) {
     return null;
@@ -86,9 +81,8 @@ export const updateCartItemQuantityService = async (user, quantity, id) => {
   );
 
   if (itemIndex > -1) {
-    let cartItem = cart.cartItems[itemIndex];
-    cartItem.quantity = quantity;
-    cart.cartItems[itemIndex] = cartItem;
+    cart.cartItems[itemIndex].quantity = quantity;
+    await cart.save();
   } else {
     return null;
   }

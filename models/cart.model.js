@@ -31,4 +31,16 @@ const CartSchema = new Schema(
   { timestamps: true }
 );
 
+// TODO(calcuate totalPriceAfterDiscount)
+CartSchema.pre("save", function (next) {
+  let totalPrice = 0;
+  if (this.cartItems && Array.isArray(this.cartItems)) {
+    this.cartItems.forEach((item) => {
+      totalPrice += item.price * item.quantity;
+    });
+  }
+  this.totalCartPrice = totalPrice;
+  next();
+});
+
 export default mongoose.model("Cart", CartSchema);

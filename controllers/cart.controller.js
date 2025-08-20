@@ -14,7 +14,7 @@ export const getCartProducts = asyncWrapper(async (req, res, next) => {
   const cart = await getCartProductsService(user._id);
 
   if (!cart) {
-    return next(new NotFoundError("this user doesn't have cart"));
+    return next(new NotFoundError("this user doesn't have a cart"));
   }
 
   res.status(200).json({
@@ -48,6 +48,7 @@ export const removeAllFromCart = asyncWrapper(async (req, res, next) => {
   const id = req.user._id;
 
   const cart = await removeAllFromCartService(id);
+  console.log(cart);
 
   if (!cart) {
     return next(new NotFoundError("this user doesn't have cart"));
