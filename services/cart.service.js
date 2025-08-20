@@ -21,7 +21,6 @@ export const addToCartService = async (productId, color, user) => {
     const productIndex = cart.cartItems.findIndex(
       (item) => item.product.toString() === productId && item.color === color
     );
-    console.log(productIndex);
 
     if (productIndex > -1) {
       const cartItem = cart.cartItems[productIndex];
@@ -77,7 +76,7 @@ export const updateCartItemQuantityService = async (user, quantity, id) => {
   }
 
   const itemIndex = cart.cartItems.findIndex(
-    (item) => item._id.toString() === id
+    (item) => item.product.toString() === id
   );
 
   if (itemIndex > -1) {

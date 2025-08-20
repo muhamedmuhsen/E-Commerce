@@ -39,7 +39,7 @@ CartSchema.pre("save", function (next) {
       totalPrice += item.price * item.quantity;
     });
   }
-  this.totalCartPrice = totalPrice;
+  this.totalCartPrice = parseFloat(totalPrice);
   next();
 });
 
