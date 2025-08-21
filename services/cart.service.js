@@ -1,8 +1,16 @@
 import Product from "../models/product.model.js";
 import Cart from "../models/cart.model.js";
+import { BadRequestError, NotFoundError } from "../utils/ApiErrors.js";
 
 export const addToCartService = async (productId, color, user) => {
   const existingProduct = await Product.findById(productId);
+
+  if (!existingProduct) {
+    throw new NotFoundError("Product not found");
+  }
+  if (existingProduct.quantity < 1) {
+    throw new BadRequestError("Product is out of stock");
+  }
 
   let cart = await getCartProductsService(user);
 
@@ -24,6 +32,9 @@ export const addToCartService = async (productId, color, user) => {
 
     if (productIndex > -1) {
       const cartItem = cart.cartItems[productIndex];
+      if (cartItem.quantity >= existingProduct.quantity) {
+        throw new BadRequestError("Cannot add more items. Insufficient stock");
+      }
       cartItem.quantity += 1;
       cart.cartItems[productIndex] = cartItem;
     } else {
@@ -35,11 +46,15 @@ export const addToCartService = async (productId, color, user) => {
     }
     await cart.save();
   }
+  await cart.populate("cartItems.product", "name price images colors");
   return cart;
 };
 
 export const getCartProductsService = async (user) => {
-  return await Cart.findOne({ user });
+  return await Cart.findOne({ user }).populate(
+    "cartItems.product",
+    "name price images colors"
+  );
 };
 
 export const removeSpecificCartItemService = async (productId, user) => {
@@ -54,7 +69,7 @@ export const removeSpecificCartItemService = async (productId, user) => {
   );
 
   await cart.save();
-
+  await cart.populate("cartItems.product", "name price images colors");
   return cart;
 };
 
@@ -68,6 +83,7 @@ export const removeAllFromCartService = async (userId) => {
   return cart;
 };
 
+// TODO("valdiate product and quantity")
 export const updateCartItemQuantityService = async (user, quantity, id) => {
   let cart = await Cart.findOne({ user });
 
