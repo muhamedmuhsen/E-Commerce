@@ -7,10 +7,12 @@ import {
   removeAllFromCart,
   updateCartItemQuantity,
   removeSpecificCartItem,
+  applyCoupon,
 } from "../controllers/cart.controller.js";
 import {
   addToCartValidator,
   updateCartItemQuantityValidtor,
+  applyCouponValidator,
 } from "../validators/validateCartRequest.js";
 const router = express.Router();
 
@@ -22,9 +24,12 @@ router
   .post(addToCartValidator, addToCart)
   .delete(removeAllFromCart);
 
+router.put("/apply-coupon", applyCouponValidator, applyCoupon);
+
 router
   .route("/:id")
   .put(updateCartItemQuantityValidtor, updateCartItemQuantity)
   .delete(removeSpecificCartItem);
+
 
 export default router;

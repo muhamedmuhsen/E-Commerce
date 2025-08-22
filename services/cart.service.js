@@ -1,6 +1,7 @@
 import Product from "../models/product.model.js";
 import Cart from "../models/cart.model.js";
 import { BadRequestError, NotFoundError } from "../utils/ApiErrors.js";
+import Coupon from "../models/coupon.model.js";
 
 export const addToCartService = async (productId, color, user) => {
   const existingProduct = await Product.findById(productId);
@@ -61,7 +62,7 @@ export const removeSpecificCartItemService = async (productId, user) => {
   const cart = await Cart.findOne({ user });
 
   if (!cart) {
-    return null;
+    throw new NotFoundError("this user doesn't have cart");
   }
 
   cart.cartItems = cart.cartItems.filter(
@@ -77,7 +78,7 @@ export const removeAllFromCartService = async (userId) => {
   const cart = await Cart.findOneAndDelete({ user: userId });
 
   if (!cart) {
-    return null;
+    throw new NotFoundError("this user doesn't have cart");
   }
 
   return cart;
@@ -88,7 +89,7 @@ export const updateCartItemQuantityService = async (user, quantity, id) => {
   let cart = await Cart.findOne({ user });
 
   if (!cart) {
-    return null;
+    throw new NotFoundError(`this cart doesn't have this product`);
   }
 
   const itemIndex = cart.cartItems.findIndex(
@@ -102,5 +103,35 @@ export const updateCartItemQuantityService = async (user, quantity, id) => {
     return null;
   }
 
+  return cart;
+};
+
+export const applyCouponService = async (name, user) => {
+  const coupon = await Coupon.findOne({ name });
+  if (!coupon) {
+    throw new NotFoundError("There is no coupon with this name");
+  }
+
+  if (coupon.expire < Date.now()) {
+    throw new BadRequestError("Sorry, this coupon is expired");
+  }
+
+  const cart = await Cart.findOne({ user });
+  if (!cart) {
+    throw new NotFoundError("This user doesn't have a cart");
+  }
+
+  if (cart.cartItems.length <= 0) {
+    throw new BadRequestError(
+      "Sorry, this user doesn't have products in their cart"
+    );
+  }
+
+  const discountAmount = (cart.totalCartPrice * coupon.discount) / 100;
+  cart.totalPriceAfterDiscount = (cart.totalCartPrice - discountAmount).toFixed(
+    2
+  );
+
+  await cart.save();
   return cart;
 };

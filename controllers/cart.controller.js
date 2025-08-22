@@ -6,23 +6,32 @@ import {
   removeSpecificCartItemService,
   removeAllFromCartService,
   updateCartItemQuantityService,
+  applyCouponService,
 } from "../services/cart.service.js";
 
+/**
+ * @desc   Get user's cart with all products
+ * @route  GET /api/v1/cart
+ * @access Private
+ */
 export const getCartProducts = asyncWrapper(async (req, res, next) => {
   const cart = await getCartProductsService(req.user._id);
-
-  if (!cart) {
-    return next(new NotFoundError("this user doesn't have a cart"));
-  }
 
   res.status(200).json({
     success: true,
     message: "cart found successfully",
-    items: cart.length,
-    data: cart,
+    data: {
+      length: cart.length,
+      cart,
+    },
   });
 });
 
+/**
+ * @desc   Add product to user's cart
+ * @route  POST /api/v1/cart
+ * @access Private
+ */
 export const addToCart = asyncWrapper(async (req, res, next) => {
   const cart = await addToCartService(
     req.body.productId,
@@ -33,26 +42,37 @@ export const addToCart = asyncWrapper(async (req, res, next) => {
   res.status(201).json({
     success: true,
     message: "Item add to the cart successfully",
-    length: cart.length,
-    data: cart,
+    data: {
+      length: cart.length,
+      cart,
+    },
   });
 });
 
+/**
+ * @desc   Remove all items from user's cart
+ * @route  DELETE /api/v1/cart
+ * @access Private
+ */
 export const removeAllFromCart = asyncWrapper(async (req, res, next) => {
   const cart = await removeAllFromCartService(req.user._id);
-
-  if (!cart) {
-    return next(new NotFoundError("this user doesn't have cart"));
-  }
 
   res.status(200).json({
     success: true,
     message: "item deleted successfully",
-    items: cart.length,
-    data: cart,
+
+    data: {
+      length: cart.length,
+      cart,
+    },
   });
 });
 
+/**
+ * @desc   Update quantity of specific cart item
+ * @route  PUT /api/v1/cart/:id
+ * @access Private
+ */
 export const updateCartItemQuantity = asyncWrapper(async (req, res, next) => {
   const cart = await updateCartItemQuantityService(
     req.user._id,
@@ -60,26 +80,35 @@ export const updateCartItemQuantity = asyncWrapper(async (req, res, next) => {
     req.params.id.toString()
   );
 
-  if (!cart) {
-    return next(new NotFoundError(`this cart doesn't have this product`));
-  }
-
   res
     .status(200)
     .json({ success: true, message: "item updated successfully", data: cart });
 });
 
+/**
+ * @desc   Remove specific item from user's cart
+ * @route  DELETE /api/v1/cart/:id
+ * @access Private
+ */
 export const removeSpecificCartItem = asyncWrapper(async (req, res, next) => {
   const cart = await removeSpecificCartItemService(req.params.id, req.user._id);
-
-  if (!cart) {
-    return next(new NotFoundError("this user doesn't have cart"));
-  }
 
   res.status(200).json({
     success: true,
     message: "item deleted successfully",
-    items: cart.length,
+    data: {
+      length: cart.length,
+      cart,
+    },
+  });
+});
+
+export const applyCoupon = asyncWrapper(async (req, res, next) => {
+  const cart = await applyCouponService(req.body.name, req.user._id);
+  
+  res.status(200).json({
+    success: true,
+    message: "Coupon applied successfully",
     data: cart,
   });
 });

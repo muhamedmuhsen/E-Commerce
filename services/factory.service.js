@@ -19,7 +19,8 @@ const createOneService = async (Model, document) => {
   const addedDocument = new Model({
     ...document,
   });
-
+  console.log(addedDocument);
+  
   await addedDocument.save();
 
   let doc = addedDocument.toObject();

@@ -13,46 +13,46 @@ import {
   updateOne,
 } from "./handlersFactory.js";
 
-/*
-    @desc   Create new product
-    @route  POST /api/v1/products
-    @access Private
-*/
+/**
+ * @desc   Create new product
+ * @route  POST /api/v1/products
+ * @access Private
+ */
 const createProduct = createOne(Product);
 
-/*
-    @desc   Get all products with pagination
-    @route  GET /api/v1/products
-    @access Public
-*/
+/**
+ * @desc   Get all products with pagination
+ * @route  GET /api/v1/products
+ * @access Public
+ */
 const getAllProducts = getAll(Product);
 
-/*
-    @desc   Update product by ID
-    @route  PUT /api/v1/products/:id
-    @access Private
-*/
+/**
+ * @desc   Update product by ID
+ * @route  PUT /api/v1/products/:id
+ * @access Private
+ */
 const updateProduct = updateOne(Product);
 
-/*
-    @desc   Delete product by ID
-    @route  DELETE /api/v1/products/:id
-    @access Private
-*/
+/**
+ * @desc   Delete product by ID
+ * @route  DELETE /api/v1/products/:id
+ * @access Private
+ */
 const deleteProduct = deleteOne(Product);
 
-/*
-    @desc   Get single product by ID
-    @route  GET /api/v1/products/:id
-    @access Public
-*/
+/**
+ * @desc   Get single product by ID
+ * @route  GET /api/v1/products/:id
+ * @access Public
+ */
 const getSpecificProduct = getOne(Product);
 
-/*
-    @desc   Get products by category ID
-    @route  GET /api/v1/products/category/:categoryId
-    @access Public
-*/
+/**
+ * @desc   Get products by category ID
+ * @route  GET /api/v1/products/category/:categoryId
+ * @access Public
+ */
 const getProductsByCategory = asyncWrapper(async (req, res, next) => {
   const { categoryId } = req.params;
   const page = parseInt(req.query.page) || 1;
@@ -78,11 +78,11 @@ const getProductsByCategory = asyncWrapper(async (req, res, next) => {
   });
 });
 
-/*
-    @desc   Get products by subcategory ID
-    @route  GET /api/v1/products/subcategory/:subcategoryId
-    @access Public
-*/
+/**
+ * @desc   Get products by subcategory ID
+ * @route  GET /api/v1/products/subcategory/:subcategoryId
+ * @access Public
+ */
 const getProductsBySubcategory = asyncWrapper(async (req, res, next) => {
   const { subcategoryId } = req.params;
   const page = parseInt(req.query.page) || 1;

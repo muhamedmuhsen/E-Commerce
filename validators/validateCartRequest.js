@@ -49,3 +49,13 @@ export const updateCartItemQuantityValidtor = [
     }),
   validateRequest,
 ];
+
+export const applyCouponValidator = [
+  check("name")
+    .notEmpty()
+    .withMessage("Coupon name is required")
+    .isLength({ min: 2, max: 32 })
+    .withMessage("Coupon name must be between 2 and 32 characters")
+    .trim(),
+  validateRequest,
+];
