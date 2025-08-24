@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "clear && nodemon server.js",
-     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
-  "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix"
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +24,7 @@
     "helmet": "^8.1.0",
     "hpp": "^0.2.3",
     "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
     "mongoose": "^8.16.3",
     "morgan": "^1.10.0",
     "nodemailer": "^7.0.5",

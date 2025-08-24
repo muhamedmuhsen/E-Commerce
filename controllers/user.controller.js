@@ -17,61 +17,48 @@ import { NotFoundError, UnauthorizedError } from "../utils/ApiErrors.js";
 
 // TODO(handle profile image)
 
-/*
-    @desc   Get specific user by ID
-    @route  GET /api/v1/users/:id
-    @access Private
-*/
+/**
+ * @desc   Get specific user by ID
+ * @route  GET /api/v1/users/:id
+ * @access Private
+ */
 const getUser = getOne(User);
 
-/*
-    @desc   Create new user
-    @route  POST /api/v1/users
-    @access Private
-*/
+/**
+ * @desc   Create new user
+ * @route  POST /api/v1/users
+ * @access Private
+ */
 const createUser = createOne(User);
 
-/*
-    @desc   Update user by ID
-    @route  PUT/PATCH /api/v1/users/:id
-    @access Private
-*/
+/**
+ * @desc   Update user by ID
+ * @route  PUT/PATCH /api/v1/users/:id
+ * @access Private
+ */
 const updateUser = updateOne(User);
 
-/*
-    @desc   Get all users
-    @route  GET /api/v1/users
-    @access Private
-*/
+/**
+ * @desc   Get all users
+ * @route  GET /api/v1/users
+ * @access Private
+ */
 const getAllUsers = getAll(User);
 
-/*
-    @desc   Delete user by ID
-    @route  DELETE /api/v1/users/:id
-    @access Private
-*/
+/**
+ * @desc   Delete user by ID
+ * @route  DELETE /api/v1/users/:id
+ * @access Private
+ */
 const deleteUser = deleteOne(User);
 
-/*
-    @desc   Change user password by ID
-    @route  PUT/PATCH /api/v1/users/:id/changePassword
-    @access Private
-*/
-
-/*
-    @desc   Get logged user data
-    @route  GET /api/v1/users/getMe
-    @access Private/Protect
-*/
-const getLoggedUser = asyncWrapper((req, res, next) => {
-  req.params.id = req.user._id;
-  console.log(req.params.id);
-
-  next();
-});
-
+/**
+ * @desc   Change user password by ID
+ * @route  PATCH /api/v1/users/change-password/:id
+ * @access Private
+ */
 const changeUserPassword = asyncWrapper(async (req, res, next) => {
-  const user = await User.findById(req.params.id);
+  const user = await User.findById(req.params.id).lean();
 
   if (!user) {
     return next(new NotFoundError("User not found"));
@@ -92,8 +79,23 @@ const changeUserPassword = asyncWrapper(async (req, res, next) => {
     .json({ success: true, message: "Password changed successfully", token });
 });
 
+/**
+ * @desc   Get logged user data
+ * @route  GET /api/v1/users/get-me
+ * @access Private
+ */
+const getLoggedUser = asyncWrapper((req, res, next) => {
+  req.params.id = req.user._id;
+  next();
+});
+
+/**
+ * @desc   Update logged user password
+ * @route  PATCH /api/v1/users/update-my-password
+ * @access Private
+ */
 const updateLoggedUserPassword = asyncWrapper(async (req, res, next) => {
-  const user = await User.findById(req.user._id);
+  const user = await User.findById(req.user._id).lean();
   if (!user) {
     return next(new NotFoundError("User not found"));
   }
@@ -109,6 +111,11 @@ const updateLoggedUserPassword = asyncWrapper(async (req, res, next) => {
     .json({ success: true, message: "Password changed successfully", token });
 });
 
+/**
+ * @desc   Update logged user data
+ * @route  PUT /api/v1/users/update-me
+ * @access Private
+ */
 const updateLoggedUserData = asyncWrapper(async (req, res, next) => {
   const user = await updateLoggedUserDataService(req.user._id, req.body);
 
@@ -121,6 +128,11 @@ const updateLoggedUserData = asyncWrapper(async (req, res, next) => {
     .json({ success: true, message: "user updated successfully", data: user });
 });
 
+/**
+ * @desc   Deactivate user account
+ * @route  DELETE /api/v1/users/deactivate-me
+ * @access Private
+ */
 const deactivate = asyncWrapper(async (req, res, next) => {
   const user = await deactivateService(req.user._id);
 

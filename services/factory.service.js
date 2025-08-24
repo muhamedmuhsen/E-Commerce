@@ -3,7 +3,7 @@ import Category from "../models/category.model.js";
 import { NotFoundError, BadRequestError } from "../utils/ApiErrors.js";
 
 const deleteOneService = async (Model, id) => {
-  const document = await Model.findByIdAndDelete(id);
+  const document = await Model.findByIdAndDelete(id).lean();
   return document;
 };
 
@@ -19,13 +19,13 @@ const createOneService = async (Model, document) => {
   const addedDocument = new Model({
     ...document,
   });
-
+  console.log(addedDocument);
+  
   await addedDocument.save();
 
-  const doc = addedDocument.toObject();
+  let doc = addedDocument.toObject();
 
   delete doc.password;
-  console.log(doc);
 
   return doc;
 };
@@ -51,7 +51,7 @@ const updateOneService = async (Model, id, body) => {
 
   const document = await Model.findByIdAndUpdate(id, body, {
     new: true,
-  });
+  }).lean();
   return document;
 };
 
@@ -64,7 +64,7 @@ const getAllService = async (Model, query) => {
 
   let { mongooseQuery, _ } = apiFeatures;
 
-  const documents = await mongooseQuery;
+  let documents = await mongooseQuery.lean();
   const totalDocuments = documents.length;
   apiFeatures.Paginate(totalDocuments);
   let { pagination } = apiFeatures;
@@ -72,7 +72,7 @@ const getAllService = async (Model, query) => {
 };
 
 const getOneService = async (Model, id) => {
-  const document = await Model.findById(id);
+  const document = await Model.findById(id).lean();
 
   if (!document) {
     return null;
