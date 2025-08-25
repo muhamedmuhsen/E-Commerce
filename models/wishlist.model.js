@@ -11,6 +11,6 @@ const WishlistSchema = new Schema({
     ref: "User",
     required: [true, "User is required"],
   },
-});
+}, {timestamps:true});
 
 export default mongoose.model("Wishlist", WishlistSchema);
