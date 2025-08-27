@@ -82,6 +82,7 @@ class ApiFeatures {
         "createdAt",
         "ratingsAverage",
         "sold",
+        "review",
       ];
 
       if (!allowedSortFields.includes(sortField)) {

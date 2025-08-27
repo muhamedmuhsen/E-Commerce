@@ -20,7 +20,6 @@ const getAll = (Model) => {
     if (req.filterObject) {
       query = req.filterObject;
     }
-    console.log(query);
 
     const { documents, totalDocuments, pagination } = await getAllService(
       Model,
