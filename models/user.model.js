@@ -27,6 +27,13 @@ const UserSchema = new Schema(
       required: [true, "Password is required"],
       minlength: [8, "Password must be at least 8 characters long"],
     },
+    address: {
+      address1: String,
+      address2: String,
+      country: String,
+      zipCode: Number,
+      city: String,
+    },
     isActive: { type: Boolean, default: true },
     passwordChangeAt: Date,
     passwordResetCode: String,

@@ -35,6 +35,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 // Middleware that make req.query writable again before calling mongoSanitize()
+// Need to find better way
 app.use((req, res, next) => {
   Object.defineProperty(req, "query", {
     ...Object.getOwnPropertyDescriptor(req, "query"),
@@ -48,7 +49,7 @@ app.use((req, res, next) => {
 app.use("/api", limiter);
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
-app.use(mongoSanitize()); //-> error here because the req.query is read-only
+app.use(mongoSanitize()); 
 app.use(helmet());
 app.use(cors());
 //app.use(compression());
