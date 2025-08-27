@@ -93,7 +93,7 @@ export default class ReviewsService {
     const apiFeatures = new ApiFeatures(query, Review.find({ product }))
       .filter()
       .sorting()
-      .Paginate(totalReviews);
+      .paginate(totalReviews);
 
     let reviews = await apiFeatures.mongooseQuery
       .populate("user", "name")

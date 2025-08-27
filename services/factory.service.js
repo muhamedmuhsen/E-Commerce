@@ -64,7 +64,7 @@ const getAllService = async (Model, query) => {
 
   let documents = await mongooseQuery.lean();
   const totalDocuments = documents.length;
-  apiFeatures.Paginate(totalDocuments);
+  apiFeatures.paginate(totalDocuments);
   let { pagination } = apiFeatures;
   return { documents, totalDocuments, pagination };
 };

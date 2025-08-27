@@ -95,6 +95,7 @@ export const atLeastOneField = (fields = []) =>
       "brand",
       "ratingsAverage",
       "ratingsQuantity",
+      'address'
     ];
 
     const fieldsToCheck = fields.length > 0 ? fields : defaultProductFields;

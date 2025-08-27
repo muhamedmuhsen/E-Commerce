@@ -45,7 +45,7 @@ class ApiFeatures {
     return this;
   }
 
-  Paginate(countDocuments) {
+  paginate(countDocuments) {
     const page = parseInt(this.queryString.page) || 1;
     const limit = parseInt(this.queryString.limit) || 10;
     const offset = (page - 1) * limit;

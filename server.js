@@ -18,6 +18,7 @@ import userRoute from "./routes/user.route.js";
 import cartRoute from "./routes/cart.route.js";
 import couponRoute from "./routes/coupon.route.js";
 import wishlistRoute from "./routes/wishlist.route.js";
+import orderRoute from "./routes/order.route.js";
 import reviewsRoute from "./routes/reviews.route.js"
 import { ApiError, NotFoundError } from "./utils/ApiErrors.js";
 import xss from "xss-clean";
@@ -67,6 +68,8 @@ app.use("/api/v1/carts", cartRoute);
 app.use("/api/v1/coupons", couponRoute);
 app.use("/api/v1/wishlists", wishlistRoute);
 app.use("/api/v1/reviews", reviewsRoute);
+app.use("/api/v1/orders", orderRoute);
+
 
 // 404 handler for unmatched routes using custom ApiError
 app.use((req, res, next) => {

@@ -22,7 +22,7 @@ import {
 } from "../validators/validateUserRequest.js";
 import authenticateJWT from "../middlewares/authenticateJWT.js";
 
-const router = express.Router();
+const router = express.Router({mergeParams: true });
 
 router.use(authenticateJWT);
 

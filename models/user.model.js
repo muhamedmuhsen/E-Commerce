@@ -2,6 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import validator from "validator";
 import bcrypt from "bcryptjs";
 import slugify from "slugify";
+import Address from "./address.model.js";
 
 const UserSchema = new Schema(
   {
@@ -28,11 +29,8 @@ const UserSchema = new Schema(
       minlength: [8, "Password must be at least 8 characters long"],
     },
     address: {
-      address1: String,
-      address2: String,
-      country: String,
-      zipCode: Number,
-      city: String,
+      type: Address.schema,
+      required: [true, "Address is required"],
     },
     isActive: { type: Boolean, default: true },
     passwordChangeAt: Date,
