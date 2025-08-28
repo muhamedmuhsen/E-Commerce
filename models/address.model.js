@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import cities from "../utils/cities.js";
 
 const AddressSchema = new Schema({
   address1: {
@@ -24,6 +25,7 @@ const AddressSchema = new Schema({
   city: {
     type: String,
     trim: true,
+    enum:[cities],
     required: [true, "City is required"],
     minlength: [3, "City too short"],
     maxlength: [32, "City name too long"],
