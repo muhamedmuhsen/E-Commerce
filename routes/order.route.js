@@ -1,6 +1,6 @@
 import express from "express";
-import authenticateJWT from "../middlewares/authenticateJWT.js";
-import isAllowed from "../middlewares/isAllowed.js";
+import authenticateJWT from "../middlewares/authenticate-jwt.js";
+import isAllowed from "../middlewares/is-allowed.js";
 import {
   getAllOrders,
   getOrder,
@@ -13,7 +13,7 @@ import {
   deleteOrderValidator,
   getOrderValidator,
   createOrderValidator,
-} from "../validators/validateOrderRequest.js";
+} from "../validators/order.validator.js";
 
 const router = express.Router();
 
@@ -21,10 +21,10 @@ router.use(authenticateJWT);
 
 router.route("/user/").get(getAllOrders);
 
-router
-  .route("/")
-  .get(isAllowed("admin"), getAllOrders)
-  .post(setCart, createOrder);
+router.get("/", isAllowed("admin"), getAllOrders);
+
+router.post("/direct", createOrder);
+router.post("/from-cart", setCart, createOrder);
 
 router
   .route("/:id")

@@ -1,7 +1,7 @@
-import validateRequest from "../middlewares/validateRequest.js";
+import validateRequest from "../middlewares/validate-request.js";
 import { check } from "express-validator";
 import Product from "../models/product.model.js";
-import { mongoId } from "./commonValidators.js";
+import { mongoId } from "./common.validator.js";
 import _ from "lodash";
 
 export const addToCartValidator = [

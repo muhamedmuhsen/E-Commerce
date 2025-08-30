@@ -1,17 +1,17 @@
 import express from "express";
-import authenticateJWT from "../middlewares/authenticateJWT.js";
+import authenticateJWT from "../middlewares/authenticate-jwt.js";
 import {
   addReview,
   deleteReview,
   getReviewOfProduct,
   updateReview,getAllReviewsOfProduct
-} from "../controllers/reviews.controller.js";
+} from "../controllers/review.controller.js";
 import {
   addReviewValidator,
   deleteReviewValidator,
   getReviewOfProductValidator,
   updateReviewValidator,getAllReviewsOfProductValidator
-} from "../validators/validateReviewRequest.js";
+} from "../validators/review.validator.js";
 
 const router = express.Router();
 

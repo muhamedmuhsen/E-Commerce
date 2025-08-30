@@ -1,6 +1,7 @@
-import validateRequest from "../middlewares/validateRequest.js";
-import cities from "../utils/cities.js";
-import { mongoId } from "./commonValidators.js";
+import validateRequest from "../middlewares/validate-request.js";
+import cities from "../utils/constants/cities.js";
+import { mongoId } from "./common.validator.js";
+import { check } from "express-validator";
 
 export const deleteOrderValidator = [mongoId(), validateRequest];
 

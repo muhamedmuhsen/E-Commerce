@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
-import createToken from "../utils/createToken.js";
+import createToken from "../utils/create-token.js";
 
 const changeUserPasswordService = async (id, password) => {
   const hashedPassword = await bcrypt.hash(password, 10);

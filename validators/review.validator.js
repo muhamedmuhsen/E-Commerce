@@ -1,6 +1,6 @@
-import validateRequest from "../middlewares/validateRequest.js";
+import validateRequest from "../middlewares/validate-request.js";
 import { check } from "express-validator";
-import { mongoId } from "./commonValidators.js";
+import { mongoId } from "./common.validator.js";
 
 const checkReview = () =>
   check("review")

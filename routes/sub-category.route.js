@@ -8,14 +8,14 @@ import {
   setCategoryIdToBody,
   setFilterObject,
   updateSubCategory,
-} from "../controllers/subcategory.controller.js";
+} from "../controllers/sub-category.controller.js";
 import {
   createSubCategoryValidator,
   deleteSubCategoryValidator,
   getSpecificSubCategoryValidator,
   updateSubCategoryValidator,
-} from "../validators/validateSubCategoryRequest.js";
-import authenticateJWT from "../middlewares/authenticateJWT.js";
+} from "../validators/sub-category.validator.js";
+import authenticateJWT from "../middlewares/authenticate-jwt.js";
 
 // mergeParams allow us access parameters on other routes
 const router = express.Router({ mergeParams: true });

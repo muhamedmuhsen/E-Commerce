@@ -1,8 +1,8 @@
 import User from "../models/user.model.js";
-import sendEmail from "../utils/sendEmail.js";
-import createToken from "../utils/createToken.js";
-import hashingPassword from "../utils/hashingPassword.js";
-import { ApiError } from "../utils/ApiErrors.js";
+import sendEmail from "../utils/send-email.js";
+import createToken from "../utils/create-token.js";
+import hashingPassword from "../utils/hash-password.js";
+import { ApiError } from "../utils/api-errors.js";
 
 const registerService = async (name, email, password) => {
   const user = new User({

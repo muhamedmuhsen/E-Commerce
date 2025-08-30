@@ -1,26 +1,26 @@
 import dotenv from "dotenv";
 import express from "express";
-import morgan from "morgan";
 import dbConnection from "./config/database.js";
 import helmet from "helmet";
 import cors from "cors";
 import mongoSanitize from "express-mongo-sanitize";
 import compression from "compression";
-import limiter from "./utils/ratelimiting.js";
+import limiter from "./utils/rate-limiting.js";
 import hpp from "hpp";
-import errorHandler from "./middlewares/errorHandler.js";
+import errorHandler from "./middlewares/error-handler.js";
+import morgan from "morgan"; 
 import authRoute from "./routes/auth.route.js";
 import brandRoute from "./routes/brand.route.js";
 import categoryRoute from "./routes/category.route.js";
 import productRoute from "./routes/product.route.js";
-import subcategoryRoute from "./routes/subcategory.route.js";
+import subcategoryRoute from "./routes/sub-category.route.js";
 import userRoute from "./routes/user.route.js";
 import cartRoute from "./routes/cart.route.js";
 import couponRoute from "./routes/coupon.route.js";
-import wishlistRoute from "./routes/wishlist.route.js";
+import wishlistRoute from "./routes/wish-list.route.js";
 import orderRoute from "./routes/order.route.js";
-import reviewsRoute from "./routes/reviews.route.js"
-import { ApiError, NotFoundError } from "./utils/ApiErrors.js";
+import reviewsRoute from "./routes/review.route.js";
+import { ApiError, NotFoundError } from "./utils/api-errors.js";
 import xss from "xss-clean";
 
 dotenv.config({ path: "./.env" });

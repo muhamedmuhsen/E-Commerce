@@ -1,4 +1,4 @@
-import validateRequest from "../middlewares/validateRequest.js";
+import validateRequest from "../middlewares/validate-request.js";
 import {
   atLeastOneField,
   mongoId,
@@ -16,7 +16,7 @@ import {
   images,
   category,
   ratingsAverage,
-} from "./commonValidators.js";
+} from "./common.validator.js";
 
 const createProductValidator = [
   name("Product").notEmpty().withMessage("Product name is required"),

@@ -1,5 +1,5 @@
 import express from "express";
-import authenticateJWT from "../middlewares/authenticateJWT.js";
+import authenticateJWT from "../middlewares/authenticate-jwt.js";
 import { getLoggedUser } from "../controllers/user.controller.js";
 import {
   getCartProducts,
@@ -13,7 +13,7 @@ import {
   addToCartValidator,
   updateCartItemQuantityValidtor,
   applyCouponValidator,
-} from "../validators/validateCartRequest.js";
+} from "../validators/cart.validator.js";
 const router = express.Router();
 
 router.use(authenticateJWT, getLoggedUser);

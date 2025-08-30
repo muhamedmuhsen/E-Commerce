@@ -1,9 +1,9 @@
 import Product from "../models/product.model.js";
-import { BadRequestError, NotFoundError } from "../utils/ApiErrors.js";
-import Review from "../models/reviews.model.js";
-import ApiFeatures from "../utils/apiFeatures.js";
+import { BadRequestError, NotFoundError } from "../utils/api-errors.js";
+import Review from "../models/review.model.js";
+import ApiFeatures from "../utils/api-features.js";
 
-export default class ReviewsService {
+class ReviewsService {
   async addReview(user, productId, rating, message = "") {
     const product = await Product.findById(productId);
 
@@ -140,3 +140,5 @@ export default class ReviewsService {
     );
   }
 }
+
+export default new ReviewsService()

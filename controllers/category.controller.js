@@ -5,7 +5,7 @@ import {
   getAll,
   updateOne,
   getOne,
-} from "./handlersFactory.js";
+} from "./base.controller.js";
 
 /**
  * @desc   Get all categories with pagination

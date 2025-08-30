@@ -1,4 +1,4 @@
-import validateRequest from "../middlewares/validateRequest.js";
+import validateRequest from "../middlewares/validate-request.js";
 import User from "../models/user.model.js";
 import {
   email,
@@ -10,7 +10,7 @@ import {
   profileImage,
   atLeastOneField,
   name,
-} from "./commonValidators.js";
+} from "./common.validator.js";
 
 const checkIfEmailFoundForUpdate = async (email, { req }) => {
   const existingUser = await User.findOne({ email });

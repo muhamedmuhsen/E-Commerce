@@ -1,7 +1,23 @@
 import mongoose, { Schema } from "mongoose";
 import Address from "./address.model.js";
-import Cart from "./cart.model.js";
-import cities from "../utils/cities.js";
+import cities from "../utils/constants/cities.js";
+import shippingPrices from "../utils/constants/shippingPrices.js";
+
+const OrderItemSchema = new Schema({
+  product: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+    min: 1,
+  },
+  price: {
+    type: Number,
+  },
+});
 
 const OrderSchema = new Schema(
   {
@@ -15,10 +31,7 @@ const OrderSchema = new Schema(
       required: [true, "Address is required"],
       //default: user.address,
     },
-    cart: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Cart",
-    },
+    items: [OrderItemSchema],
     status: {
       type: String,
       enum: {
@@ -57,35 +70,19 @@ const OrderSchema = new Schema(
   { timestamps: true }
 );
 
-const ShippingPrices = {
-  [cities.CAIRO]: 60,
-  [cities.GIZA]: 60,
-  [cities.ALEXANDRIA]: 80,
-  [cities.MANSOURA]: 80,
-  [cities.TANTA]: 80,
-  [cities.ISMAILIA]: 80,
-  [cities.PORT_SAID]: 80,
-  [cities.SUEZ]: 80,
-  [cities.BENI_SUEF]: 100,
-  [cities.FAYOUM]: 100,
-  [cities.MINYA]: 100,
-  [cities.ASYUT]: 100,
-  [cities.LUXOR]: 100,
-  [cities.ASWAN]: 100,
-  [cities.HURGHADA]: 120,
-  [cities.SHARM_EL_SHEIKH]: 120,
-  [cities.MARSA_MATRUH]: 120,
-  [cities.EL_ARISH]: 120,
-};
+
 
 OrderSchema.pre("save", async function (next) {
   const city = this.shippingAddress.city;
 
-  this.shippingPrice = ShippingPrices[city];
+  this.shippingPrice = shippingPrices[city];
 
-  const cart = await Cart.findById(this.cart);
+  let totalPrice = 0;
+  for (const item of this.items) {
+    totalPrice += item.price * item.quantity;
+  }
 
-  this.totalOrderPrice = cart.totalCartPrice + this.shippingPrice;
+  this.totalOrderPrice = totalPrice + this.shippingPrice;
 
   next();
 });

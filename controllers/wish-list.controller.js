@@ -1,13 +1,8 @@
-import asyncWrapper from "../middlewares/asyncWrapper.js";
-import {
-  addProductToWishlistService,
-  getAllProductsInWishlistService,
-  removeAllFromWishlistService,
-  removeProductFromWishlistService,
-} from "../services/wishlist.service.js";
+import asyncWrapper from "../middlewares/async-wrapper.js";
+import WishlistService from "../services/wish-list.service.js";
 
 export const getAllProductsInWishlist = asyncWrapper(async (req, res, next) => {
-  const wishlist = await getAllProductsInWishlistService(req.user._id);
+  const wishlist = await WishlistService.getAllProducts(req.user._id);
   res.status(200).json({
     success: true,
     message: "Wishlist retrived successfully",
@@ -18,7 +13,7 @@ export const getAllProductsInWishlist = asyncWrapper(async (req, res, next) => {
 export const addProductToWishlist = asyncWrapper(async (req, res, next) => {
   const productId = req.body.productId;
 
-  const wishlist = await addProductToWishlistService(productId, req.user._id);
+  const wishlist = await WishlistService.addProductToWishlist(productId, req.user._id);
 
   res.status(200).json({
     success: true,
@@ -28,7 +23,7 @@ export const addProductToWishlist = asyncWrapper(async (req, res, next) => {
 });
 
 export const removeAllFromWishlist = asyncWrapper(async (req, res, next) => {
-  const wishlist = await removeAllFromWishlistService(req.user._id);
+  const wishlist = await WishlistService.clearWishlist(req.user._id);
 
   res.status(200).json({
     success: true,
@@ -39,7 +34,10 @@ export const removeAllFromWishlist = asyncWrapper(async (req, res, next) => {
 
 export const removeProductFromWishlist = asyncWrapper(
   async (req, res, next) => {
-    const wishlist = await removeProductFromWishlistService(req.params.id, req.user._id);
+    const wishlist = await WishlistService.deleteProductFromWishlist(
+      req.params.id,
+      req.user._id
+    );
     res.status(200).json({
       success: true,
       message: "Product removed from the wishlist successfully",

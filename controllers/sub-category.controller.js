@@ -1,15 +1,15 @@
 import slugify from "slugify";
-import asyncWrapper from "../middlewares/asyncWrapper.js";
+import asyncWrapper from "../middlewares/async-wrapper.js";
 import Category from "../models/category.model.js";
-import SubCategory from "../models/subcategory.model.js";
-import { BadRequestError, NotFoundError } from "../utils/ApiErrors.js";
+import SubCategory from "../models/sub-category.model.js";
+import { BadRequestError, NotFoundError } from "../utils/api-errors.js";
 import {
   createOne,
   deleteOne,
   getAll,
   getOne,
   updateOne,
-} from "./handlersFactory.js";
+} from "./base.controller.js";
 
 const setCategoryIdToBody = (req, res, next) => {
   if (!req.body.category) {

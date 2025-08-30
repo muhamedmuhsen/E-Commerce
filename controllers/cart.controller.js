@@ -1,5 +1,5 @@
-import asyncWrapper from "../middlewares/asyncWrapper.js";
-import { NotFoundError } from "../utils/ApiErrors.js";
+import asyncWrapper from "../middlewares/async-wrapper.js";
+import { NotFoundError } from "../utils/api-errors.js";
 import {
   addToCartService,
   getCartProductsService,

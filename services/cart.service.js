@@ -1,6 +1,6 @@
 import Product from "../models/product.model.js";
 import Cart from "../models/cart.model.js";
-import { BadRequestError, NotFoundError } from "../utils/ApiErrors.js";
+import { BadRequestError, NotFoundError } from "../utils/api-errors.js";
 import Coupon from "../models/coupon.model.js";
 
 export const addToCartService = async (productId, color, user) => {

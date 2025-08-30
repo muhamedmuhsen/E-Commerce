@@ -1,6 +1,6 @@
-import ApiFeatures from "../utils/apiFeatures.js";
+import ApiFeatures from "../utils/api-features.js";
 import Category from "../models/category.model.js";
-import { NotFoundError, BadRequestError } from "../utils/ApiErrors.js";
+import { NotFoundError, BadRequestError } from "../utils/api-errors.js";
 
 const deleteOneService = async (Model, id) => {
   const document = await Model.findByIdAndDelete(id).lean();

@@ -1,12 +1,12 @@
-import asyncWrapper from "../middlewares/asyncWrapper.js";
-import { NotFoundError, BadRequestError } from "../utils/ApiErrors.js";
+import asyncWrapper from "../middlewares/async-wrapper.js";
+import { NotFoundError, BadRequestError } from "../utils/api-errors.js";
 import {
   createOneService,
   deleteOneService,
   getAllService,
   updateOneService,
   getOneService,
-} from "../services/factory.service.js";
+} from "../services/base.service.js";
 /*
   Fix(if I used keyword for search on any other model except Product doesn't work)
 */

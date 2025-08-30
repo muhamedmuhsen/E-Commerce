@@ -39,26 +39,49 @@ const CartSchema = new Schema(
       type: Number,
       min: [0, "Discounted price must be positive"],
     },
+    discountPercentage: {
+      type: Number,
+      default: 0,
+      min: [0, "Discount percentage cannot be negative"],
+      max: [100, "Discount percentage cannot exceed 100"],
+    },
     user: {
       type: mongoose.Schema.ObjectId,
       ref: "User",
       required: [true, "User is required"],
-      unique: true, // One cart per user
+      unique: true,
     },
   },
   { timestamps: true }
 );
 
-// TODO(calcuate totalPriceAfterDiscount)
 CartSchema.pre("save", function (next) {
   let totalPrice = 0;
-  if (this.cartItems && Array.isArray(this.cartItems)) {
+  if (
+    this.cartItems &&
+    this.cartItems.length > 0 &&
+    Array.isArray(this.cartItems)
+  ) {
     this.cartItems.forEach((item) => {
       totalPrice += item.price * item.quantity;
     });
   }
+
   this.totalCartPrice = parseFloat(totalPrice);
+
+  if (this.discountPercentage && this.discountPercentage > 0) {
+    const discountAmount =
+      (this.totalCartPrice * this.discountPercentage) / 100;
+    this.totalPriceAfterDiscount = parseFloat(
+      this.totalCartPrice - discountAmount
+    );
+  } else {
+    this.totalPriceAfterDiscount = this.totalCartPrice;
+  }
+
+  this.popualte({ path: "items.product", select: "name" });
+  this.popualte({ path: "user", select: "name" });
+
   next();
 });
-
 export default mongoose.model("Cart", CartSchema);

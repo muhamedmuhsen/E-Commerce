@@ -1,17 +1,17 @@
 import slugify from "slugify";
-import asyncWrapper from "../middlewares/asyncWrapper.js";
+import asyncWrapper from "../middlewares/async-wrapper.js";
 import "../models/category.model.js"; // Also register Category model
 import Product from "../models/product.model.js";
-import "../models/subcategory.model.js"; // This registers the model
-import { ApiError } from "../utils/ApiErrors.js";
-import ApiFeatures from "../utils/apiFeatures.js";
+import "../models/sub-category.model.js"; // This registers the model
+import { ApiError } from "../utils/api-errors.js";
+import ApiFeatures from "../utils/api-features.js";
 import {
   createOne,
   deleteOne,
   getAll,
   getOne,
   updateOne,
-} from "./handlersFactory.js";
+} from "./base.controller.js";
 
 /**
  * @desc   Create new product

@@ -1,12 +1,12 @@
 import bcrypt from "bcryptjs";
-import asyncWrapper from "../middlewares/asyncWrapper.js";
+import asyncWrapper from "../middlewares/async-wrapper.js";
 import User from "../models/user.model.js";
 import {
   UnauthorizedError,
   NotFoundError,
   BadRequestError,
-} from "../utils/ApiErrors.js";
-import hashingPassword from "../utils/hashingPassword.js";
+} from "../utils/api-errors.js";
+import hashingPassword from "../utils/hash-password.js";
 import {
   registerService,
   loginService,

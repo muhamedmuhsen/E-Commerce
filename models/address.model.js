@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import cities from "../utils/cities.js";
+import cities from "../utils/constants/cities.js";
 
 const AddressSchema = new Schema({
   address1: {

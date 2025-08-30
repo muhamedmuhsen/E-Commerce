@@ -1,10 +1,9 @@
-import asyncWrapper from "../middlewares/asyncWrapper.js";
-import ReviewsService from "../services/reviews.service.js";
+import asyncWrapper from "../middlewares/async-wrapper.js";
+import ReviewsService from "../services/review.service.js";
 
-const reviewsService = new ReviewsService();
 
 export const addReview = asyncWrapper(async (req, res, next) => {
-  const review = await reviewsService.addReview(
+  const review = await ReviewsService.addReview(
     req.user._id,
     req.params.id,
     req.body.review,
@@ -20,7 +19,7 @@ export const addReview = asyncWrapper(async (req, res, next) => {
 
 export const getAllReviewsOfProduct = asyncWrapper(async (req, res, next) => {
   const { reviews, totalReviews, pagination } =
-    await reviewsService.getAllReviewsOfProduct(req.params.id, req.query);
+    await ReviewsService.getAllReviewsOfProduct(req.params.id, req.query);
 
   res.status(200).json({
     success: true,
@@ -32,7 +31,7 @@ export const getAllReviewsOfProduct = asyncWrapper(async (req, res, next) => {
 });
 
 export const getReviewOfProduct = asyncWrapper(async (req, res, next) => {
-  const review = await reviewsService.getReviewOfProduct(
+  const review = await ReviewsService.getReviewOfProduct(
     req.user._id,
     req.params.id
   );
@@ -45,7 +44,7 @@ export const getReviewOfProduct = asyncWrapper(async (req, res, next) => {
 });
 
 export const updateReview = asyncWrapper(async (req, res, next) => {
-  const review = await reviewsService.updateReview(
+  const review = await ReviewsService.updateReview(
     req.user._id,
     req.params.id,
     req.body.review,
@@ -59,7 +58,7 @@ export const updateReview = asyncWrapper(async (req, res, next) => {
 });
 
 export const deleteReview = asyncWrapper(async (req, res, next) => {
-  const review = await reviewsService.deleteReview(req.user._id, req.params.id);
+  const review = await ReviewsService.deleteReview(req.user._id, req.params.id);
   res.status(200).json({
     success: true,
     message: "Review removed successfully",

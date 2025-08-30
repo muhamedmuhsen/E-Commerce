@@ -1,15 +1,15 @@
 import express from "express";
-import authenticateJWT from "../middlewares/authenticateJWT.js";
+import authenticateJWT from "../middlewares/authenticate-jwt.js";
 import {
   addProductToWishlistValidator,
   removeProductFromWishlistValidator,
-} from "../validators/validateWishlistRequest.js";
+} from "../validators/wish-list.validator.js";
 import {
   addProductToWishlist,
   getAllProductsInWishlist,
   removeAllFromWishlist,
   removeProductFromWishlist,
-} from "../controllers/wishlist.controller.js";
+} from "../controllers/wish-list.controller.js";
 
 const router = express.Router();
 

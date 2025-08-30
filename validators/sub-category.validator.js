@@ -1,5 +1,5 @@
-import validateRequest from "../middlewares/validateRequest.js";
-import { mongoId, name, category } from "./commonValidators.js";
+import validateRequest from "../middlewares/validate-request.js";
+import { mongoId, name, category } from "./common.validator.js";
 
 const createSubCategoryValidator = [
   name("SubCategory").notEmpty(),
