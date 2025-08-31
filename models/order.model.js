@@ -70,9 +70,7 @@ const OrderSchema = new Schema(
   { timestamps: true }
 );
 
-
-
-OrderSchema.pre("save", async function (next) {
+OrderSchema.pre("save", function (next) {
   const city = this.shippingAddress.city;
 
   this.shippingPrice = shippingPrices[city];
@@ -83,8 +81,12 @@ OrderSchema.pre("save", async function (next) {
   }
 
   this.totalOrderPrice = totalPrice + this.shippingPrice;
-
   next();
 });
 
+OrderSchema.pre(/^find/, function (next) {
+  this.populate({ path: "user", select: "name email" });
+  this.populate({ path: "items.product", select: "name" });
+  next();
+});
 export default mongoose.model("Order", OrderSchema);

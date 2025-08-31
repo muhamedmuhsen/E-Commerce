@@ -76,3 +76,13 @@ export const updateOrder = asyncWrapper(async (req, res, next) => {
     data: order,
   });
 });
+
+export const updateOrderStatus = asyncWrapper(async (req, res, next) => {
+  const order = await OrderService.updateOrderStatus(req.params.id);
+
+  res.status(200).json({
+    success: true,
+    message: "Order updated successfully",
+    data: order,
+  });
+});

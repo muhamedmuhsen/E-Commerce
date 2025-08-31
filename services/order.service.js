@@ -32,15 +32,25 @@ class OrderService {
   }
 
   async deleteOrder(id) {
-    const order = await Order.findByIdAndDelete(id, { new: true });
+    const order = await Order.findById(id).lean();
     console.log(order);
     if (!order) {
       throw new NotFoundError("Order not found");
     }
+
+    if (order.status !== "cancelled") {
+      for (const item of order.items) {
+        await Product.findByIdAndUpdate(item.product, {
+          $inc: { quantity: item.quantity },
+        });
+      }
+    }
+
+    await Order.findByIdAndDelete(id);
   }
 
   async getOrder(user, id) {
-    const order = await Order.findOne({ user, _id: id });
+    const order = await Order.findOne({ user, _id: id }).lean();
 
     if (!order)
       throw new NotFoundError("it seems that user doesn't have this order");
@@ -110,12 +120,43 @@ class OrderService {
       { _id: orderId, user, status: "pending" || "confirmed" },
       { ...body },
       { new: true }
-    );
+    ).lean();
 
     if (!order) {
       throw new NotFoundError("Couldn't find this order");
     }
 
+    return order;
+  }
+
+  // call it when there is an update on the payment
+  async updateOrderStatus(id) {
+    const order = await Order.findById(id);
+
+    if (!order) throw new NotFoundError("Couldn't find the order");
+
+    const { paymentMethod, paymentStatus } = order;
+
+    if (paymentMethod === "Card") {
+      switch (paymentStatus) {
+        case "pending":
+          order.status = "pending";
+          break;
+        case "completed":
+          order.status = "confirmed";
+          break;
+        case "refunded":
+          order.status = "refunded";
+          break;
+        case "failed":
+          order.status = "cancelled";
+          break;
+      }
+    } else {
+      order.status = paymentStatus === "pending" ? "pending" : "confirmed";
+    }
+
+    await order.save();
     return order;
   }
 }
