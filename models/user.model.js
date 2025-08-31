@@ -48,6 +48,10 @@ const UserSchema = new Schema(
   { timestamps: true }
 );
 
+UserSchema.methods.comparePassword = async function (password, hashed) {
+  return await bcrypt.compare(password, hashed);
+};
+
 UserSchema.pre("save", async function (next) {
   this.slug = slugify(this.name);
   if (!this.isModified("password")) return next();
