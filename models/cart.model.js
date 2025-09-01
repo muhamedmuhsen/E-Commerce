@@ -55,33 +55,47 @@ const CartSchema = new Schema(
   { timestamps: true }
 );
 
+CartSchema.methods.calculateTotals = function () {
+  const items = Array.isArray(this.cartItems) ? this.cartItems : [];
+
+  this.totalCartPrice = items.reduce(
+    (sum, item) => sum + (item.price * item.quantity || 0),
+    0
+  ).toFixed(2);
+
+  this.totalPriceAfterDiscount =
+    this.discountPercentage > 0
+      ? this.totalCartPrice * (1 - this.discountPercentage / 100).toFixed(2)
+      : this.totalCartPrice.toFixed(2);
+};
+
 CartSchema.pre("save", function (next) {
-  let totalPrice = 0;
+  this.calculateTotals();
+  next();
+});
+
+CartSchema.post([/Update/, /Delete/], async function (doc, next) {
+  if (doc) doc.calculateTotals();
   if (
-    this.cartItems &&
-    this.cartItems.length > 0 &&
-    Array.isArray(this.cartItems)
-  ) {
-    this.cartItems.forEach((item) => {
-      totalPrice += item.price * item.quantity;
-    });
-  }
+    doc &&
+    (doc.isModified("totalCartPrice") ||
+      doc.isModified("totalPriceAfterDiscount"))
+  )
+    await doc.save();
+  next();
+});
 
-  this.totalCartPrice = parseFloat(totalPrice);
-
-  if (this.discountPercentage && this.discountPercentage > 0) {
-    const discountAmount =
-      (this.totalCartPrice * this.discountPercentage) / 100;
-    this.totalPriceAfterDiscount = parseFloat(
-      this.totalCartPrice - discountAmount
-    );
-  } else {
-    this.totalPriceAfterDiscount = this.totalCartPrice;
-  }
-
-  this.popualte({ path: "items.product", select: "name" });
-  this.popualte({ path: "user", select: "name" });
+CartSchema.pre(["save", /^find/], function (next) {
+  this.populate({
+    path: "cartItems.product",
+    select: "name price images colors",
+  });
+  this.populate({
+    path: "user",
+    select: "name email",
+  });
 
   next();
 });
+
 export default mongoose.model("Cart", CartSchema);

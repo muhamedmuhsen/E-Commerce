@@ -35,7 +35,7 @@ class AuthService {
     return token;
   }
 
-  async resetPassword(user, newPassword) {
+  async resetPassword(email, newPassword) {
     const user = await User.findOne({ email });
     if (!user) {
       return next(new NotFoundError("user not found"));

@@ -1,13 +1,6 @@
 import asyncWrapper from "../middlewares/async-wrapper.js";
 import { NotFoundError } from "../utils/api-errors.js";
-import {
-  addToCartService,
-  getCartProductsService,
-  removeSpecificCartItemService,
-  removeAllFromCartService,
-  updateCartItemQuantityService,
-  applyCouponService,
-} from "../services/cart.service.js";
+import CartService from "../services/cart.service.js";
 
 /**
  * @desc   Get user's cart with all products
@@ -15,14 +8,14 @@ import {
  * @access Private
  */
 export const getCartProducts = asyncWrapper(async (req, res, next) => {
-  const cart = await getCartProductsService(req.user._id);
-
+  const products = await CartService.getCartProducts(req.user._id);
+  
   res.status(200).json({
     success: true,
     message: "cart found successfully",
     data: {
-      length: cart.length,
-      cart,
+      length: products.length,
+      products,
     },
   });
 });
@@ -33,7 +26,7 @@ export const getCartProducts = asyncWrapper(async (req, res, next) => {
  * @access Private
  */
 export const addToCart = asyncWrapper(async (req, res, next) => {
-  const cart = await addToCartService(
+  const cart = await CartService.addToCart(
     req.body.productId,
     req.body.color,
     req.user._id
@@ -43,7 +36,7 @@ export const addToCart = asyncWrapper(async (req, res, next) => {
     success: true,
     message: "Item add to the cart successfully",
     data: {
-      length: cart.length,
+      length: cart.cartItems.length,
       cart,
     },
   });
@@ -55,16 +48,11 @@ export const addToCart = asyncWrapper(async (req, res, next) => {
  * @access Private
  */
 export const removeAllFromCart = asyncWrapper(async (req, res, next) => {
-  const cart = await removeAllFromCartService(req.user._id);
+  const cart = await CartService.removeAllFromCart(req.user._id);
 
   res.status(200).json({
     success: true,
-    message: "item deleted successfully",
-
-    data: {
-      length: cart.length,
-      cart,
-    },
+    message: "All Items deleted successfully",
   });
 });
 
@@ -73,8 +61,8 @@ export const removeAllFromCart = asyncWrapper(async (req, res, next) => {
  * @route  PUT /api/v1/cart/:id
  * @access Private
  */
-export const updateCartItemQuantity = asyncWrapper(async (req, res, next) => {
-  const cart = await updateCartItemQuantityService(
+export const updateProductQuantity = asyncWrapper(async (req, res, next) => {
+  const cart = await CartService.updateProductQuantity(
     req.user._id,
     req.body.quantity,
     req.params.id.toString()
@@ -91,7 +79,7 @@ export const updateCartItemQuantity = asyncWrapper(async (req, res, next) => {
  * @access Private
  */
 export const removeSpecificCartItem = asyncWrapper(async (req, res, next) => {
-  const cart = await removeSpecificCartItemService(req.params.id, req.user._id);
+  const cart = await CartService.removeProductFromCart(req.params.id, req.user._id);
 
   res.status(200).json({
     success: true,
@@ -104,8 +92,8 @@ export const removeSpecificCartItem = asyncWrapper(async (req, res, next) => {
 });
 
 export const applyCoupon = asyncWrapper(async (req, res, next) => {
-  const cart = await applyCouponService(req.body.name, req.user._id);
-  
+  const cart = await CartService.applyCoupon(req.body.name, req.user._id);
+
   res.status(200).json({
     success: true,
     message: "Coupon applied successfully",

@@ -5,13 +5,13 @@ import {
   getCartProducts,
   addToCart,
   removeAllFromCart,
-  updateCartItemQuantity,
+  updateProductQuantity,
   removeSpecificCartItem,
   applyCoupon,
 } from "../controllers/cart.controller.js";
 import {
   addToCartValidator,
-  updateCartItemQuantityValidtor,
+  updateProductQuantityValidtor,
   applyCouponValidator,
 } from "../validators/cart.validator.js";
 const router = express.Router();
@@ -28,7 +28,7 @@ router.put("/apply-coupon", applyCouponValidator, applyCoupon);
 
 router
   .route("/:id")
-  .put(updateCartItemQuantityValidtor, updateCartItemQuantity)
+  .put(updateProductQuantityValidtor, updateProductQuantity)
   .delete(removeSpecificCartItem);
 
 
