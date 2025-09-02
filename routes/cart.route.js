@@ -1,19 +1,19 @@
 import express from "express";
-import authenticateJWT from "../middlewares/authenticateJWT.js";
+import authenticateJWT from "../middlewares/authenticate-jwt.js";
 import { getLoggedUser } from "../controllers/user.controller.js";
 import {
   getCartProducts,
   addToCart,
   removeAllFromCart,
-  updateCartItemQuantity,
+  updateProductQuantity,
   removeSpecificCartItem,
   applyCoupon,
 } from "../controllers/cart.controller.js";
 import {
   addToCartValidator,
-  updateCartItemQuantityValidtor,
+  updateProductQuantityValidtor,
   applyCouponValidator,
-} from "../validators/validateCartRequest.js";
+} from "../validators/cart.validator.js";
 const router = express.Router();
 
 router.use(authenticateJWT, getLoggedUser);
@@ -28,7 +28,7 @@ router.put("/apply-coupon", applyCouponValidator, applyCoupon);
 
 router
   .route("/:id")
-  .put(updateCartItemQuantityValidtor, updateCartItemQuantity)
+  .put(updateProductQuantityValidtor, updateProductQuantity)
   .delete(removeSpecificCartItem);
 
 

@@ -1,6 +1,6 @@
 import { check } from "express-validator";
-import validateRequest from "../middlewares/validateRequest.js";
-import { atLeastOneField, mongoId, name } from "./commonValidators.js";
+import validateRequest from "../middlewares/validate-request.js";
+import { atLeastOneField, mongoId, name } from "./common.validator.js";
 
 const commonCouponValidtor = {
   ExpirationDate: check("expire")

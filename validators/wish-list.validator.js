@@ -1,5 +1,5 @@
-import validateRequest from "../middlewares/validateRequest.js";
-import { mongoId } from "./commonValidators.js";
+import validateRequest from "../middlewares/validate-request.js";
+import { mongoId } from "./common.validator.js";
 
 export const addProductToWishlistValidator = [
     mongoId("productId"),

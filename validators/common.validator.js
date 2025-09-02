@@ -1,5 +1,5 @@
 import { body, check } from "express-validator";
-import SubCategory from "../models/subcategory.model.js";
+import SubCategory from "../models/sub-category.model.js";
 import Category from "../models/category.model.js";
 
 const roles = ["user", "admin"];
@@ -95,6 +95,7 @@ export const atLeastOneField = (fields = []) =>
       "brand",
       "ratingsAverage",
       "ratingsQuantity",
+      'address'
     ];
 
     const fieldsToCheck = fields.length > 0 ? fields : defaultProductFields;

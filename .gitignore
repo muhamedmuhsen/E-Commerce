@@ -200,3 +200,6 @@ note.txt
 todo.txt
 .github
 .env
+models.png
+.commit-template
+.gitmessage

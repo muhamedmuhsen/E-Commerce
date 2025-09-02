@@ -1,6 +1,6 @@
 import express from "express";
-import authenticateJWT from "../middlewares/authenticateJWT.js";
-import isAllowed from "../middlewares/isAllowed.js";
+import authenticateJWT from "../middlewares/authenticate-jwt.js";
+import isAllowed from "../middlewares/is-allowed.js";
 import {
   createCoupon,
   deleteCoupon,
@@ -13,7 +13,7 @@ import {
   deleteCouponValidator,
   getSpecificCouponValidator,
   updateCouponValidator,
-} from "../validators/validateCouponRequest.js";
+} from "../validators/coupon.validator.js";
 const router = express.Router();
 
 router.use(authenticateJWT, isAllowed("admin"));

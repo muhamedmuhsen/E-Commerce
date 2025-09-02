@@ -13,8 +13,8 @@ import {
   deleteBrandValidator,
   getSpecificBrandValidator,
   updateBrandValidator,
-} from "../validators/validateBrandRequest.js";
-import authenticateJWT from "../middlewares/authenticateJWT.js";
+} from "../validators/brand.validator.js";
+import authenticateJWT from "../middlewares/authenticate-jwt.js";
 const router = express.Router();
 
 router

@@ -1,5 +1,5 @@
-import validateRequest from "../middlewares/validateRequest.js";
-import { mongoId, name } from "./commonValidators.js";
+import validateRequest from "../middlewares/validate-request.js";
+import { mongoId, name } from "./common.validator.js";
 
 const createBrandValidator = [
   name("Brand").notEmpty().withMessage("Brand name is required"),

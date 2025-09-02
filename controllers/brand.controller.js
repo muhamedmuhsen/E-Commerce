@@ -5,7 +5,7 @@ import {
   getAll,
   updateOne,
   getOne,
-} from "./handlersFactory.js";
+} from "./base.controller.js";
 
 // TODO(handle profile image)
 /**

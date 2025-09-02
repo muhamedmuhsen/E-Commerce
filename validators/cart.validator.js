@@ -1,8 +1,9 @@
-import validateRequest from "../middlewares/validateRequest.js";
+import validateRequest from "../middlewares/validate-request.js";
 import { check } from "express-validator";
 import Product from "../models/product.model.js";
-import { mongoId } from "./commonValidators.js";
+import { mongoId } from "./common.validator.js";
 import _ from "lodash";
+import { BadRequestError, NotFoundError } from "../utils/api-errors.js";
 
 export const addToCartValidator = [
   mongoId("productId"),
@@ -12,7 +13,7 @@ export const addToCartValidator = [
     .custom(async (val, { req }) => {
       const product = await Product.findById(req.body.productId);
       if (!product) {
-        throw new Error("product not found");
+        throw new NotFoundError("product not found");
       }
       let notFoundColor = true;
       if (!product.colors || !Array.isArray(product.colors)) {
@@ -20,7 +21,7 @@ export const addToCartValidator = [
       }
 
       if (!product.colors.includes(val)) {
-        throw new Error(
+        throw new BadRequestError(
           `Invalid color. Available colors: ${product.colors.join(", ")}`
         );
       }
@@ -29,24 +30,13 @@ export const addToCartValidator = [
   validateRequest,
 ];
 
-export const updateCartItemQuantityValidtor = [
+export const updateProductQuantityValidtor = [
+  mongoId(),
   check("quantity")
     .notEmpty()
     .withMessage("You must enter product quantity")
     .isInt()
-    .withMessage("You must write valid numbers")
-    .custom(async (val, { req }) => {
-      const product = await Product.findById(req.params.id);
-
-      if (!product) {
-        throw new Error("Product not found");
-      }
-
-      if (!_.inRange(val, 1, product.quantity)) {
-        throw new Error(`Quantity must be between 1 and ${product.quantity}`);
-      }
-      return true;
-    }),
+    .withMessage("You must write valid numbers"),
   validateRequest,
 ];
 

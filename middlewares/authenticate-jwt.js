@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
-import { UnauthorizedError } from "../utils/ApiErrors.js";
-import asyncWrapper from "./asyncWrapper.js";
+import { UnauthorizedError } from "../utils/api-errors.js";
+import asyncWrapper from "./async-wrapper.js";
 
 export default asyncWrapper(async (req, res, next) => {
   const { authorization: authHeader } = req.headers;

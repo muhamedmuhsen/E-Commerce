@@ -9,7 +9,7 @@ import {
 import {
   loginValidator,
   registerValidator,
-} from "../validators/validateAuthRequest.js";
+} from "../validators/auth.validator.js";
 
 const router = express.Router();
 

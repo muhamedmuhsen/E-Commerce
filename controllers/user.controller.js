@@ -1,19 +1,19 @@
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
-import asyncWrapper from "../middlewares/asyncWrapper.js";
+import asyncWrapper from "../middlewares/async-wrapper.js";
 import {
   createOne,
   deleteOne,
   getAll,
   getOne,
   updateOne,
-} from "./handlersFactory.js";
+} from "./base.controller.js";
 import {
   changeUserPasswordService,
   updateLoggedUserDataService,
   deactivateService,
 } from "../services/user.service.js";
-import { NotFoundError, UnauthorizedError } from "../utils/ApiErrors.js";
+import { NotFoundError, UnauthorizedError } from "../utils/api-errors.js";
 
 // TODO(handle profile image)
 

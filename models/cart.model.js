@@ -39,25 +39,62 @@ const CartSchema = new Schema(
       type: Number,
       min: [0, "Discounted price must be positive"],
     },
+    discountPercentage: {
+      type: Number,
+      default: 0,
+      min: [0, "Discount percentage cannot be negative"],
+      max: [100, "Discount percentage cannot exceed 100"],
+    },
     user: {
       type: mongoose.Schema.ObjectId,
       ref: "User",
       required: [true, "User is required"],
-      unique: true, // One cart per user
+      unique: true,
     },
   },
   { timestamps: true }
 );
 
-// TODO(calcuate totalPriceAfterDiscount)
+CartSchema.methods.calculateTotals = function () {
+  const items = Array.isArray(this.cartItems) ? this.cartItems : [];
+
+  this.totalCartPrice = items.reduce(
+    (sum, item) => sum + (item.price * item.quantity || 0),
+    0
+  ).toFixed(2);
+
+  this.totalPriceAfterDiscount =
+    this.discountPercentage > 0
+      ? this.totalCartPrice * (1 - this.discountPercentage / 100).toFixed(2)
+      : this.totalCartPrice.toFixed(2);
+};
+
 CartSchema.pre("save", function (next) {
-  let totalPrice = 0;
-  if (this.cartItems && Array.isArray(this.cartItems)) {
-    this.cartItems.forEach((item) => {
-      totalPrice += item.price * item.quantity;
-    });
-  }
-  this.totalCartPrice = parseFloat(totalPrice);
+  this.calculateTotals();
+  next();
+});
+
+CartSchema.post([/Update/, /Delete/], async function (doc, next) {
+  if (doc) doc.calculateTotals();
+  if (
+    doc &&
+    (doc.isModified("totalCartPrice") ||
+      doc.isModified("totalPriceAfterDiscount"))
+  )
+    await doc.save();
+  next();
+});
+
+CartSchema.pre(["save", /^find/], function (next) {
+  this.populate({
+    path: "cartItems.product",
+    select: "name price images colors",
+  });
+  this.populate({
+    path: "user",
+    select: "name email",
+  });
+
   next();
 });
 

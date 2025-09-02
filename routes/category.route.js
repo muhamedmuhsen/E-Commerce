@@ -1,5 +1,5 @@
 import express from "express";
-import subCategoryRoute from "./subcategory.route.js";
+import subCategoryRoute from "./sub-category.route.js";
 import {
   createCategory,
   deleteCategory,
@@ -12,8 +12,8 @@ import {
   deleteCategoryValidator,
   getSpecificCategoryValidator,
   updateCategoryValidator,
-} from "../validators/validateCategoryRequest.js";
-import authenticateJWT from "../middlewares/authenticateJWT.js";
+} from "../validators/category.validator.js";
+import authenticateJWT from "../middlewares/authenticate-jwt.js";
 
 const router = express.Router();
 

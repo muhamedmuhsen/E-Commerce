@@ -1,5 +1,5 @@
 import express from "express";
-import allowed from "../middlewares/isAllowed.js";
+import allowed from "../middlewares/is-allowed.js";
 import {
   createUser,
   deleteUser,
@@ -19,10 +19,10 @@ import {
   updateUserValidator,
   changeUserPasswordValidator,
   updateLoggedUserValidator,
-} from "../validators/validateUserRequest.js";
-import authenticateJWT from "../middlewares/authenticateJWT.js";
+} from "../validators/user.validator.js";
+import authenticateJWT from "../middlewares/authenticate-jwt.js";
 
-const router = express.Router();
+const router = express.Router({mergeParams: true });
 
 router.use(authenticateJWT);
 

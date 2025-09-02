@@ -1,4 +1,4 @@
-import { createOne, deleteOne, getAll, getOne, updateOne } from "./handlersFactory.js";
+import { createOne, deleteOne, getAll, getOne, updateOne } from "./base.controller.js";
 import Coupon from "../models/coupon.model.js";
 
 /**

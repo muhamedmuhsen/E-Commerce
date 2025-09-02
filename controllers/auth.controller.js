@@ -1,19 +1,9 @@
-import bcrypt from "bcryptjs";
-import asyncWrapper from "../middlewares/asyncWrapper.js";
+import asyncWrapper from "../middlewares/async-wrapper.js";
 import User from "../models/user.model.js";
-import {
-  UnauthorizedError,
-  NotFoundError,
-  BadRequestError,
-} from "../utils/ApiErrors.js";
-import hashingPassword from "../utils/hashingPassword.js";
-import {
-  registerService,
-  loginService,
-  forgetPasswordService,
-  verifyResetCodeService,
-  resetPasswordService,
-} from "../services/auth.service.js";
+import { NotFoundError, BadRequestError } from "../utils/api-errors.js";
+import hashingPassword from "../utils/hasing.js";
+import AuthService from "../services/auth.service.js";
+
 
 /**
  * @desc   Register new user
@@ -21,17 +11,7 @@ import {
  * @access Public
  */
 const registerController = asyncWrapper(async (req, res, next) => {
-  const existingUser = await User.findOne({ email: req.body.email });
-
-  if (existingUser) {
-    return next(new BadRequestError("User already exists"));
-  }
-
-  if (req.body.passwordConfirm !== req.body.password) {
-    return next(UnauthorizedError("Passwords do not match"));
-  }
-
-  const { token } = await registerService(
+  const token = await AuthService.register(
     req.body.name,
     req.body.email,
     req.body.password
@@ -50,12 +30,8 @@ const registerController = asyncWrapper(async (req, res, next) => {
  * @access Public
  */
 const loginSController = asyncWrapper(async (req, res, next) => {
-  const user = await User.findOne({ email: req.body.email });
+  const token = await AuthService.login(req.body.email, req.body.password);
 
-  if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
-    return next(new UnauthorizedError("Invalid credentials"));
-  }
-  const token = await loginService(user._id);
   res
     .status(200)
     .json({ success: true, message: "logged in successfully", token });
@@ -67,14 +43,7 @@ const loginSController = asyncWrapper(async (req, res, next) => {
  * @access Public
  */
 const forgetPasswordController = asyncWrapper(async (req, res, next) => {
-  const { email } = req.body;
-
-  const user = await User.findOne({ email });
-  if (!user) {
-    return next(new NotFoundError("Email not found"));
-  }
-
-  await forgetPasswordService(user);
+  await AuthService.forgetPassword(req.body.email);
 
   res
     .status(200)
@@ -87,20 +56,7 @@ const forgetPasswordController = asyncWrapper(async (req, res, next) => {
  * @access Public
  */
 const verifyResetCodeController = asyncWrapper(async (req, res, next) => {
-  const { resetCode } = req.body;
-
-  const hashedResetCode = hashingPassword(resetCode);
-
-  const user = await User.findOne({
-    passwordResetCode: hashedResetCode,
-    passwordResetCodeExpire: { $gt: Date.now() },
-  });
-
-  if (!user) {
-    return next(new BadRequestError("Invalid reset code"));
-  }
-
-  await verifyResetCodeService(user);
+  await AuthService.verifyResetCode(req.body.resetCode);
 
   res
     .status(200)
@@ -113,18 +69,10 @@ const verifyResetCodeController = asyncWrapper(async (req, res, next) => {
  * @access Public
  */
 const resetPasswordController = asyncWrapper(async (req, res, next) => {
-  const { email, newPassword } = req.body;
-
-  const user = await User.findOne({ email });
-  if (!user) {
-    return next(new NotFoundError("user not found"));
-  }
-
-  if (!user.passwordResetCodeVerified) {
-    return next(new BadRequestError("reset code not verified"));
-  }
-
-  const token = await resetPasswordService(user, newPassword);
+  const token = await AuthService.resetPassword(
+    req.body.email,
+    req.body.newPassword
+  );
 
   res
     .status(200)
