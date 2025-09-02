@@ -4,7 +4,6 @@ import "../models/category.model.js"; // Also register Category model
 import Product from "../models/product.model.js";
 import "../models/sub-category.model.js"; // This registers the model
 import { ApiError } from "../utils/api-errors.js";
-import ApiFeatures from "../utils/api-features.js";
 import {
   createOne,
   deleteOne,
@@ -65,8 +64,6 @@ const getProductsByCategory = asyncWrapper(async (req, res, next) => {
   const offset = (page - 1) * limit;
 
   const products = await Product.find({ category: categoryId })
-    .populate("category", "name")
-    .populate("subcategories", "name")
     .skip(offset)
     .limit(limit)
     .lean();
@@ -95,8 +92,6 @@ const getProductsBySubcategory = asyncWrapper(async (req, res, next) => {
   const offset = (page - 1) * limit;
 
   const products = await Product.find({ subcategories: subcategoryId })
-    .populate("category", "name")
-    .populate("subcategories", "name")
     .skip(offset)
     .limit(limit)
     .lean();

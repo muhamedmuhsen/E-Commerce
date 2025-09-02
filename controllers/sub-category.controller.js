@@ -1,4 +1,3 @@
-import slugify from "slugify";
 import asyncWrapper from "../middlewares/async-wrapper.js";
 import Category from "../models/category.model.js";
 import SubCategory from "../models/sub-category.model.js";

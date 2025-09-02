@@ -4,6 +4,7 @@ import { NotFoundError, BadRequestError } from "../utils/api-errors.js";
 
 const deleteOneService = async (Model, id) => {
   const document = await Model.findByIdAndDelete(id).lean();
+  if (!document) throw new NotFoundError(`${Model.modelName} not found`);
   return document;
 };
 
@@ -18,7 +19,7 @@ const createOneService = async (Model, document) => {
 
   const addedDocument = new Model({
     ...document,
-  });  
+  });
   await addedDocument.save();
 
   let doc = addedDocument.toObject();
@@ -56,16 +57,17 @@ const updateOneService = async (Model, id, body) => {
 const getAllService = async (Model, query) => {
   const apiFeatures = new ApiFeatures(query, Model.find())
     .filter()
-    .search(Model.modelName)
-    .limitFields()
-    .sorting();
+    .search(Model.modelName);
 
-  let { mongooseQuery, _ } = apiFeatures;
+  const totalDocuments = await Model.countDocuments(
+    apiFeatures.mongooseQuery.filter
+  );
 
-  let documents = await mongooseQuery.lean();
-  const totalDocuments = documents.length;
-  apiFeatures.paginate(totalDocuments);
-  let { pagination } = apiFeatures;
+  apiFeatures.sorting().paginate(totalDocuments).limitFields();
+
+  const documents = await apiFeatures.mongooseQuery.lean();
+  const { pagination } = apiFeatures;
+
   return { documents, totalDocuments, pagination };
 };
 

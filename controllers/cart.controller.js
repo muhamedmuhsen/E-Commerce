@@ -91,6 +91,11 @@ export const removeSpecificCartItem = asyncWrapper(async (req, res, next) => {
   });
 });
 
+/**
+ * @desc   Apply coupon to user's current cart
+ * @route  PUT /api/v1/cart/apply-coupon
+ * @access Private
+ */
 export const applyCoupon = asyncWrapper(async (req, res, next) => {
   const cart = await CartService.applyCoupon(req.body.name, req.user._id);
 

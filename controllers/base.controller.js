@@ -13,7 +13,7 @@ import {
 const getAll = (Model) => {
   return asyncWrapper(async (req, res, next) => {
     let { query } = req;
-    
+
     if (!query) {
       return next(new NotFoundError("No query found"));
     }
@@ -30,19 +30,14 @@ const getAll = (Model) => {
       success: true,
       pagination,
       length: totalDocuments,
-      data: { documents },
+      data: documents,
     });
   });
 };
 
 const deleteOne = (Model) => {
   return asyncWrapper(async (req, res, next) => {
-    const { id } = req.params;
-
-    const deletedDocument = await deleteOneService(Model, id);
-    if (!deletedDocument) {
-      return next(new NotFoundError(`${Model.modelName} not found`));
-    }
+    await deleteOneService(Model, req.params.id);
 
     res.status(200).json({
       success: true,
@@ -53,7 +48,7 @@ const deleteOne = (Model) => {
 
 const createOne = (Model) => {
   return asyncWrapper(async (req, res, next) => {
-    const document = req.body;    
+    const document = req.body;
     const data = await createOneService(Model, document);
     res.status(201).json({ success: true, data });
   });
