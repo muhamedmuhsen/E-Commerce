@@ -1,89 +1,59 @@
 import ApiFeatures from "../utils/api-features.js";
 import Category from "../models/category.model.js";
-import { NotFoundError, BadRequestError } from "../utils/api-errors.js";
+import {NotFoundError, BadRequestError} from "../utils/api-errors.js";
+import {Model} from "mongoose";
 
-const deleteOneService = async (Model, id) => {
-  const document = await Model.findByIdAndDelete(id).lean();
-  if (!document) throw new NotFoundError(`${Model.modelName} not found`);
-  return document;
-};
 
-const createOneService = async (Model, document) => {
-  // Handle SubCategory validation
-  if (Model.modelName === "SubCategory") {
-    const parentCategory = await Category.findById(document.category);
-    if (!parentCategory) {
-      throw new NotFoundError("Parent category not found");
+class BaseService {
+    async deleteOne(Model, id) {
+        const document = await Model.findByIdAndDelete(id).lean();
+        if (!document) throw new NotFoundError(`${Model.modelName} not found`);
+        return document;
     }
-  }
 
-  const addedDocument = new Model({
-    ...document,
-  });
-  await addedDocument.save();
+    async createOne(Model, document) {
+        const doc = await Model.create({...document}).lean();
 
-  let doc = addedDocument.toObject();
+        deletePasswordProperty(Model,doc)
 
-  delete doc.password;
-
-  return doc;
-};
-
-const updateOneService = async (Model, id, body) => {
-  // Handle User password validation
-  if (Model.modelName === "User" && body.password) {
-    throw new BadRequestError(
-      "Use /change-password endpoint to update password"
-    );
-  }
-
-  // Handle SubCategory validation
-  if (Model.modelName === "SubCategory") {
-    if (!body.category) {
-      throw new BadRequestError("Parent Category name is required");
+        return doc;
     }
-    const parentCategory = await Category.findById(body.category);
-    if (!parentCategory) {
-      throw new NotFoundError("Parent category not found");
+
+    async updateOne(Model, id, body) {
+        return await Model.findByIdAndUpdate(id, body, {
+            new: true,
+        }).lean();
     }
-  }
 
-  const document = await Model.findByIdAndUpdate(id, body, {
-    new: true,
-  }).lean();
-  return document;
-};
+    async getAll(Model, query) {
+        const apiFeatures = new ApiFeatures(query, Model.find())
+            .filter()
+            .search(Model.modelName);
 
-const getAllService = async (Model, query) => {
-  const apiFeatures = new ApiFeatures(query, Model.find())
-    .filter()
-    .search(Model.modelName);
+        const documents = await apiFeatures.mongooseQuery.lean();
+        const totalDocuments = documents.length;
 
-  const totalDocuments = await Model.countDocuments(
-    apiFeatures.mongooseQuery.filter
-  );
+        apiFeatures.sorting().paginate(totalDocuments).limitFields();
 
-  apiFeatures.sorting().paginate(totalDocuments).limitFields();
+        deletePasswordProperty(Model, documents)
 
-  const documents = await apiFeatures.mongooseQuery.lean();
-  const { pagination } = apiFeatures;
+        const {pagination} = apiFeatures;
+        return {documents, totalDocuments, pagination};
+    }
 
-  return { documents, totalDocuments, pagination };
-};
+    async getOne(Mode, id) {
+        const document = await Model.findById(id).lean();
+        if (!document) throw new NotFoundError(`${Model.modelName} not found`);
+        return document;
+    }
+}
 
-const getOneService = async (Model, id) => {
-  const document = await Model.findById(id).lean();
 
-  if (!document) {
-    return null;
-  }
+function deletePasswordProperty(Model, documents) {
+    if (Object.keys(Model.schema.paths).includes("password")) {
+        for (const index in documents)
+            delete documents[index].password
+    }
+}
 
-  return document;
-};
-export {
-  deleteOneService,
-  createOneService,
-  updateOneService,
-  getAllService,
-  getOneService,
-};
+export default new BaseService();

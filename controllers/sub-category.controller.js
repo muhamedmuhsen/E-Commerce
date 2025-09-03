@@ -11,18 +11,15 @@ import {
 } from "./base.controller.js";
 
 const setCategoryIdToBody = (req, res, next) => {
-  if (!req.body.category) {
-    req.body.category = req.params.id;
-  }
+  if (!req.body.category) req.body.category = req.params.id;
   next();
 };
 
 const setFilterObject = (req, res, next) => {
   let filterObject = {};
 
-  if (req.params.id) {
-    filterObject = { category: req.params.id };
-  }
+  if (req.params.id) filterObject = { category: req.params.id };
+
   req.filterObject = filterObject;
   console.log(filterObject);
 
@@ -89,8 +86,9 @@ const getSubCategoriesByCategory = asyncWrapper(async (req, res, next) => {
 const createSubCategoryOnCategory = asyncWrapper(async (req, res, next) => {
   const id = req.params.id;
   const subCategory = req.body;
+
   if (!id) {
-    return next(new BadRequestError("Invalid id", 400));
+    return next(new BadRequestError("Invalid id"));
   }
 
   if (!subCategory) {

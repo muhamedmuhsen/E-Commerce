@@ -2,7 +2,7 @@ import User from "../models/user.model.js";
 import sendEmail from "../utils/send-email.js";
 import createToken from "../utils/create-token.js";
 import hashing from "../utils/hasing.js";
-import { ApiError } from "../utils/api-errors.js";
+import {ApiError, BadRequestError, NotFoundError} from "../utils/api-errors.js";
 
 class AuthService {
   async login(email, password) {
@@ -12,9 +12,7 @@ class AuthService {
       return next(new UnauthorizedError("Invalid credentials"));
     }
 
-    const token = createToken(user._id);
-
-    return token;
+    return createToken(user._id);
   }
 
   async register(name, email, password) {
@@ -31,18 +29,17 @@ class AuthService {
     });
 
     await user.save();
-    const token = createToken(user._id);
-    return token;
+    return createToken(user._id);
   }
 
   async resetPassword(email, newPassword) {
     const user = await User.findOne({ email });
     if (!user) {
-      return next(new NotFoundError("user not found"));
+      throw new NotFoundError("user not found");
     }
 
     if (!user.passwordResetCodeVerified) {
-      return next(new BadRequestError("reset code not verified"));
+      throw new BadRequestError("reset code not verified");
     }
 
     user.password = newPassword;
@@ -51,8 +48,7 @@ class AuthService {
     user.passwordResetCodeVerified = undefined;
     await user.save();
 
-    const token = createToken(user._id);
-    return token;
+    return createToken(user._id);
   }
 
   async verifyResetCode(resetCode) {
@@ -64,7 +60,7 @@ class AuthService {
     });
 
     if (!user) {
-      return next(new BadRequestError("Invalid reset code"));
+      throw new BadRequestError("Invalid reset code");
     }
 
     user.passwordResetCodeVerified = true;
@@ -74,13 +70,11 @@ class AuthService {
   async forgetPassword(email) {
     const user = await User.findOne({ email });
     if (!user) {
-      return next(new NotFoundError("Email not found"));
+      throw new NotFoundError("Email not found");
     }
 
     const resetCode = generateResetCode();
-    const hashedResetCode = hashing(resetCode);
-
-    user.passwordResetCode = hashedResetCode;
+    user.passwordResetCode = hashing(resetCode);
     user.passwordResetCodeExpire = expireAfterOneHour();
     user.passwordResetCodeVerified = false;
 

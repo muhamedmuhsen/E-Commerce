@@ -1,6 +1,7 @@
 import { body, check } from "express-validator";
 import SubCategory from "../models/sub-category.model.js";
 import Category from "../models/category.model.js";
+import {BadRequestError} from "../utils/api-errors.js";
 
 const roles = ["user", "admin"];
 
@@ -104,7 +105,7 @@ export const atLeastOneField = (fields = []) =>
       (field) => val[field] !== undefined
     );
     if (!hasAtLeastOneField) {
-      throw new Error("At least one field is required to update");
+      throw new BadRequestError("At least one field is required to update");
     }
     return true;
   });

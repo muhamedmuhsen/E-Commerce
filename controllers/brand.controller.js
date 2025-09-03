@@ -7,7 +7,7 @@ import {
   getOne,
 } from "./base.controller.js";
 
-// TODO(handle profile image)
+// TODO(handle image)
 /**
  * @desc   Get all brands with pagination
  * @route  GET /api/v1/brands

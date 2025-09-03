@@ -1,7 +1,4 @@
 import asyncWrapper from "../middlewares/async-wrapper.js";
-import User from "../models/user.model.js";
-import { NotFoundError, BadRequestError } from "../utils/api-errors.js";
-import hashingPassword from "../utils/hasing.js";
 import AuthService from "../services/auth.service.js";
 
 

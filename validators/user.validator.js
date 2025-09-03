@@ -1,77 +1,76 @@
 import validateRequest from "../middlewares/validate-request.js";
 import User from "../models/user.model.js";
 import {
-  email,
-  mongoId,
-  password,
-  passwordConfirm,
-  role,
-  phone,
-  profileImage,
-  atLeastOneField,
-  name,
+    email,
+    mongoId,
+    password,
+    passwordConfirm,
+    role,
+    phone,
+    profileImage,atLeastOneField,
+    name,
 } from "./common.validator.js";
 
-const checkIfEmailFoundForUpdate = async (email, { req }) => {
-  const existingUser = await User.findOne({ email });
-  if (existingUser && existingUser._id.toString() !== req.params.id) {
-    throw new Error("Email already exists");
-  }
-  return true;
+const checkIfEmailFoundForUpdate = async (email, {req}) => {
+    const existingUser = await User.findOne({email});
+    if (existingUser && existingUser._id.toString() !== req.params.id) {
+        throw new Error("Email already exists");
+    }
+    return true;
 };
 
 const createUserValidator = [
-  name("username").notEmpty().withMessage("username is requried"),
-  email(),
-  password(),
-  passwordConfirm(),
-  phone(),
-  profileImage(),
-  role(),
-  validateRequest,
+    name("username").notEmpty().withMessage("username is requried"),
+    email(),
+    password(),
+    passwordConfirm(),
+    phone(),
+    profileImage(),
+    role(),
+    validateRequest,
 ];
 
 const getUserValidator = [mongoId(), validateRequest];
 
 const updateUserValidator = [
-  mongoId(),
-  atLeastOneField,
-  name("username").optional(),
-  email()
-    .custom(checkIfEmailFoundForUpdate)
-    .withMessage("please try another mail"),
-  phone(),
-  profileImage(),
-  role(),
-  validateRequest,
+    mongoId(),
+    atLeastOneField(["name", "email","role", "phone", "profileImage"]),
+    name("username").optional(),
+    email()
+        .custom(checkIfEmailFoundForUpdate)
+        .withMessage("please try another mail"),
+    phone(),
+    profileImage(),
+    role(),
+    validateRequest,
 ];
 
 const updateLoggedUserValidator = [
-  atLeastOneField(["name", "email", "profileImg"]),
-  name("username"),
-  email()
-    .optional()
-    .custom(checkIfEmailFoundForUpdate)
-    .withMessage("please try another mail"),
-  phone(),
-  profileImage(),
-  validateRequest,
+    atLeastOneField(["name", "email","phone", "profileImg"]),
+    name("username"),
+    email()
+        .optional()
+        .custom(checkIfEmailFoundForUpdate)
+        .withMessage("please try another email"),
+    phone(),
+    profileImage(),
+    validateRequest,
 ];
 const deleteUserValidator = [mongoId(), validateRequest];
 
 const changeUserPasswordValidator = [
-  mongoId(),
-  password(),
-  password("newPassword"),
-  passwordConfirm("confirmNewPassword"),
-  validateRequest,
+    mongoId(),
+    password(),
+    password("newPassword"),
+    passwordConfirm("confirmNewPassword"),
+    validateRequest,
 ];
 
 export {
-  createUserValidator,
-  updateUserValidator,
-  deleteUserValidator,
-  getUserValidator,
-  changeUserPasswordValidator,
-  updateLoggedUserValidator,
+    createUserValidator,
+    updateUserValidator,
+    deleteUserValidator,
+    getUserValidator,
+    changeUserPasswordValidator,
+    updateLoggedUserValidator,
 };
