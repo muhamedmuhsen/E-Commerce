@@ -1,5 +1,4 @@
 import asyncWrapper from "../middlewares/async-wrapper.js";
-import { NotFoundError } from "../utils/api-errors.js";
 import CartService from "../services/cart.service.js";
 
 /**

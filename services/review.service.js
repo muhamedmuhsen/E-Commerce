@@ -4,18 +4,17 @@ import Review from "../models/review.model.js";
 import ApiFeatures from "../utils/api-features.js";
 
 class ReviewsService {
-  async addReview(user, productId, rating, message = "") {
-    const product = await Product.findById(productId);
 
-    if (!product) {
-      throw new NotFoundError("Product not found");
-    }
+  async addReview(user, productId, rating, message = "") {
+    const product = await Product.exists(productId);
+
+    if (!product) throw new NotFoundError("Product not found");
+
 
     const existingReview = await Review.findOne({ user, product: productId });
 
-    if (existingReview) {
-      throw new BadRequestError("You have already reviewed this product");
-    }
+    if (existingReview) throw new BadRequestError("You have already reviewed this product");
+
 
     const review = new Review({
       review: rating,

@@ -201,5 +201,4 @@ todo.txt
 .github
 .env
 models.png
-.commit-template
-.gitmessage
+commit_message_template.md

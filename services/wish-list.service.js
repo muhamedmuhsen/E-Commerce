@@ -1,69 +1,52 @@
 import Product from "../models/product.model.js";
 import Wishlist from "../models/wish-list.model.js";
-import { NotFoundError } from "../utils/api-errors.js";
+import {BadRequestError, NotFoundError} from "../utils/api-errors.js";
 
 class WishlistService {
-  async getAllProducts(user) {
-    const wishlist = await Wishlist.findOne({ user }).lean();
-
-    return wishlist ? wishlist : { product: [], user };
-  }
-
-  async addProductToWishlist(productId, user) {
-    const product = await Product.findById(productId).lean();
-
-    if (!product) {
-      throw new NotFoundError("Product not found");
+    async getWishlist(user) {
+        const wishlist = await Wishlist.findOne({user}).lean();
+        return wishlist ? wishlist : {product: [], user};
     }
 
-    let wishlist = await Wishlist.findOne({ user });
+    async addProduct(productId, user) {
+        const product = await Product.exists(productId);
 
-    if (!wishlist) {
-      wishlist = new Wishlist({ product: productId, user });
-    } else {
-      const flag = wishlist.product.some((ele) => {
-        return ele._id.toString() === productId;
-      });
+        if (!product) throw new NotFoundError("Product not found");
 
-      if (!flag) wishlist.product.push(productId);
-    }
-    await wishlist.save();
-    return wishlist;
-  }
+        let wishlist = await Wishlist.findOne({user});
 
-  async clearWishlist(user) {
-    await Wishlist.findOneAndUpdate(
-      { user },
-      { $set: { product: [] } },
-      {
-        new: true,
-      }
-    );
-  }
-
-  async deleteProductFromWishlist(productId, user) {
-    const product = await Product.findById(productId);
-
-    if (!product) {
-      throw new NotFoundError("Product not found");
+        if (!wishlist) {
+            wishlist = await Wishlist.create({product: productId, user});
+        } else {
+            wishlist = await Wishlist.findOneAndUpdate({user, product: {$ne: productId}}, {
+                $push: {product: productId}
+            }, {new: true})
+        }
+        if (!wishlist) throw new BadRequestError("Product already in the wishlist");
+        return wishlist;
     }
 
-    let wishlist = await Wishlist.findOne({ user, product: productId });
-
-    if (!wishlist) {
-      throw new NotFoundError("Wishlist not found");
+    async clearWishlist(user) {
+        await Wishlist.findOneAndUpdate({user}, {$set: {product: []}}, {
+            new: true,
+        });
     }
 
-    wishlist = await Wishlist.findOneAndUpdate(
-      { user },
-      {
-        $pull: { product: productId },
-      },
-      { new: true }
-    ).populate("product");
+    async removeProduct(productId, userId) {
+        const wishlist = await Wishlist.findOneAndUpdate(
+            {
+                user: userId,
+                product: productId
+            },
+            { $pull: { product: productId } },
+            { new: true }
+        ).lean()
 
-    return wishlist;
-  }
+        if (!wishlist) throw new NotFoundError("Product not found in wishlist");
+
+
+        return wishlist;
+    }
 }
 
 export default new WishlistService();

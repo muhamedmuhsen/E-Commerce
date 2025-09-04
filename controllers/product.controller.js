@@ -1,8 +1,7 @@
-import slugify from "slugify";
 import asyncWrapper from "../middlewares/async-wrapper.js";
-import "../models/category.model.js"; // Also register Category model
+import "../models/category.model.js"; 
 import Product from "../models/product.model.js";
-import "../models/sub-category.model.js"; // This registers the model
+import "../models/sub-category.model.js"; 
 import { ApiError } from "../utils/api-errors.js";
 import {
   createOne,
