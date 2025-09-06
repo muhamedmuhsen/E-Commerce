@@ -38,10 +38,6 @@ CategorySchema.pre("save", function (next) {
   next();
 });
 
-CategorySchema.pre("save", function (next) {
-  this.slug = slugify(this.name);
-  next();
-});
 
 const CategoryModel = mongoose.model("Category", CategorySchema);
 

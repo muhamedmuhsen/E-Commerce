@@ -3,48 +3,43 @@ import "../models/category.model.js";
 import Product from "../models/product.model.js";
 import "../models/sub-category.model.js"; 
 import { ApiError } from "../utils/api-errors.js";
-import {
-  createOne,
-  deleteOne,
-  getAll,
-  getOne,
-  updateOne,
-} from "./base.controller.js";
+import BaseController from "./base.controller.js";
+
 
 /**
  * @desc   Create new product
  * @route  POST /api/v1/products
  * @access Private
  */
-const createProduct = createOne(Product);
+const createProduct = BaseController.create(Product);
 
 /**
  * @desc   Get all products with pagination
  * @route  GET /api/v1/products
  * @access Public
  */
-const getAllProducts = getAll(Product);
+const getAllProducts = BaseController.getAll(Product);
 
 /**
  * @desc   Update product by ID
  * @route  PUT /api/v1/products/:id
  * @access Private
  */
-const updateProduct = updateOne(Product);
+const updateProduct = BaseController.update(Product);
 
 /**
  * @desc   Delete product by ID
  * @route  DELETE /api/v1/products/:id
  * @access Private
  */
-const deleteProduct = deleteOne(Product);
+const deleteProduct = BaseController.delete(Product);
 
 /**
  * @desc   Get single product by ID
  * @route  GET /api/v1/products/:id
  * @access Public
  */
-const getSpecificProduct = getOne(Product);
+const getSpecificProduct = BaseController.getOne(Product);
 
 /**
  * @desc   Get products by category ID

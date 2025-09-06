@@ -27,9 +27,11 @@ const SubCategorySchema = new Schema(
   },
   { timestamps: true }
 );
+
 SubCategorySchema.pre("save", function (next) {
   this.slug = slugify(this.name);
   next();
 });
+
 const SubCategory = mongoose.model("SubCategory", SubCategorySchema);
 export default SubCategory;

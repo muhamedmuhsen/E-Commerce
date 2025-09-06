@@ -9,7 +9,7 @@ class AuthService {
     const user = await User.findOne({ email });
 
     if (!user || !(await user.comparePassword(password, user.password))) {
-      return next(new UnauthorizedError("Invalid credentials"));
+      throw new UnauthorizedError("Invalid credentials");
     }
 
     return createToken(user._id);
@@ -84,7 +84,7 @@ class AuthService {
       const message = `Hi ${user.name},\n\nWe received a request to reset the password on your E-shop Account.\n\nYour reset code is: ${resetCode}\n\nEnter this code to complete the reset. This code is valid for 1 hour.\n\nThanks for helping us keep your account secure.\nThe E-shop Team`;
 
       await sendEmail({
-        email: "mohsenisdone@gmail.com",
+        email: user.email,
         subject: "Password Reset Code - Valid for 1 hour",
         message,
       });

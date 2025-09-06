@@ -55,12 +55,12 @@ const ProductSchema = new Schema(
     sold: { type: Number, default: 0 },
     image: {
       type: [String],
-      // validate: {
-      //   validator: function (v) {
-      //     return !v || validator.isURL(v);
-      //   },
-      //   message: "Please provide a valid image URL",
-      // },
+      validate: {
+        validator: function (v) {
+          return !v || validator.isURL(v);
+        },
+        message: "Please provide a valid image URL",
+      },
     },
   },
   { timestamps: true }

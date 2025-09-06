@@ -1,29 +1,24 @@
 import express from "express";
 import authenticateJWT from "../middlewares/authenticate-jwt.js";
 import isAllowed from "../middlewares/is-allowed.js";
-import {
-  createCoupon,
-  deleteCoupon,
-  getCoupon,
-  getCoupons,
-  updateCoupon,
-} from "../controllers/coupon.controller.js";
+import CouponController from "../controllers/coupon.controller.js";
 import {
   createCouponValidator,
   deleteCouponValidator,
   getSpecificCouponValidator,
   updateCouponValidator,
 } from "../validators/coupon.validator.js";
+import CategoryController from "../controllers/category.controller.js";
 const router = express.Router();
 
 router.use(authenticateJWT, isAllowed("admin"));
 
-router.route("/").get(getCoupons).post(createCouponValidator, createCoupon);
+router.route("/").get(CouponController.wrap(CouponController.getAllCoupons)).post(createCouponValidator, CouponController.wrap(CouponController.createCoupon));
 
 router
   .route("/:id")
-  .get(getSpecificCouponValidator, getCoupon)
-  .put(updateCouponValidator, updateCoupon)
-  .delete(deleteCouponValidator, deleteCoupon);
+  .get(getSpecificCouponValidator, CouponController.wrap(CouponController.getCoupon))
+  .put(updateCouponValidator, CouponController.wrap(CouponController.updateCoupon))
+  .delete(deleteCouponValidator, CouponController.wrap(CouponController.deleteCoupon));
 
 export default router;

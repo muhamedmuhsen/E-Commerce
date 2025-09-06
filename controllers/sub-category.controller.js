@@ -1,124 +1,89 @@
 import asyncWrapper from "../middlewares/async-wrapper.js";
-import Category from "../models/category.model.js";
 import SubCategory from "../models/sub-category.model.js";
-import { BadRequestError, NotFoundError } from "../utils/api-errors.js";
-import {
-  createOne,
-  deleteOne,
-  getAll,
-  getOne,
-  updateOne,
-} from "./base.controller.js";
+import SubCategoryService from "../services/sub-category.service.js";
+
+class SubCategoryController {
+    #SubCategoryService;
+    #SubCategory;
+
+    constructor(SubCategoryService, SubCategory) {
+        this.#SubCategoryService = SubCategoryService;
+        this.#SubCategory = SubCategory;
+    }
+
+    wrap(fn) {
+        return asyncWrapper(fn.bind(this))
+    }
+
+    async createSubCategory(req, res, next) {
+        const subcategory = await this.#SubCategoryService.createSubCategory(req.body)
+
+        res.status(201).json({
+            status: "success", message: "SubCategory created successfully", data: subcategory
+        })
+    }
+
+    async getSubCategory(req, res, next) {
+        const subcategory = await this.#SubCategoryService.getSubCategory(req.params.id);
+
+        res.status(200).json({
+            status: "success", message: "SubCategory retrieved successfully", data: subcategory
+        })
+    }
+
+    async getAllSubCategories(req, res, next) {
+
+        const subcategories = await this.#SubCategoryService.getAllSubCategories(req.query)
+        res.status(200).json({
+            status: "success", message: "All SubCategories retrieved successfully", data: subcategories
+        })
+    }
+
+    async updateSubCategory(req, res, next) {
+        const subcategory = await this.#SubCategoryService.updateSubCategory(req.params.id, req.body);
+        res.status(200).json({
+            status: "success", message: "SubCategory updated successfully", data: subcategory
+        })
+    }
+
+    async deleteSubCategory(req, res, next) {
+        await this.#SubCategoryService.deleteSubCategory(req.params.id);
+        res.status(200).json({
+            status: "success", message: "SubCategory deleted successfully"
+        })
+    }
+
+    async getSubCategoriesOfCategory(req, res, next) {
+        const subcategories = await this.#SubCategoryService.getSubCategoriesOfCategory(req.params.id);
+        res.status(200).json({
+            status: "success", message: "SubCategories retrieved successfully", data: subcategories
+        })
+    }
+
+    async createSubCategoryUnderCategory(req, res, next) {
+        const subcategory = await this.#SubCategoryService.createSubCategoryUnderCategory(req.params.id, req.body);
+        res.status(200).json({
+            status: "success", message: "SubCategory created successfully", data: subcategory
+        })
+    }
+
+
+}
 
 const setCategoryIdToBody = (req, res, next) => {
-  if (!req.body.category) req.body.category = req.params.id;
-  next();
+    if (!req.body.category) req.body.category = req.params.id;
+    next();
 };
 
 const setFilterObject = (req, res, next) => {
-  let filterObject = {};
+    let filterObject = {};
 
-  if (req.params.id) filterObject = { category: req.params.id };
+    if (req.params.id) filterObject = {category: req.params.id};
 
-  req.filterObject = filterObject;
-  console.log(filterObject);
+    req.filterObject = filterObject;
 
-  next();
+    next();
 };
 
-/**
- * @desc   Create new subcategory
- * @route  POST /api/v1/subcategories
- * @access Private
- */
-const createSubCategory = createOne(SubCategory);
-
-/**
- * @desc   Get all subcategories with pagination
- * @route  GET /api/v1/subcategories
- * @access Public
- */
-const getAllSubCategories = getAll(SubCategory);
-
-/**
- * @desc   Update subcategory by ID
- * @route  PUT /api/v1/subcategories/:id
- * @access Private
- */
-const updateSubCategory = updateOne(SubCategory);
-
-/**
- * @desc   Delete subcategory by ID
- * @route  DELETE /api/v1/subcategories/:id
- * @access Private
- */
-const deleteSubCategory = deleteOne(SubCategory);
-
-/**
- * @desc   Get single subcategory by ID
- * @route  GET /api/v1/subcategories/:id
- * @access Public
- */
-const getSpecificSubCategory = getOne(SubCategory);
-
-/**
- * @desc   Get subcategories by category ID
- * @route  GET /api/v1/categories/:id/subcategories
- * @access Public
- */
-const getSubCategoriesByCategory = asyncWrapper(async (req, res, next) => {
-  const categoryId = req.params.id;
-
-  if (!categoryId) {
-    return next(new BadRequestError("Invalid category ID", 400));
-  }
-
-  const subcategories = await SubCategory.find({ category: categoryId }).lean();
-
-  res.status(200).json({ success: true, data: subcategories });
-});
-
-/**
- * @desc   Create subcategory under specific category
- * @route  POST /api/v1/categories/:id/subcategories
- * @access Private
- */
-const createSubCategoryOnCategory = asyncWrapper(async (req, res, next) => {
-  const id = req.params.id;
-  const subCategory = req.body;
-
-  if (!id) {
-    return next(new BadRequestError("Invalid id"));
-  }
-
-  if (!subCategory) {
-    return next(new BadRequestError("subcategory name is required", 400));
-  }
-
-  const ParentCategory = await Category.findById(id).lean();
-
-  if (!ParentCategory) {
-    return next(new NotFoundError("Paretnt category not found", 404));
-  }
-
-  const newSubCategory = new SubCategory({
-    category: ParentCategory._id,
-    name: subCategory.name,
-  });
-
-  await newSubCategory.save();
-
-  res.status(201).json({ success: true, data: newSubCategory.lean() });
-});
-
-export {
-  createSubCategory,
-  createSubCategoryOnCategory,
-  deleteSubCategory,
-  getAllSubCategories,
-  getSpecificSubCategory,
-  setCategoryIdToBody,
-  setFilterObject,
-  updateSubCategory,
-  getSubCategoriesByCategory,
-};
+export {setCategoryIdToBody, setFilterObject};
+export default new SubCategoryController(SubCategoryService, SubCategory);

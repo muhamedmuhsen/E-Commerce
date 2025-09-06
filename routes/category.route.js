@@ -1,31 +1,22 @@
 import express from "express";
 import subCategoryRoute from "./sub-category.route.js";
+import CategoryController from "../controllers/category.controller.js";
 import {
-  createCategory,
-  deleteCategory,
-  getAllCategories,
-  getSpecificCategory,
-  updateCategory,
-} from "../controllers/category.controller.js";
-import {
-  createCategoryValidator,
-  deleteCategoryValidator,
-  getSpecificCategoryValidator,
-  updateCategoryValidator,
+    createCategoryValidator, deleteCategoryValidator, getSpecificCategoryValidator, updateCategoryValidator,
 } from "../validators/category.validator.js";
 import authenticateJWT from "../middlewares/authenticate-jwt.js";
 
 const router = express.Router();
 
 router
-  .route("/")
-  .get(getAllCategories)
-  .post(createCategoryValidator, authenticateJWT, createCategory);
+    .route("/")
+    .get(CategoryController.wrap(CategoryController.getAllCategories))
+    .post(createCategoryValidator, authenticateJWT, CategoryController.wrap(CategoryController.createCategory))
 router
-  .route("/:id")
-  .put(updateCategoryValidator, authenticateJWT, updateCategory)
-  .delete(deleteCategoryValidator, authenticateJWT, deleteCategory)
-  .get(getSpecificCategoryValidator, getSpecificCategory);
+    .route("/:id")
+    .put(updateCategoryValidator, authenticateJWT, CategoryController.wrap(CategoryController.updateCategory))
+    .delete(deleteCategoryValidator, authenticateJWT, CategoryController.wrap(CategoryController.deleteCategory))
+    .get(getSpecificCategoryValidator, CategoryController.wrap(CategoryController.getCategory))
 
 router.use("/:id/subcategories", subCategoryRoute);
 

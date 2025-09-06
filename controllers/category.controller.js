@@ -1,51 +1,40 @@
-import Category from "../models/category.model.js";
-import {
-  createOne,
-  deleteOne,
-  getAll,
-  updateOne,
-  getOne,
-} from "./base.controller.js";
+import CategoryModel from "../models/category.model.js";
+import asyncWrapper from "../middlewares/async-wrapper.js";
+import BaseService from "../services/base.service.js";
 
-/**
- * @desc   Get all categories with pagination
- * @route  GET /api/v1/categories
- * @access Public
- */
-const getAllCategories = getAll(Category);
+class CategoryController {
+    #BaseService;
+    #CategoryModel;
 
-/**
- * @desc   Create new category
- * @route  POST /api/v1/categories
- * @access Private
- */
-const createCategory = createOne(Category);
+    constructor(BaseService, CategoryModel) {
+        this.#BaseService = BaseService;
+        this.#CategoryModel = CategoryModel;
+    }
 
-/**
- * @desc   Update category by ID
- * @route  PUT /api/v1/categories/:id
- * @access Private
- */
-const updateCategory = updateOne(Category);
+    wrap(fn){
+        return asyncWrapper(fn.bind(this));
+    }
+    async getAllCategories(query) {
+        return this.#BaseService.getAll(this.#CategoryModel, query)
+    }
 
-/**
- * @desc   Delete category by ID
- * @route  DELETE /api/v1/categories/:id
- * @access Private
- */
-const deleteCategory = deleteOne(Category);
+    async getCategory(id) {
+        return this.#BaseService.getOne(id)
+    }
 
-/**
- * @desc   Get single category by ID
- * @route  GET /api/v1/categories/:id
- * @access Public
- */
-const getSpecificCategory = getOne(Category);
 
-export {
-  createCategory,
-  deleteCategory,
-  getAllCategories,
-  getSpecificCategory,
-  updateCategory,
-};
+    async createCategory(data) {
+        return this.#BaseService.create(this.#CategoryModel, data);
+    }
+
+    async updateCategory(id, data) {
+        return this.#BaseService.update(id, data);
+    }
+
+    async deleteCategory(id) {
+        return this.#BaseService.delete(id);
+    }
+
+}
+
+export default new CategoryController(BaseService, CategoryModel);

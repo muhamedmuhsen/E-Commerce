@@ -1,50 +1,58 @@
-import asyncWrapper from "../middlewares/async-wrapper.js";
-import BaseService from "../services/base.service.js";
+import baseService from "../services/base.service.js";
 
-const getAll = (Model) => {
-    return asyncWrapper(async (req, res, next) => {
-        let query= req.query;
+class BaseController {
+    #baseService
 
-        if (req.filterObject) query = req.filterObject;
+    constructor(baseService) {
+        this.#baseService = baseService;
+    }
 
-        const {documents, totalDocuments, pagination} = await BaseService.getAll(Model, query);
+    async getAll(Model) {
+        return async (req, res) => {
+            let query = req.query;
 
-        res.status(200).json({
-            success: true, pagination, length: totalDocuments, data: documents,
-        });
-    });
-};
+            if (req.filterObject) query = req.filterObject;
 
-const deleteOne = (Model) => {
-    return asyncWrapper(async (req, res, next) => {
-        await BaseService.deleteOne(Model, req.params.id);
+            const {documents, totalDocuments, pagination} =await this.#baseService.getAll(Model, query);
 
-        res.status(200).json({
-            success: true, message: `${Model.modelName} deleted successfully`,
-        });
-    });
-};
+            res.status(200).json({
+                success: true, pagination, length: totalDocuments, data: documents,
+            });
+        }
+    }
 
-const createOne = (Model) => {
-    return asyncWrapper(async (req, res, next) => {
-        const data = await BaseService.createOne(Model, req.body.document);
-        res.status(201).json({success: true, data});
-    });
-};
+    async getOne(Model) {
+        return async (req, res) => {
+            const data = await this.#baseService.getOne(Model, req.params.id);
 
-const updateOne = (Model) => {
-    return asyncWrapper(async (req, res, next) => {
-        const updatedDocument = await BaseService.updateOne(Model, req.params.id, req.body);
+            res.status(200).json({success: true, data});
+        }
+    }
 
-        res.status(200).json({success: true, data: updatedDocument});
-    });
-};
+    async create(Model) {
+        return async (req, res) => {
+            const data = await this.#baseService.createOne(Model, req.body.document);
+            res.status(201).json({success: true, data});
+        }
+    }
 
-const getOne = (Model) => {
-    return asyncWrapper(async (req, res, next) => {
-        const document = await BaseService.getOne(Model, req.params.id);
+    async delete(Model) {
+        return async (req, res) => {
+            await this.#baseService.deleteOne(Model, req.params.id);
 
-        res.status(200).json({success: true, data: document});
-    });
-};
-export {deleteOne, createOne, getAll, updateOne, getOne};
+            res.status(200).json({
+                success: true, message: `${Model.modelName} deleted successfully`,
+            });
+        }
+    }
+
+    async update(Model) {
+        return async (req, res) => {
+            const data = await this.#baseService.updateOne(Model, req.params.id, req.body);
+
+            res.status(200).json({success: true, data});
+        }
+    }
+}
+
+export default new BaseController(baseService);

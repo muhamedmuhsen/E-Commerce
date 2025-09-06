@@ -1,13 +1,7 @@
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 import asyncWrapper from "../middlewares/async-wrapper.js";
-import {
-  createOne,
-  deleteOne,
-  getAll,
-  getOne,
-  updateOne,
-} from "./base.controller.js";
+import BaseController from "./base.controller.js";
 import {
   changeUserPasswordService,
   updateLoggedUserDataService,
@@ -22,35 +16,35 @@ import { NotFoundError, UnauthorizedError } from "../utils/api-errors.js";
  * @route  GET /api/v1/users/:id
  * @access Private
  */
-const getUser = getOne(User);
+const getUser = BaseController.getOne(User);
 
 /**
  * @desc   Create new user
  * @route  POST /api/v1/users
  * @access Private
  */
-const createUser = createOne(User);
+const createUser = BaseController.create()(User);
 
 /**
  * @desc   Update user by ID
  * @route  PUT/PATCH /api/v1/users/:id
  * @access Private
  */
-const updateUser = updateOne(User);
+const updateUser = BaseController.update(User);
 
 /**
  * @desc   Get all users
  * @route  GET /api/v1/users
  * @access Private
  */
-const getAllUsers = getAll(User);
+const getAllUsers = BaseController.getAll(User);
 
 /**
  * @desc   Delete user by ID
  * @route  DELETE /api/v1/users/:id
  * @access Private
  */
-const deleteUser = deleteOne(User);
+const deleteUser = BaseController.delete(User);
 
 /**
  * @desc   Change user password by ID

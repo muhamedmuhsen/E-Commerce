@@ -1,37 +1,41 @@
-import { createOne, deleteOne, getAll, getOne, updateOne } from "./base.controller.js";
-import Coupon from "../models/coupon.model.js";
+import asyncWrapper from "../middlewares/async-wrapper.js";
+import BaseService from "../services/base.service.js";
+import CouponModel from "../models/coupon.model.js";
 
-/**
- * @desc   Get all coupons with pagination
- * @route  GET /api/v1/coupons
- * @access Private
-*/
-export const getCoupons = getAll(Coupon);
+class CouponController {
+    #BaseService;
+    #CouponModel;
 
-/**
- * @desc   Get single coupon by ID
- * @route  GET /api/v1/coupons/:id
- * @access Private
- */
-export const getCoupon = getOne(Coupon);
+    constructor(BaseService, CouponModel) {
+        this.#BaseService = BaseService;
+        this.#CouponModel = CouponModel;
+    }
 
-/**
- * @desc   Create new coupon
- * @route  POST /api/v1/coupons
- * @access Private
- */
-export const createCoupon = createOne(Coupon);
+    wrap(fn) {
+        return asyncWrapper(fn.bind(this));
+    }
 
-/**
- * @desc   Update coupon by ID
- * @route  PUT /api/v1/coupons/:id
- * @access Private
- */
-export const updateCoupon = updateOne(Coupon);
+    async getAllCoupons(query) {
+        return this.#BaseService.getAll(this.#CouponModel, query)
+    }
 
-/**
- * @desc   Delete coupon by ID
- * @route  DELETE /api/v1/coupons/:id
- * @access Private
- */
-export const deleteCoupon = deleteOne(Coupon);
+    async getCoupon(id) {
+        return this.#BaseService.getOne(this.#CouponModel, id)
+    }
+
+
+    async createCoupon(data) {
+        return this.#BaseService.create(this.#CouponModel, data);
+    }
+
+    async updateCoupon(id, data) {
+        return this.#BaseService.update(this.#CouponModel, id, data);
+    }
+
+    async deleteCoupon(id) {
+        return this.#BaseService.delete(this.#CouponModel, id);
+    }
+
+}
+
+export default new CouponController(BaseService, CouponModel);

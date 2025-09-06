@@ -202,3 +202,4 @@ todo.txt
 .env
 models.png
 commit_message_template.md
+.cursor

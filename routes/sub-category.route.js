@@ -1,39 +1,25 @@
 import express from "express";
-
+import SubCategoryController, {setCategoryIdToBody, setFilterObject} from "../controllers/sub-category.controller.js";
 import {
-  createSubCategory,
-  deleteSubCategory,
-  getAllSubCategories,
-  getSpecificSubCategory,
-  setCategoryIdToBody,
-  setFilterObject,
-  updateSubCategory,
-} from "../controllers/sub-category.controller.js";
-import {
-  createSubCategoryValidator,
-  deleteSubCategoryValidator,
-  getSpecificSubCategoryValidator,
-  updateSubCategoryValidator,
+    createSubCategoryValidator, deleteSubCategoryValidator, getSpecificSubCategoryValidator, updateSubCategoryValidator,
 } from "../validators/sub-category.validator.js";
 import authenticateJWT from "../middlewares/authenticate-jwt.js";
+import isAllowed from "../middlewares/is-allowed.js";
 
-// mergeParams allow us access parameters on other routes
-const router = express.Router({ mergeParams: true });
+// mergeParams allow us to access parameters on other routes
+const router = express.Router({mergeParams: true});
 
-router.get("/", setFilterObject, getAllSubCategories);
 
 router.use(authenticateJWT);
 
-router.post(
-  "/",
-  setCategoryIdToBody,
-  createSubCategoryValidator,
-  createSubCategory
-);
+router.get("/", setFilterObject, SubCategoryController.wrap(SubCategoryController.getAllSubCategories));
+
+router.post("/", isAllowed("admin"), setCategoryIdToBody, createSubCategoryValidator, SubCategoryController.wrap(SubCategoryController.createSubCategory));
+
 router
-  .route("/:id")
-  .put(updateSubCategoryValidator, updateSubCategory)
-  .delete(deleteSubCategoryValidator, deleteSubCategory)
-  .get(getSpecificSubCategoryValidator, getSpecificSubCategory);
+    .route("/:id")
+    .put(updateSubCategoryValidator, isAllowed("admin"), SubCategoryController.wrap(SubCategoryController.updateSubCategory))
+    .delete(deleteSubCategoryValidator, isAllowed("admin"), SubCategoryController.wrap(SubCategoryController.deleteSubCategory))
+    .get(getSpecificSubCategoryValidator, SubCategoryController.wrap(SubCategoryController.getSubCategory));
 
 export default router;

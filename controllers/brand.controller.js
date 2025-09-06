@@ -1,45 +1,37 @@
-import Brand from "../models/brand.model.js";
-import {
-  deleteOne,
-  createOne,
-  getAll,
-  updateOne,
-  getOne,
-} from "./base.controller.js";
+import BaseService from "../services/base.service.js";
+import BrandModel from "../models/brand.model.js";
+import asyncWrapper from "../middlewares/async-wrapper.js";
 
 // TODO(handle image)
-/**
- * @desc   Get all brands with pagination
- * @route  GET /api/v1/brands
- * @access Public
- */
-const getAllBrand = getAll(Brand);
+class BrandController {
+    #BaseService
+    #Brand
+    constructor (BaseService, Brand) {
+        this.#BaseService = BaseService;
+        this.#Brand = Brand;
+    }
 
-/**
- * @desc   Create new brand
- * @route  POST /api/v1/brands
- * @access Private
- */
-const createBrand = createOne(Brand);
+    wrap(fn){
+        return asyncWrapper(fn.bind(this));
+    }
+    async getAllBrands(query){
+        return await this.#BaseService.getAll(this.#Brand, query);
+    }
 
-/**
- * @desc   Update brand by ID
- * @route  PUT /api/v1/brands/:id
- * @access Private
- */
-const updateBrand = updateOne(Brand);
+    async getBrandById(id){
+        return await this.#BaseService.getOne(this.#Brand,id);
+    }
+    async createBrand(data){
+        return await this.#BaseService.create(this.#Brand, data);
+    }
 
-/**
- * @desc   Get single brand by ID
- * @route  GET /api/v1/brands/:id
- * @access Public
- */
-const getSpecificBrand = getOne(Brand);
-/**
- * @desc   Delete brand by ID
- * @route  DELETE /api/v1/brands/:id
- * @access Private
- */
-const deleteBrand = deleteOne(Brand);
+    async updateBrand(id, data){
+        return await this.#BaseService.update(this.#Brand,id,data);
+    }
 
-export { createBrand, deleteBrand, getAllBrand, getSpecificBrand, updateBrand };
+    async deleteBrand(id){
+        return await this.#BaseService.delete(this.#Brand,id);
+    }
+}
+
+export default new BrandController(BaseService, BrandModel);
