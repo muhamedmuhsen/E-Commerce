@@ -1,108 +1,67 @@
 import asyncWrapper from "../middlewares/async-wrapper.js";
-import "../models/category.model.js"; 
-import Product from "../models/product.model.js";
-import "../models/sub-category.model.js"; 
-import { ApiError } from "../utils/api-errors.js";
-import BaseController from "./base.controller.js";
+import "../models/category.model.js";
+import "../models/sub-category.model.js";
+import ProductService from "../services/product.service.js";
 
+class ProductController {
+    #ProductService
 
-/**
- * @desc   Create new product
- * @route  POST /api/v1/products
- * @access Private
- */
-const createProduct = BaseController.create(Product);
+    constructor(ProductService, Product) {
+        this.#ProductService = ProductService;
+    }
 
-/**
- * @desc   Get all products with pagination
- * @route  GET /api/v1/products
- * @access Public
- */
-const getAllProducts = BaseController.getAll(Product);
+    wrap(fn) {
+        return asyncWrapper(fn.bind(this))
+    }
 
-/**
- * @desc   Update product by ID
- * @route  PUT /api/v1/products/:id
- * @access Private
- */
-const updateProduct = BaseController.update(Product);
+    async createProduct(req, res, next) {
+        const product = await this.#ProductService.create(req.body);
+        res.status(201).json({
+            status: "success", message: "Product created successfully", data: product
+        })
+    }
 
-/**
- * @desc   Delete product by ID
- * @route  DELETE /api/v1/products/:id
- * @access Private
- */
-const deleteProduct = BaseController.delete(Product);
+    async getAllProducts(req, res, next) {
+        const {documents, totalDocuments, pagination} = await this.#ProductService.getAllProducts(req.query);
+        res.status(200).json({
+            status: "success", message: "Products retrieved successfully", length:totalDocuments, pagination,data: documents
+        })
+    }
 
-/**
- * @desc   Get single product by ID
- * @route  GET /api/v1/products/:id
- * @access Public
- */
-const getSpecificProduct = BaseController.getOne(Product);
+    async updateProduct(req, res, next) {
+        const {documents, totalDocuments, pagination} = await this.#ProductService.updateProduct(req.params.id, req.body)
+        res.status(200).json({
+            status: "success", message: "SubCategory updated successfully",length:totalDocuments, pagination,data: documents
+        })
+    }
 
-/**
- * @desc   Get products by category ID
- * @route  GET /api/v1/products/category/:categoryId
- * @access Public
- */
-const getProductsByCategory = asyncWrapper(async (req, res, next) => {
-  const { categoryId } = req.params;
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
+    async deleteProduct(req, res, next) {
+        await this.#ProductService.deleteProduct(req.params.id);
+        res.status(200).json({
+            status: "success", message: "Product deleted successfully"
+        })
+    }
 
-  if (!categoryId) {
-    return next(new ApiError("Category ID is required", 400));
-  }
+    async getProductById(req, res, next) {
+        const product = await this.#ProductService.getProductById(req.params.id)
+        res.status(200).json({
+            status: "success", message: "Product retrieved successfully", data: product
+        })
+    }
 
-  const offset = (page - 1) * limit;
+    async getProductsByCategory(req, res, next) {
+        const products = await this.#ProductService.getProductsByCategory(req.params.id, req.query.page, req.query.limit)
+        res.status(200).json({
+            status: "success", message: "Products retrieved successfully", data: products
+        })
+    }
 
-  const products = await Product.find({ category: categoryId })
-    .skip(offset)
-    .limit(limit)
-    .lean();
+    async getProductsBySubCategory(req, res, next) {
+        const products = await this.#ProductService.getProductsBySubCategory(req.params.id, req.query.page, req.query.limit)
+        res.status(200).json({
+            status: "success", message: "Products retrieved successfully", data: products
+        })
+    }
+}
 
-  res.status(200).json({
-    success: true,
-    page: page,
-    data: { products },
-  });
-});
-
-/**
- * @desc   Get products by subcategory ID
- * @route  GET /api/v1/products/subcategory/:subcategoryId
- * @access Public
- */
-const getProductsBySubcategory = asyncWrapper(async (req, res, next) => {
-  const { subcategoryId } = req.params;
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-
-  if (!subcategoryId) {
-    return next(new ApiError("Subcategory ID is required", 400));
-  }
-
-  const offset = (page - 1) * limit;
-
-  const products = await Product.find({ subcategories: subcategoryId })
-    .skip(offset)
-    .limit(limit)
-    .lean();
-
-  res.status(200).json({
-    success: true,
-    page: page,
-    data: { products },
-  });
-});
-
-export {
-  createProduct,
-  deleteProduct,
-  getAllProducts,
-  getProductsByCategory,
-  getProductsBySubcategory,
-  getSpecificProduct,
-  updateProduct,
-};
+export default new ProductController(ProductService);

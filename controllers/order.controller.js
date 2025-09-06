@@ -52,7 +52,7 @@ class OrderController{
 
         res.status(200).json({
             success: true,
-            message: "Order retrived successfully",
+            message: "Order retrieved successfully",
             data: order,
         });
     }

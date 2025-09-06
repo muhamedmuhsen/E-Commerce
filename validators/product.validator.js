@@ -41,7 +41,7 @@ const updateProductValidator = [
   description().optional(),
   quantity().optional(),
   sold(),
-  price(),
+  price().optional(),
   colors(),
   images(),
   category().optional(),

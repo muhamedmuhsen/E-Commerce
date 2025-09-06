@@ -4,6 +4,8 @@ import { BadRequestError, NotFoundError } from "../utils/api-errors.js";
 import Coupon from "../models/coupon.model.js";
 
 class CartService {
+
+
   async addToCart(productId, color, user) {
     const existingProduct = await Product.findById(productId);
 
@@ -64,14 +66,12 @@ class CartService {
   }
 
   async getCartProducts(user) {
-    const cart = await Cart.findOne({ user });
 
-    if (!cart) {
-      throw new BadRequestError("This user doesn't have cart");
-    }
+    if (!await Cart.exists({user})) throw new BadRequestError("This user doesn't have cart");
+
     console.log(cart.cartItems.length);
 
-    return cart.cartItems;
+    return  await Cart.findOne({ user }).lean().cartItems;
   }
 
   async removeAllFromCart(user) {
@@ -81,9 +81,7 @@ class CartService {
       { new: true }
     );
 
-    if (!cart) {
-      throw new NotFoundError("This user doesn't have a cart");
-    }
+    if (!cart) throw new NotFoundError("This user doesn't have a cart");
 
     return cart;
   }
@@ -95,20 +93,15 @@ class CartService {
       { new: true }
     );
 
-    if (!cart) {
-      throw new NotFoundError("this user doesn't have a cart or this product");
-    }
-    await cart.save();
+    if (!cart) throw new NotFoundError("this user doesn't have a cart or this product");
+
     return cart;
   }
 
   async updateProductQuantity(user, quantity, id) {
     const product = await Product.findById(id);
 
-    if (quantity > product.quantity)
-      throw new BadRequestError(
-        `There is only ${product.quantity} in stock of ${product.name}`
-      );
+    if (quantity > product.quantity) throw new BadRequestError(`There is only ${product.quantity} in stock of ${product.name}`);
 
     const cart = await Cart.findOneAndUpdate(
       {
@@ -119,33 +112,25 @@ class CartService {
       { new: true, runValidators: true }
     );
 
-    if (!cart) {
-      throw new NotFoundError(`This user doesn't have a cart or this product`);
-    }
+    if (!cart) throw new NotFoundError(`This user doesn't have a cart or this product`);
 
     return cart;
   }
 
   async applyCoupon(name, user) {
     const coupon = await Coupon.findOne({ name });
-    if (!coupon) {
-      throw new NotFoundError("There is no coupon with this name");
-    }
+    if (!coupon) throw new NotFoundError("There is no coupon with this name");
 
-    if (coupon.expire < Date.now()) {
-      throw new BadRequestError("Sorry, this coupon is expired");
-    }
+
+    if (coupon.expire < Date.now()) throw new BadRequestError("Sorry, this coupon is expired");
+
 
     const cart = await Cart.findOne({ user });
-    if (!cart) {
-      throw new NotFoundError("This user doesn't have a cart");
-    }
+    if (!cart) throw new NotFoundError("This user doesn't have a cart");
 
-    if (cart.cartItems.length <= 0) {
-      throw new BadRequestError(
-        "Sorry, this user doesn't have products in their cart"
-      );
-    }
+
+    if (cart.cartItems.length <= 0) throw new BadRequestError("Sorry, this user doesn't have products in their cart");
+
 
     cart.discountPercentage = coupon.discount;
 

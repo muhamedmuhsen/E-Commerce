@@ -1,62 +1,35 @@
 import express from "express";
 import allowed from "../middlewares/is-allowed.js";
+import UserController from "../controllers/user.controller.js";
 import {
-  createUser,
-  deleteUser,
-  getAllUsers,
-  updateUser,
-  getUser,
-  changeUserPassword,
-  getLoggedUser,
-  updateLoggedUserPassword,
-  updateLoggedUserData,
-  deactivate,
-} from "../controllers/user.controller.js";
-import {
-  createUserValidator,
-  deleteUserValidator,
-  getUserValidator,
-  updateUserValidator,
-  changeUserPasswordValidator,
-  updateLoggedUserValidator,
+    createUserValidator,
+    deleteUserValidator,
+    getUserValidator,
+    updateUserValidator,
+    changeUserPasswordValidator,
+    updateLoggedUserValidator,
 } from "../validators/user.validator.js";
 import authenticateJWT from "../middlewares/authenticate-jwt.js";
 
-const router = express.Router({mergeParams: true });
+const router = express.Router({mergeParams: true});
 
 router.use(authenticateJWT);
 
-router.get("/get-me", getLoggedUser, getUser);
-router.delete("/deactivate-me", getLoggedUser, deactivate);
+router.get("/get-me", UserController.getLoggedUser, UserController.wrap(UserController.getUser))
+router.delete("/deactivate-me", UserController.getLoggedUser, UserController.wrap(UserController.deactivateUser))
 
-router.put(
-  "/update-me",
-  updateLoggedUserValidator,
-  getLoggedUser,
-  updateLoggedUserData
-);
-router.patch(
-  "/update-my-password",
-  getLoggedUser,
-  changeUserPasswordValidator,
-  updateLoggedUserPassword
-);
+router.put("/update-me", updateLoggedUserValidator, UserController.getLoggedUser, UserController.wrap(UserController.updateLoggedUserData))
+router.patch("/update-my-password", UserController.getLoggedUser, changeUserPasswordValidator, UserController.wrap(UserController.changePassword))
 
 // Protected Routes
 router.use(allowed("admin", "manager"));
 
-router.route("/").get(getAllUsers).post(createUserValidator, createUser);
-
-router.patch(
-  "/change-password/:id",
-  changeUserPasswordValidator,
-  changeUserPassword
-);
+router.route("/").get(UserController.wrap(UserController.getUsers)).post(createUserValidator, UserController.wrap(UserController.createUser))
 
 router
-  .route("/:id")
-  .get(getUserValidator, getUser)
-  .put(updateUserValidator, updateUser)
-  .delete(deleteUserValidator, deleteUser);
+    .route("/:id")
+    .get(getUserValidator, UserController.wrap(UserController.getUser))
+    .put(updateUserValidator, UserController.wrap(UserController.updateUser))
+    .delete(deleteUserValidator, UserController.wrap(UserController.deleteUser))
 
 export default router;

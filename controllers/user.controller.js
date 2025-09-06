@@ -1,152 +1,77 @@
-import bcrypt from "bcryptjs";
-import User from "../models/user.model.js";
+import UserService from "../services/user.service.js";
 import asyncWrapper from "../middlewares/async-wrapper.js";
-import BaseController from "./base.controller.js";
-import {
-  changeUserPasswordService,
-  updateLoggedUserDataService,
-  deactivateService,
-} from "../services/user.service.js";
-import { NotFoundError, UnauthorizedError } from "../utils/api-errors.js";
 
 // TODO(handle profile image)
 
-/**
- * @desc   Get specific user by ID
- * @route  GET /api/v1/users/:id
- * @access Private
- */
-const getUser = BaseController.getOne(User);
+class UserController {
+    #UserService
 
-/**
- * @desc   Create new user
- * @route  POST /api/v1/users
- * @access Private
- */
-const createUser = BaseController.create()(User);
+    constructor(UserService) {
+        this.#UserService = UserService;
+    }
 
-/**
- * @desc   Update user by ID
- * @route  PUT/PATCH /api/v1/users/:id
- * @access Private
- */
-const updateUser = BaseController.update(User);
+    wrap(fn){
+        return asyncWrapper(fn.bind(this));
+    }
 
-/**
- * @desc   Get all users
- * @route  GET /api/v1/users
- * @access Private
- */
-const getAllUsers = BaseController.getAll(User);
+    async getUsers(req, res) {
+        const users = await this.#UserService.getAllUsers();
 
-/**
- * @desc   Delete user by ID
- * @route  DELETE /api/v1/users/:id
- * @access Private
- */
-const deleteUser = BaseController.delete(User);
+        res.status(200).json({
+            success: true, message: "Users retrieved successfully", data: users,
+        });
+    }
 
-/**
- * @desc   Change user password by ID
- * @route  PATCH /api/v1/users/change-password/:id
- * @access Private
- */
-const changeUserPassword = asyncWrapper(async (req, res, next) => {
-  const user = await User.findById(req.params.id).lean();
+    async getUser(req, res) {
+        const user = await this.#UserService.getUser(req.params.id);
+        res.status(200).json({
+            success: true, message: "User retrieved successfully", data: user,
+        })
+    }
 
-  if (!user) {
-    return next(new NotFoundError("User not found"));
-  }
+    async createUser(req, res) {
+        const user = await this.#UserService.createUser(req.body);
 
-  const isMatchedPassword = await bcrypt.compare(
-    req.body.password,
-    user.password
-  );
-  if (!isMatchedPassword) {
-    return next(new UnauthorizedError("Current password is incorrect"));
-  }
+        res.status(201).json({
+            success: true, message: "User created successfully", data: user,
+        })
+    }
 
-  const token = await changeUserPasswordService(user._id, req.body.newPassword);
+    async updateUser(req, res) {
+        const user = await this.#UserService.updateUser(req.params.id, req.body);
+        res.status(200).json({
+            success: true, message: "User updated successfully", data: user,
+        })
+    }
 
-  res
-    .status(200)
-    .json({ success: true, message: "Password changed successfully", token });
-});
+    async deleteUser(req, res) {
+        const user = await this.#UserService.deleteUser(req.params.id);
+        res.status(200).json({
+            success: true, message: "User deleted successfully",
+        })
+    }
 
-/**
- * @desc   Get logged user data
- * @route  GET /api/v1/users/get-me
- * @access Private
- */
-const getLoggedUser = asyncWrapper((req, res, next) => {
-  req.params.id = req.user._id;
-  next();
-});
+    async updateLoggedUserData(req, res) {
+        const user = await this.#UserService.updateLoggedUserData(req.user._id, req.body);
+        res.status(200).json({success: true, message: "user updated successfully", data: user});
+    }
 
-/**
- * @desc   Update logged user password
- * @route  PATCH /api/v1/users/update-my-password
- * @access Private
- */
-const updateLoggedUserPassword = asyncWrapper(async (req, res, next) => {
-  const user = await User.findById(req.user._id).lean();
-  if (!user) {
-    return next(new NotFoundError("User not found"));
-  }
+    async changePassword(req, res) {
+        const token = await this.#UserService.changePassword(req.user._id, req.body.password, req.body.newPassword);
+        res.status(200).json({success: true, message: "Password changed successfully", token});
+    }
 
-  if (!(await bcrypt.compare(req.body.password, user.password))) {
-    return next(new UnauthorizedError("Current password is incorrect"));
-  }
+    getLoggedUser(req, res, next) {
+        req.params.id = req.user._id;
+        next();
+    }
 
-  const token = await changeUserPasswordService(user._id, req.body.newPassword);
+    async deactivateUser(req, res) {
+        await this.#UserService.deactivateUser(req.params.id);
+        res
+            .status(200)
+            .json({success: true, message: "Account deactivated successfully."});
+    }
+}
 
-  res
-    .status(200)
-    .json({ success: true, message: "Password changed successfully", token });
-});
-
-/**
- * @desc   Update logged user data
- * @route  PUT /api/v1/users/update-me
- * @access Private
- */
-const updateLoggedUserData = asyncWrapper(async (req, res, next) => {
-  const user = await updateLoggedUserDataService(req.user._id, req.body);
-
-  if (!user) {
-    return next(new NotFoundError("User not found"));
-  }
-
-  res
-    .status(200)
-    .json({ success: true, message: "user updated successfully", data: user });
-});
-
-/**
- * @desc   Deactivate user account
- * @route  DELETE /api/v1/users/deactivate-me
- * @access Private
- */
-const deactivate = asyncWrapper(async (req, res, next) => {
-  const user = await deactivateService(req.user._id);
-
-  if (!user) {
-    return next(new NotFoundError("User not found"));
-  }
-  res
-    .status(200)
-    .json({ success: true, message: "Account deactivated successuflly." });
-});
-
-export {
-  createUser,
-  updateUser,
-  getAllUsers,
-  deleteUser,
-  getUser,
-  changeUserPassword,
-  getLoggedUser,
-  updateLoggedUserPassword,
-  updateLoggedUserData,
-  deactivate,
-};
+export default new UserController(UserService);

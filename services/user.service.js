@@ -1,41 +1,66 @@
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 import createToken from "../utils/create-token.js";
+import {BadRequestError, NotFoundError} from "../utils/api-errors.js";
+import BaseService from "./base.service.js";
 
-const changeUserPasswordService = async (id, password) => {
-  const hashedPassword = await bcrypt.hash(password, 10);
+class UserService {
+    #BaseService
+    #User
 
-  const user = await User.findByIdAndUpdate(
-    id,
-    { password: hashedPassword, passwordChangeAt: Date.now() },
-    { new: true }
-  );
-  const token = createToken(user._id);
-  return token;
-};
+    constructor(BaseService, User) {
+        this.#BaseService = BaseService;
+        this.#User = User;
+    }
 
-const updateLoggedUserDataService = async (id, body) => {
-  const user = await User.findByIdAndUpdate(
-    id,
-    { ...body },
-    { new: true }
-  ).lean();
-  return user;
-};
+    async getUser(id) {
+        return await this.#BaseService.getOne(this.#User, id)
+    }
 
-const deactivateService = async (id) => {
-  const user = await User.findByIdAndUpdate(
-    id,
-    {
-      isActive: false,
-    },
-    { new: true }
-  ).lean();
-  return user;
-};
+    async getAllUsers() {
+        return await this.#BaseService.getAll(this.#User)
+    }
 
-export {
-  changeUserPasswordService,
-  updateLoggedUserDataService,
-  deactivateService,
-};
+    async createUser(data) {
+        return await this.#BaseService.create(this.#User, data)
+    }
+
+    async updateUser(data) {
+        return await this.#BaseService.update(this.#User, data)
+    }
+
+    async deleteUser(id) {
+        return await this.#BaseService.delete(this.#User, id)
+    }
+
+    async changePassword(id, currPassword, newPassword) {
+        let user = await this.#User.findOne(id)
+
+        if (!user.comparePassword(currPassword, user.password)) throw new BadRequestError("Password is incorrect")
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+       await User.findByIdAndUpdate(id, {
+            password: hashedPassword,
+            passwordChangeAt: Date.now()
+        }, {new: true});
+
+        return createToken(user._id);
+    }
+
+    async updateLoggedUserData(id, data) {
+        const user = await User.findByIdAndUpdate(id, {...data}, {new: true}).lean();
+
+        if (!user) throw new NotFoundError("User not found");
+
+        return user;
+    }
+
+    async deactivateUser(id) {
+        return await User.findByIdAndUpdate(id, {
+            isActive: false,
+        }, {new: true}).lean();
+    }
+}
+
+export default new UserService(BaseService, User);
