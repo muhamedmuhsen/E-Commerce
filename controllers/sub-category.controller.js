@@ -32,8 +32,7 @@ class SubCategoryController {
     }
 
     async getAllSubCategories(req, res, next) {
-
-        const subcategories = await this.#SubCategoryService.getAllSubCategories(req.query)
+        const subcategories = await this.#SubCategoryService.getAllSubCategories({...req.query, ...req.filterObject})
         res.status(200).json({
             status: "success", message: "All SubCategories retrieved successfully", data: subcategories
         })
@@ -53,25 +52,11 @@ class SubCategoryController {
         })
     }
 
-    async getSubCategoriesOfCategory(req, res, next) {
-        const subcategories = await this.#SubCategoryService.getSubCategoriesOfCategory(req.params.id);
-        res.status(200).json({
-            status: "success", message: "SubCategories retrieved successfully", data: subcategories
-        })
-    }
-
-    async createSubCategoryUnderCategory(req, res, next) {
-        const subcategory = await this.#SubCategoryService.createSubCategoryUnderCategory(req.params.id, req.body);
-        res.status(200).json({
-            status: "success", message: "SubCategory created successfully", data: subcategory
-        })
-    }
-
 
 }
 
 const setCategoryIdToBody = (req, res, next) => {
-    if (!req.body.category) req.body.category = req.params.id;
+   req.body.category = req.params.id;
     next();
 };
 

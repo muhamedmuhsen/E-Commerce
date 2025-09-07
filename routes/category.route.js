@@ -8,10 +8,11 @@ import authenticateJWT from "../middlewares/authenticate-jwt.js";
 
 const router = express.Router();
 
+
 router
     .route("/")
     .get(CategoryController.wrap(CategoryController.getAllCategories))
-    .post(createCategoryValidator, authenticateJWT, CategoryController.wrap(CategoryController.createCategory))
+    .post(authenticateJWT,createCategoryValidator, CategoryController.wrap(CategoryController.createCategory))
 router
     .route("/:id")
     .put(updateCategoryValidator, authenticateJWT, CategoryController.wrap(CategoryController.updateCategory))

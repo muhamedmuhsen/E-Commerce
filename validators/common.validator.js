@@ -14,7 +14,7 @@ export const mongoId = (fieldName = "id") =>
         .withMessage(`Invalid ${fieldName}`);
 
 // Name validation with slug generation and configurable length
-export const name = (entityName = "Name", minLength = 3, maxLength = 32) =>
+export const name = (entityName = "name", minLength = 3, maxLength = 32) =>
     check("name")
         .isLength({min: minLength, max: maxLength})
         .withMessage(

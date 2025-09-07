@@ -13,7 +13,7 @@ import {
 
 const router = express.Router();
 
-router.post("/register", registerValidator, register);
+router.post("/register", register);
 router.post("/login", loginValidator, login);
 router.post("/forgetPassword", forgetPassword);
 router.post("/verifyResetCode", verifyResetCode);

@@ -22,10 +22,17 @@ class SubCategoryService {
     }
 
     async createSubCategory(data) {
+        const {category} = data;
+        if (!(await CategoryModel.exists({_id: category}))) throw new NotFoundError("Category not found");
+
         return this.#baseService.createOne(this.#subCategory, data);
     }
 
     async updateSubCategory(id, data) {
+        const {category} = data;
+
+        if (!(await CategoryModel.exists(category))) throw new NotFoundError("Category not found");
+
         return this.#baseService.updateOne(this.#subCategory, id, data);
     }
 
@@ -33,27 +40,6 @@ class SubCategoryService {
         return this.#baseService.deleteOne(this.#subCategory, id);
     }
 
-    async getSubCategoriesOfCategory(categoryId) {
-        const category = await CategoryModel.exists(categoryId);
-
-        if (!category) throw new NotFoundError("Category not found");
-
-        const subcategories = await SubCategoryModel.find({category: categoryId}).lean()
-
-        if (!subcategories) throw new NotFoundError("SubCategories not found");
-
-        return subcategories;
-    }
-
-    async createSubCategoryUnderCategory(category, subCategoryName) {
-
-        const parentCategory = await CategoryModel.exists({_id: category});
-        if (!parentCategory) throw new NotFoundError("Category not found");
-
-        return await SubCategoryModel.create({
-            category, name: subCategoryName,
-        })
-    }
 }
 
 

@@ -8,17 +8,11 @@ import AuthService from "../services/auth.service.js";
  * @access Public
  */
 const registerController = asyncWrapper(async (req, res, next) => {
-  const token = await AuthService.register(
-    req.body.name,
-    req.body.email,
-    req.body.password
-  );
+    const token = await AuthService.register(req.body.name, req.body.email, req.body.password, req.body.address);
 
-  res.status(201).json({
-    success: true,
-    message: "User registered successfully",
-    token,
-  });
+    res.status(201).json({
+        success: true, message: "User registered successfully", token,
+    });
 });
 
 /**
@@ -27,11 +21,11 @@ const registerController = asyncWrapper(async (req, res, next) => {
  * @access Public
  */
 const loginSController = asyncWrapper(async (req, res, next) => {
-  const token = await AuthService.login(req.body.email, req.body.password);
+    const token = await AuthService.login(req.body.email, req.body.password);
 
-  res
-    .status(200)
-    .json({ success: true, message: "logged in successfully", token });
+    res
+        .status(200)
+        .json({success: true, message: "logged in successfully", token});
 });
 
 /**
@@ -40,11 +34,11 @@ const loginSController = asyncWrapper(async (req, res, next) => {
  * @access Public
  */
 const forgetPasswordController = asyncWrapper(async (req, res, next) => {
-  await AuthService.forgetPassword(req.body.email);
+    await AuthService.forgetPassword(req.body.email);
 
-  res
-    .status(200)
-    .json({ success: true, message: "reset code sent successfully" });
+    res
+        .status(200)
+        .json({success: true, message: "reset code sent successfully"});
 });
 
 /**
@@ -53,11 +47,11 @@ const forgetPasswordController = asyncWrapper(async (req, res, next) => {
  * @access Public
  */
 const verifyResetCodeController = asyncWrapper(async (req, res, next) => {
-  await AuthService.verifyResetCode(req.body.resetCode);
+    await AuthService.verifyResetCode(req.body.resetCode);
 
-  res
-    .status(200)
-    .json({ success: true, message: "Reset code verified successfully" });
+    res
+        .status(200)
+        .json({success: true, message: "Reset code verified successfully"});
 });
 
 /**
@@ -66,19 +60,12 @@ const verifyResetCodeController = asyncWrapper(async (req, res, next) => {
  * @access Public
  */
 const resetPasswordController = asyncWrapper(async (req, res, next) => {
-  const token = await AuthService.resetPassword(
-    req.body.email,
-    req.body.newPassword
-  );
+    const token = await AuthService.resetPassword(req.body.email, req.body.newPassword);
 
-  res
-    .status(200)
-    .json({ success: true, message: "Password rested successfully", token });
+    res
+        .status(200)
+        .json({success: true, message: "Password rested successfully", token});
 });
 export {
-  loginSController,
-  registerController,
-  forgetPasswordController,
-  resetPasswordController,
-  verifyResetCodeController,
+    loginSController, registerController, forgetPasswordController, resetPasswordController, verifyResetCodeController,
 };

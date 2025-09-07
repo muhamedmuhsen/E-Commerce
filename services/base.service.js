@@ -5,13 +5,14 @@ import {Model} from "mongoose";
 
 class BaseService {
     async deleteOne(Model, id) {
-        const document = await Model.findByIdAndDelete(id).lean();
+        const document = await Model.findByIdAndDelete(id);
         if (!document) throw new NotFoundError(`${Model.modelName} not found`);
-        return document;
+        return true;
     }
 
     async createOne(Model, data) {
-        const doc = await Model.create({...data}).lean();
+        console.log(data)
+        const doc = await Model.create({...data});
 
         deletePasswordProperty(Model, doc);
 
