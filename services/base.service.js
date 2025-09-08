@@ -4,6 +4,26 @@ import {NotFoundError, BadRequestError} from "../utils/api-errors.js";
 import {Model} from "mongoose";
 
 class BaseService {
+
+    async getAll(Model, query) {
+        const apiFeatures = new ApiFeatures(query, Model.find())
+            .filter()
+            .search(Model.modelName)
+
+        apiFeatures.totalDocuments = await apiFeatures.mongooseQuery.clone().countDocuments()
+        
+        apiFeatures.sorting().limitFields().paginate();
+
+        const documents = await apiFeatures.mongooseQuery.lean()
+
+        const {_, totalDocuments, pagination} = apiFeatures;
+
+        deletePasswordProperty(Model, documents);
+
+        return {documents, totalDocuments, pagination};
+    }
+
+
     async deleteOne(Model, id) {
         const document = await Model.findByIdAndDelete(id);
         if (!document) throw new NotFoundError(`${Model.modelName} not found`);
@@ -25,23 +45,6 @@ class BaseService {
         }).lean();
     }
 
-    async getAll(Model, query) {
-        const apiFeatures = new ApiFeatures(query, Model.find())
-            .filter()
-            .search(Model.modelName)
-            .sorting()
-            .limitFields();
-
-        const totalDocuments = await Model.countDocuments(apiFeatures.mongooseQuery.filter);
-        apiFeatures.paginate(totalDocuments);
-
-        const documents = await apiFeatures.mongooseQuery.lean();
-
-        deletePasswordProperty(Model, documents);
-
-        const {pagination} = apiFeatures;
-        return {documents, totalDocuments, pagination};
-    }
 
     async getOne(Model, id) {
         const document = await Model.findById(id).lean();

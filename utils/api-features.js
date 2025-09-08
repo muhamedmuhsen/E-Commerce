@@ -2,6 +2,7 @@ class ApiFeatures {
     constructor(queryString, mongooseQuery) {
         this.queryString = queryString;
         this.mongooseQuery = mongooseQuery;
+        this.appliedFilter = {}
     }
 
     filter() {
@@ -24,26 +25,26 @@ class ApiFeatures {
                 filter[key] = value;
             }
         }
+        this.appliedFilter = {...filter};
+
         const excludedFields = ["page", "limit", "sort", "fields", "keyword"];
         excludedFields.forEach((field) => delete filter[field]);
+
         this.mongooseQuery = this.mongooseQuery.find(filter);
-        this.mongooseQuery.filter=  filter
 
         return this;
     }
 
-    paginate(total) {
+    paginate() {
         const page = Number(this.queryString.page) || 1;
         const limit = Number(this.queryString.limit) || 10;
         const skip = (page - 1) * limit;
 
         this.pagination = {
-            currentPage: page,
-            limit,
-            numberOfPages: Math.ceil(total / limit),
+            currentPage: page, limit, numberOfPages: Math.ceil(this.totalDocuments / limit),
         };
 
-        if (page * limit < total) this.pagination.next = page + 1;
+        if (page * limit < this.totalDocuments) this.pagination.next = page + 1;
         if (skip > 0) this.pagination.prev = page - 1;
 
         this.mongooseQuery = this.mongooseQuery.skip(skip).limit(limit);
@@ -56,7 +57,6 @@ class ApiFeatures {
             return this;
         }
         let sort = this.queryString.sort;
-        console.log(sort);
 
         if (Array.isArray(sort)) sort = sort[sort.length - 1];
 
@@ -80,14 +80,11 @@ class ApiFeatures {
 
     limitFields() {
         if (!this.queryString.fields || !this.queryString) {
-            this.mongooseQuery = this.mongooseQuery.select(
-                "-__v -createdAt -updatedAt"
-            );
+            this.mongooseQuery = this.mongooseQuery.select("-__v -createdAt -updatedAt");
             return this;
         }
         const fieldsArr = this.queryString.fields.split(",").join(" ");
-        if (!/categor/gi.test(fieldsArr))
-            this.mongooseQuery.setOptions({skipPopulate: true});
+        if (!/categor/gi.test(fieldsArr)) this.mongooseQuery.setOptions({skipPopulate: true});
 
         this.mongooseQuery = this.mongooseQuery.select(fieldsArr);
 
@@ -99,8 +96,7 @@ class ApiFeatures {
         if (!keyword) return this;
 
         const searchConfig = {
-            product: ["name", "description"],
-            default: ["name"],
+            product: ["name", "description"], default: ["name"],
         };
 
         const fields = searchConfig[model] || searchConfig.default;
@@ -112,6 +108,19 @@ class ApiFeatures {
 
         return this;
     }
+
+    // count() {
+    //     console.log(this.appliedFilter)
+    //     this.countQuery = this.mongooseQuery.model.countDocuments(this.appliedFilter);
+    //     return this
+    // }
+    //
+    // async exec() {
+    //     this.totalDocuments = await this.countQuery || 0
+    //     console.log(this.totalDocuments)
+    //     this.documents = await this.mongooseQuery.lean()
+    //     return this;
+    // }
 }
 
 export default ApiFeatures;

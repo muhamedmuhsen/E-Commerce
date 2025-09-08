@@ -1,8 +1,7 @@
-import asyncWrapper from "../middlewares/async-wrapper.js";
-import BaseService from "../services/base.service.js";
+import BaseService from "./base.service.js";
 import CouponModel from "../models/coupon.model.js";
 
-class CouponController {
+class CouponService {
     #BaseService;
     #CouponModel;
 
@@ -11,31 +10,26 @@ class CouponController {
         this.#CouponModel = CouponModel;
     }
 
-    wrap(fn) {
-        return asyncWrapper(fn.bind(this));
-    }
-
     async getAllCoupons(query) {
         return this.#BaseService.getAll(this.#CouponModel, query)
     }
 
-    async getCoupon(id) {
+    async getCouponById(id) {
         return this.#BaseService.getOne(this.#CouponModel, id)
     }
 
-
     async createCoupon(data) {
-        return this.#BaseService.create(this.#CouponModel, data);
+        return this.#BaseService.createOne(this.#CouponModel, data);
     }
 
     async updateCoupon(id, data) {
-        return this.#BaseService.update(this.#CouponModel, id, data);
+        return this.#BaseService.updateOne(this.#CouponModel, id, data);
     }
 
     async deleteCoupon(id) {
-        return this.#BaseService.delete(this.#CouponModel, id);
+        return this.#BaseService.deleteOne(this.#CouponModel, id);
     }
 
 }
 
-export default new CouponController(BaseService, CouponModel);
+export default new CouponService(BaseService, CouponModel);
