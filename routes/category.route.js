@@ -5,6 +5,7 @@ import {
     createCategoryValidator, deleteCategoryValidator, getSpecificCategoryValidator, updateCategoryValidator,
 } from "../validators/category.validator.js";
 import authenticateJWT from "../middlewares/authenticate-jwt.js";
+import ProductRoute from "./product.route.js";
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ const router = express.Router();
 router
     .route("/")
     .get(CategoryController.wrap(CategoryController.getAllCategories))
-    .post(authenticateJWT,createCategoryValidator, CategoryController.wrap(CategoryController.createCategory))
+    .post(authenticateJWT, createCategoryValidator, CategoryController.wrap(CategoryController.createCategory))
 router
     .route("/:id")
     .put(updateCategoryValidator, authenticateJWT, CategoryController.wrap(CategoryController.updateCategory))
@@ -20,5 +21,6 @@ router
     .get(getSpecificCategoryValidator, CategoryController.wrap(CategoryController.getCategory))
 
 router.use("/:id/subcategories", subCategoryRoute);
+router.use('/:id/products', ProductRoute)
 
 export default router;

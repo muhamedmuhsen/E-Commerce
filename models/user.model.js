@@ -27,7 +27,6 @@ const UserSchema = new Schema({
     },
     address: {
         type: mongoose.Schema.Types.ObjectId, ref: "Address",
-        required: [true, "Address is required"],
     },
     isActive: {type: Boolean, default: true},
     passwordChangeAt: Date,

@@ -10,17 +10,16 @@ class BaseService {
             .filter()
             .search(Model.modelName)
 
-        apiFeatures.totalDocuments = await apiFeatures.mongooseQuery.clone().countDocuments()
-        
-        apiFeatures.sorting().limitFields().paginate();
+        const [totalDocuments, documents] = await Promise.all([
+            apiFeatures.totalDocuments = await apiFeatures.mongooseQuery.clone().countDocuments(),
+            apiFeatures.sorting().limitFields().paginate().mongooseQuery.lean()
+        ])
 
-        const documents = await apiFeatures.mongooseQuery.lean()
-
-        const {_, totalDocuments, pagination} = apiFeatures;
+        const {pagination} = apiFeatures;
 
         deletePasswordProperty(Model, documents);
 
-        return {documents, totalDocuments, pagination};
+        return documents ? {documents, totalDocuments, pagination} : {documents: [], totalDocuments: 0, pagination};
     }
 
 
@@ -31,7 +30,6 @@ class BaseService {
     }
 
     async createOne(Model, data) {
-        console.log(data)
         const doc = await Model.create({...data});
 
         deletePasswordProperty(Model, doc);
@@ -40,9 +38,13 @@ class BaseService {
     }
 
     async updateOne(Model, id, body) {
-        return await Model.findByIdAndUpdate(id, body, {
-            new: true,
+        const doc = await Model.findByIdAndUpdate(id, body, {
+            new: true, runValidators: true,
         }).lean();
+
+        if (!doc) throw new NotFoundError(`${Model.modelName} not found`);
+
+        return doc;
     }
 
 

@@ -14,54 +14,60 @@ class ProductController {
         return asyncWrapper(fn.bind(this))
     }
 
-    async createProduct(req, res, next) {
-        const product = await this.#ProductService.create(req.body);
+    async createProduct(req, res,) {
+        const product = await this.#ProductService.createProduct(req.body);
         res.status(201).json({
             status: "success", message: "Product created successfully", data: product
         })
     }
 
-    async getAllProducts(req, res, next) {
+    async getAllProducts(req, res,) {
+
+        const categoryPattern = /(sub)?categories/g;
+        const match = req.baseUrl.match(categoryPattern);
+
+        if (match) {
+            if (match[0] === "subcategories") req.query.subcategories = req.params.id;
+            else if (match[0] === "category") req.query.category = req.params.id;
+        }
+
         const {documents, totalDocuments, pagination} = await this.#ProductService.getAllProducts(req.query);
         res.status(200).json({
-            status: "success", message: "Products retrieved successfully", length:totalDocuments, pagination,data: documents
+            status: "success",
+            message: "Products retrieved successfully",
+            length: totalDocuments,
+            pagination,
+            data: documents
         })
     }
 
-    async updateProduct(req, res, next) {
-        const {documents, totalDocuments, pagination} = await this.#ProductService.updateProduct(req.params.id, req.body)
+    async updateProduct(req, res,) {
+        const {
+            documents, totalDocuments, pagination
+        } = await this.#ProductService.updateProduct(req.params.id, req.body)
         res.status(200).json({
-            status: "success", message: "SubCategory updated successfully",length:totalDocuments, pagination,data: documents
+            status: "success",
+            message: "SubCategory updated successfully",
+            length: totalDocuments,
+            pagination,
+            data: documents
         })
     }
 
-    async deleteProduct(req, res, next) {
+    async deleteProduct(req, res,) {
         await this.#ProductService.deleteProduct(req.params.id);
         res.status(200).json({
             status: "success", message: "Product deleted successfully"
         })
     }
 
-    async getProductById(req, res, next) {
+    async getProductById(req, res,) {
         const product = await this.#ProductService.getProductById(req.params.id)
         res.status(200).json({
             status: "success", message: "Product retrieved successfully", data: product
         })
     }
 
-    async getProductsByCategory(req, res, next) {
-        const products = await this.#ProductService.getProductsByCategory(req.params.id, req.query.page, req.query.limit)
-        res.status(200).json({
-            status: "success", message: "Products retrieved successfully", data: products
-        })
-    }
-
-    async getProductsBySubCategory(req, res, next) {
-        const products = await this.#ProductService.getProductsBySubCategory(req.params.id, req.query.page, req.query.limit)
-        res.status(200).json({
-            status: "success", message: "Products retrieved successfully", data: products
-        })
-    }
 }
 
 export default new ProductController(ProductService);

@@ -5,7 +5,7 @@ import {BadRequestError} from "../utils/api-errors.js";
 
 const roles = ["user", "admin"];
 
-// MongoDB ID validation with configurable field name
+
 export const mongoId = (fieldName = "id") =>
     check(fieldName)
         .notEmpty()
@@ -13,7 +13,7 @@ export const mongoId = (fieldName = "id") =>
         .isMongoId()
         .withMessage(`Invalid ${fieldName}`);
 
-// Name validation with slug generation and configurable length
+
 export const name = (entityName = "name", minLength = 3, maxLength = 32) =>
     check("name")
         .isLength({min: minLength, max: maxLength})
@@ -21,28 +21,21 @@ export const name = (entityName = "name", minLength = 3, maxLength = 32) =>
             `${entityName} name must be between ${minLength} and ${maxLength} characters`
         );
 
-// Category validation with existence check
+
 export const category = (fieldName = "category") =>
     check(fieldName)
         .isMongoId()
         .withMessage(`Invalid ${fieldName} id`)
-        .custom(async (value) => {
-            const categoryFound = await Category.findById(value).lean();
-            if (!categoryFound) {
-                throw new Error("Category not found");
-            }
-            return true;
-        });
 
-// Email validation
-export const email = (fieldName = "email") =>
-    check(fieldName)
+
+export const email = () =>
+    check( "email")
         .notEmpty()
-        .withMessage(`${fieldName} is required`)
+        .withMessage(`Email is required`)
         .isEmail()
-        .withMessage(`You must write valid ${fieldName}`);
+        .withMessage(`You must write valid Email`);
 
-// Password validation
+
 export const password = (fieldName = "password") =>
     check(fieldName)
         .notEmpty()
@@ -50,19 +43,19 @@ export const password = (fieldName = "password") =>
         .isLength({min: 8})
         .withMessage("Password must be at least 8 characters long");
 
-// Password confirmation validation
+
 export const passwordConfirm = (passwordField = "passwordConfirm") =>
     check(passwordField)
         .notEmpty()
         .withMessage("Password confirmation is required")
         .custom((value, {req}) => {
             if (value !== req.body[passwordField]) {
-                throw new Error("Passwords do not match");
+                throw new BadRequestError("Passwords do not match");
             }
             return true;
         });
 
-// Phone validation
+
 export const phone = () =>
     check("phone")
         .optional()
@@ -71,23 +64,22 @@ export const phone = () =>
             "Invalid phone number - only Egyptian and Saudi numbers accepted"
         );
 
-// Profile image validation
-export const profileImage = () => check("profileImg").optional();
 
-// Role validation
+export const profileImage = () => check("profileImg").optional().isURL();
+
+
 export const role = () => check("role").optional().isIn(roles);
 
-// Generic "at least one field" validation
+
 export const atLeastOneField = (fields = []) =>
     body().custom((val) => {
-        // Default fields for products if none provided
+
         const defaultProductFields = [
             "name",
             "description",
             "quantity",
             "sold",
             "price",
-            "priceAfterDiscount",
             "colors",
             "imageCover",
             "images",
@@ -109,54 +101,10 @@ export const atLeastOneField = (fields = []) =>
         return true;
     });
 
-// Subcategories validation - simplified version
-export const subcategories = (isArray = true) => {
-    const baseValidation = check("subcategories").optional();
 
-    if (isArray) {
-        return baseValidation
-            .isArray()
-            .withMessage("Subcategories should be an array")
-            .custom(async (value, {req}) => {
-                if (!value || value.length === 0) return true;
+export const subcategories = () => check("subcategories")
+    .isArray({min:1}).withMessage("SubCategories must by an array and with min length 1")
 
-                // Check if category is provided
-                if (!req.body.category) throw new BadRequestError("Category is required when subcategories are provided");
-
-
-                // Check if all subcategories exist
-                const subcategoriesFound = await SubCategory.find({_id: {$in: value},}).lean();
-
-                if (subcategoriesFound.length !== value.length) throw new Error("One or more subcategories not found");
-
-                // Check if all subcategories belong to the specified category
-                const parentCategory = req.body.category;
-                const invalidSubcategories = subcategoriesFound.filter(
-                    (sub) => sub.category.toString() !== parentCategory.toString()
-                );
-
-                if (invalidSubcategories.length > 0) {
-                    throw new Error(
-                        "All subcategories must belong to the specified category"
-                    );
-                }
-
-                return true;
-            });
-    }
-
-    // For single subcategory (update validator)
-    return baseValidation
-        .isMongoId()
-        .withMessage("Invalid subcategory id")
-        .custom(async (value) => {
-            const subcategory = await SubCategory.findById(value).lean();
-            if (!subcategory) {
-                throw new Error("Subcategory not found");
-            }
-            return true;
-        });
-};
 
 export const brand = () =>
     check("brand").optional().isMongoId().withMessage("Invalid brand id");
@@ -171,6 +119,7 @@ export const description = () =>
     check("description")
         .isLength({min: 20, max: 2000})
         .withMessage("Product description must be between 20 and 2000 characters");
+
 export const quantity = () =>
     check("quantity")
         .isInt({min: 0})
@@ -187,16 +136,7 @@ export const price = () =>
         .isFloat({min: 0})
         .withMessage("Product price must be a positive number");
 
-export const priceAfterDiscount = () =>
-    check("priceAfterDiscount")
-        .optional()
-        .isFloat({min: 0})
-        .withMessage("Product price after discount must be a positive number")
-        .custom((value, {req}) => {
-            if (value && value >= req.body.price) throw new BadRequestError("Price after discount must be lower than original price");
 
-            return true;
-        });
 
 export const colors = () => check("colors").optional().isArray();
 

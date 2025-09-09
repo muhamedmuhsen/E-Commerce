@@ -5,6 +5,7 @@ import {
 } from "../validators/sub-category.validator.js";
 import authenticateJWT from "../middlewares/authenticate-jwt.js";
 import isAllowed from "../middlewares/is-allowed.js";
+import ProductRoute from "./product.route.js";
 
 // mergeParams allow us to access parameters on other routes
 const router = express.Router({mergeParams: true});
@@ -21,5 +22,7 @@ router
     .put(updateSubCategoryValidator, isAllowed("admin"), SubCategoryController.wrap(SubCategoryController.updateSubCategory))
     .delete(deleteSubCategoryValidator, isAllowed("admin"), SubCategoryController.wrap(SubCategoryController.deleteSubCategory))
     .get(getSpecificSubCategoryValidator, SubCategoryController.wrap(SubCategoryController.getSubCategory));
+
+router.use("/:id/products", ProductRoute)
 
 export default router;

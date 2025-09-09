@@ -5,7 +5,7 @@ import {
 } from "../validators/product.validator.js";
 import authenticateJWT from "../middlewares/authenticate-jwt.js";
 
-const router = express.Router();
+const router = express.Router({mergeParams: true});
 
 router
     .route("/")
@@ -17,6 +17,6 @@ router
     .put(updateProductValidator, authenticateJWT, ProductController.wrap(ProductController.updateProduct))
     .delete(deleteProductValidator, authenticateJWT, ProductController.wrap(ProductController.deleteProduct))
     .get(getSpecificProductValidator, ProductController.wrap(ProductController.getProductById))
-// getProductsByCategory
+
 // getProductsBySubCategory
 export default router;
