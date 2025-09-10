@@ -34,7 +34,7 @@ const getUserValidator = [mongoId(), validateRequest];
 
 const updateUserValidator = [
     mongoId(),
-    atLeastOneField(["name", "email","role", "phone", "profileImage"]),
+    atLeastOneField(["name", "email", "role", "phone", "profileImage"], "image"),
     name("username").optional(),
     email()
         .custom(checkIfEmailFoundForUpdate)
@@ -46,7 +46,7 @@ const updateUserValidator = [
 ];
 
 const updateLoggedUserValidator = [
-    atLeastOneField(["name", "email","phone", "profileImg"]),
+    atLeastOneField(["name", "email", "phone", "profileImg"], "image"),
     name("username"),
     email()
         .optional()

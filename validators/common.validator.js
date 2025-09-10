@@ -71,14 +71,12 @@ export const profileImage = () => check("profileImg").optional().isURL();
 export const role = () => check("role").optional().isIn(roles);
 
 
-export const atLeastOneField = (fields = []) =>
+export const atLeastOneField = (fields = [], image) =>
     body().custom((val) => {
 
         const defaultProductFields = [
             "name",
             "description",
-            "quantity",
-            "sold",
             "price",
             "colors",
             "imageCover",
@@ -86,16 +84,16 @@ export const atLeastOneField = (fields = []) =>
             "category",
             "subcategories",
             "brand",
-            "ratingsAverage",
-            "ratingsQuantity",
-            'address'
         ];
 
         const fieldsToCheck = fields.length > 0 ? fields : defaultProductFields;
-
+        console.log(val)
+        console.log(fieldsToCheck)
         const hasAtLeastOneField = fieldsToCheck.some(
             (field) => val[field] !== undefined
         );
+        console.log(hasAtLeastOneField)
+
         if (!hasAtLeastOneField) throw new BadRequestError("At least one field is required to update");
 
         return true;

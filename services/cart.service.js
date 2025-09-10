@@ -1,142 +1,126 @@
 import Product from "../models/product.model.js";
 import Cart from "../models/cart.model.js";
-import { BadRequestError, NotFoundError } from "../utils/api-errors.js";
+import {BadRequestError, NotFoundError} from "../utils/api-errors.js";
 import Coupon from "../models/coupon.model.js";
 
 class CartService {
+    #Cart
 
-
-  async addToCart(productId, color, user) {
-    const existingProduct = await Product.findById(productId);
-
-    if (!existingProduct) {
-      throw new NotFoundError("Product not found");
-    }
-    if (existingProduct.quantity < 1) {
-      throw new BadRequestError("Product is out of stock");
+    constructor(Cart) {
+        this.#Cart = Cart;
     }
 
-    let cart = await Cart.findOneAndUpdate(
-      {
-        user,
-        "cartItems.product": productId,
-        "cartItems.color": color,
-        "cartItems.quantity": { $lt: existingProduct.quantity },
-      },
-      {
-        $inc: { "cartItems.$.quantity": 1 },
-      },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    async addToCart(productId, color, user) {
+        const existingProduct = await Product.findById(productId);
 
-    if (cart) return cart;
+        if (!existingProduct) throw new NotFoundError("Product not found");
 
-    cart = await Cart.findOneAndUpdate(
-      { user },
-      {
-        $push: {
-          cartItems: {
-            product: existingProduct,
-            color,
-            quantity: 1,
-            price: existingProduct.price,
-          },
-        },
-      },
-      { new: true, runValidators: true }
-    );
+        if (existingProduct.quantity < 1) throw new BadRequestError("Product is out of stock");
 
-    if (cart) return cart;
+        let notFoundColor = false;
 
-    cart = new Cart({
-      user,
-      cartItems: {
-        product: existingProduct,
-        color,
-        quantity: 1,
-        price: existingProduct.price,
-      },
-    });
-    await cart.save();
+        if (!existingProduct.colors.includes(color)) notFoundColor = true;
 
-    return cart;
-  }
+        if (notFoundColor) throw new BadRequestError(`Invalid color. Available colors: ${existingProduct.colors.join(", ")}`);
 
-  async getCartProducts(user) {
+        let cart = await Cart.findOneAndUpdate({
+            user,
+            "cartItems.product": productId,
+            "cartItems.color": color,
+            "cartItems.quantity": {$lt: existingProduct.quantity},
+        }, {
+            $inc: {"cartItems.$.quantity": 1},
+        }, {
+            new: true, runValidators: true,
+        });
 
-    if (!await Cart.exists({user})) throw new BadRequestError("This user doesn't have cart");
+        if (cart) return cart;
 
-    console.log(cart.cartItems.length);
+        cart = await Cart.findOneAndUpdate({user}, {
+            $push: {
+                cartItems: {
+                    product: existingProduct, color, quantity: 1, price: existingProduct.price,
+                },
+            },
+        }, {new: true, runValidators: true});
 
-    return  await Cart.findOne({ user }).lean().cartItems;
-  }
+        if (cart) return cart;
 
-  async removeAllFromCart(user) {
-    const cart = await Cart.findOneAndUpdate(
-      { user },
-      { $set: { cartItems: [] } },
-      { new: true }
-    );
+        cart = new Cart({
+            user, cartItems: {
+                product: existingProduct, color, quantity: 1, price: existingProduct.price,
+            },
+        });
+        await cart.save();
 
-    if (!cart) throw new NotFoundError("This user doesn't have a cart");
+        return cart;
+    }
 
-    return cart;
-  }
+    async getCartProducts(user) {
+        if (!await this.#Cart.exists({user})) throw new NotFoundError("This user doesn't have a cart");
 
-  async removeProductFromCart(productId, user) {
-    const cart = await Cart.findOneAndUpdate(
-      { user, "cartItems.product": productId },
-      { $pull: { cartItems: { product: productId } } },
-      { new: true }
-    );
+        const cart = await this.#Cart.findOne({user}).setOptions({skipPopulate: true})
+            .select("cartItems")
+            .populate({
+                path: 'cartItems.product', select: "name", options: {skipPopulate: true}
+            });
 
-    if (!cart) throw new NotFoundError("this user doesn't have a cart or this product");
+        console.log(cart.cartItems);
+        return cart.cartItems;
+    }
 
-    return cart;
-  }
+    async removeAllFromCart(user) {
+        const cart = await Cart.findOneAndUpdate({user}, {$set: {cartItems: []}}, {new: true});
 
-  async updateProductQuantity(user, quantity, id) {
-    const product = await Product.findById(id);
+        if (!cart) throw new NotFoundError("This user doesn't have a cart");
 
-    if (quantity > product.quantity) throw new BadRequestError(`There is only ${product.quantity} in stock of ${product.name}`);
+        return cart;
+    }
 
-    const cart = await Cart.findOneAndUpdate(
-      {
-        user,
-        "cartItems.product": id,
-      },
-      { $set: { "cartItems.$.quantity": quantity } },
-      { new: true, runValidators: true }
-    );
+    async removeProductFromCart(productId, user) {
+        const cart = await Cart.findOneAndUpdate({
+            user, "cartItems.product": productId
+        }, {$pull: {cartItems: {product: productId}}}, {new: true});
 
-    if (!cart) throw new NotFoundError(`This user doesn't have a cart or this product`);
+        if (!cart) throw new NotFoundError("this user doesn't have a cart or this product");
 
-    return cart;
-  }
+        return cart;
+    }
 
-  async applyCoupon(name, user) {
-    const coupon = await Coupon.findOne({ name });
-    if (!coupon) throw new NotFoundError("There is no coupon with this name");
+    async updateProductQuantity(user, quantity, id) {
+        const product = await Product.findById(id);
+
+        if (quantity > product.quantity) throw new BadRequestError(`There is only ${product.quantity} in stock of ${product.name}`);
+
+        const cart = await Cart.findOneAndUpdate({
+            user, "cartItems.product": id,
+        }, {$set: {"cartItems.$.quantity": quantity}}, {new: true, runValidators: true});
+
+        if (!cart) throw new NotFoundError(`This user doesn't have a cart or this product`);
+
+        return cart;
+    }
+
+    async applyCoupon(name, user) {
+        const coupon = await Coupon.findOne({name});
+        if (!coupon) throw new NotFoundError("There is no coupon with this name");
 
 
-    if (coupon.expire < Date.now()) throw new BadRequestError("Sorry, this coupon is expired");
+        if (coupon.expire < Date.now()) throw new BadRequestError("Sorry, this coupon is expired");
 
 
-    const cart = await Cart.findOne({ user });
-    if (!cart) throw new NotFoundError("This user doesn't have a cart");
+        const cart = await Cart.findOne({user});
+        if (!cart) throw new NotFoundError("This user doesn't have a cart");
 
 
-    if (cart.cartItems.length <= 0) throw new BadRequestError("Sorry, this user doesn't have products in their cart");
+        if (cart.cartItems.length <= 0) throw new BadRequestError("Sorry, this user doesn't have products in their cart");
 
 
-    cart.discountPercentage = coupon.discount;
+        cart.discountPercentage = coupon.discount;
 
-    await cart.save();
-    return cart;
-  }
+        await cart.save();
+        return cart;
+    }
 }
 
-export default new CartService();
+export default new CartService(Cart);

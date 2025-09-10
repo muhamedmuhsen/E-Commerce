@@ -47,7 +47,7 @@ const updateProductValidator = [
   brand(),
   ratingsAverage(),
   ratingsQuantity(),
-  atLeastOneField(),
+  atLeastOneField([], "image"),
   validateRequest,
 ];
 

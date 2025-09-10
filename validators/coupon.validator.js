@@ -18,6 +18,6 @@ export const createCouponValidator = [name().notEmpty().withMessage("Coupon name
 
 export const getSpecificCouponValidator = [mongoId(), validateRequest];
 
-export const updateCouponValidator = [mongoId(), atLeastOneField(["name", "expire", "discount"]), name().optional(), commonCouponValidtor.Discount.optional(), commonCouponValidtor.ExpirationDate.optional(), validateRequest,];
+export const updateCouponValidator = [mongoId(), atLeastOneField(["name", "expire", "discount"], "image"), name().optional(), commonCouponValidtor.Discount.optional(), commonCouponValidtor.ExpirationDate.optional(), validateRequest,];
 
 export const deleteCouponValidator = [mongoId(), validateRequest]

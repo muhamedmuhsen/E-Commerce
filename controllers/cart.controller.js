@@ -5,20 +5,22 @@ class CartController {
     #CartService
 
     constructor(CartService) {
-        this.CartService = CartService;
+        this.#CartService = CartService;
     }
-    wrap(fn){
+
+    wrap(fn) {
         return asyncWrapper(fn.bind(this))
     }
-    async getCartItems(req, res, next) {
+
+    async getCartItems(req, res) {
         const products = await this.#CartService.getCartProducts(req.user._id);
 
         res.status(200).json({
-            success: true, message: "cart found successfully", data: {length: products.length, products},
+            success: true, message: "Products retrieved successfully", data:  products
         });
     }
 
-    async addItem(req, res, next) {
+    async addItem(req, res,) {
         const cart = await this.#CartService.addToCart(req.body.productId, req.body.color, req.user._id);
 
         res.status(201).json({
@@ -28,7 +30,7 @@ class CartController {
         });
     }
 
-    async clearCartItems(req, res, next) {
+    async clearCartItems(req, res,) {
         const cart = await this.#CartService.removeAllFromCart(req.user._id);
 
         res.status(200).json({
@@ -36,13 +38,13 @@ class CartController {
         });
     }
 
-    async updateProductQuantity(req, res, next) {
+    async updateProductQuantity(req, res,) {
         const cart = await this.#CartService.updateProductQuantity(req.user._id, req.body.quantity, req.params.id.toString());
 
         res.status(200).json({success: true, message: "item updated successfully", data: cart});
     }
 
-    async removeItem(req, res, next) {
+    async removeItem(req, res,) {
         const cart = await this.#CartService.removeProductFromCart(req.params.id, req.user._id);
 
         res.status(200).json({
@@ -53,7 +55,7 @@ class CartController {
     }
 
     // need to move to coupon controller
-    async applyCoupon(req, res, next) {
+    async applyCoupon(req, res,) {
         const cart = await this.#CartService.applyCoupon(req.body.name, req.user._id);
 
         res.status(200).json({

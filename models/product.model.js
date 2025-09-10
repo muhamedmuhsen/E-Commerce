@@ -73,6 +73,7 @@ ProductSchema.pre("save", function (next) {
 
 ProductSchema.pre(/^find/, function (next) {
   if (this.getOptions().skipPopulate) return next();
+    console.log(this.getOptions().skipPopulate)
   this.populate([
     { path: "category", select: "name -_id" },
     { path: "subcategories", select: "name -_id" },
