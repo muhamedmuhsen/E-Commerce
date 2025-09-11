@@ -15,6 +15,8 @@ export const updateProductQuantityValidator = [mongoId(), check("quantity")
     .isInt()
     .withMessage("You must write valid numbers"), validateRequest,];
 
+export const removeItemFromCartValidator = [mongoId(), validateRequest]
+
 export const applyCouponValidator = [check("name")
     .notEmpty()
     .withMessage("Coupon name is required")

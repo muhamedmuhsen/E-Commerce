@@ -1,5 +1,6 @@
 import BaseService from "./base.service.js";
 import CouponModel from "../models/coupon.model.js";
+import {BadRequestError} from "../utils/api-errors.js";
 
 class CouponService {
     #BaseService;
@@ -19,6 +20,9 @@ class CouponService {
     }
 
     async createCoupon(data) {
+        if(await this.#CouponModel.exists(data.name))
+            throw new BadRequestError("Coupon already exists");
+
         return this.#BaseService.createOne(this.#CouponModel, data);
     }
 

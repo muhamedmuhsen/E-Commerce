@@ -30,6 +30,7 @@ class BaseService {
     }
 
     async createOne(Model, data) {
+
         const doc = await Model.create({...data});
 
         deletePasswordProperty(Model, doc);

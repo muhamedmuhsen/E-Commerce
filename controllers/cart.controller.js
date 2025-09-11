@@ -31,7 +31,7 @@ class CartController {
     }
 
     async clearCartItems(req, res,) {
-        const cart = await this.#CartService.removeAllFromCart(req.user._id);
+        await this.#CartService.clearCartItems(req.user._id);
 
         res.status(200).json({
             success: true, message: "All Items deleted successfully",

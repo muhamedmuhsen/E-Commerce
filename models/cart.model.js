@@ -30,35 +30,32 @@ const CartSchema = new Schema({
 CartSchema.methods.calculateTotals = function () {
     const items = Array.isArray(this.cartItems) ? this.cartItems : [];
 
-    this.totalCartPrice = items.reduce((sum, item) => sum + (item.price * item.quantity || 0), 0).toFixed(2);
+    this.totalCartPrice = items.reduce((sum, item) => {
+        const itemTotal = (item.price || 0) * (item.quantity || 0);
+        return sum + itemTotal;
+    }, 0);
+    this.totalCartPrice = Math.round(this.totalCartPrice * 100) / 100
+    console.log(this.totalCartPrice)
 
-    this.totalPriceAfterDiscount = this.discountPercentage > 0 ? this.totalCartPrice * (1 - this.discountPercentage / 100).toFixed(2) : this.totalCartPrice.toFixed(2);
+    if (this.discountPercentage > 0) {
+        this.totalPriceAfterDiscount = this.totalCartPrice * (1 - this.discountPercentage / 100);
+        this.totalPriceAfterDiscount = Math.round(this.totalPriceAfterDiscount * 100) / 100;
+    } else {
+        this.totalPriceAfterDiscount = this.totalCartPrice;
+    }
+    console.log(this)
+    return this;
 };
 
-CartSchema.pre("save", function (next) {
-    this.calculateTotals();
-    next();
-});
-
-CartSchema.post([/Update/, /Delete/], async function (doc, next) {
-    if (doc) doc.calculateTotals();
-    if (doc && (doc.isModified("totalCartPrice") || doc.isModified("totalPriceAfterDiscount"))) await doc.save();
-    next();
-});
-
-CartSchema.pre(["save", /^find/], function (next) {
-    const skipPopulate = this.getOptions().skipPopulate;
-
-    if (skipPopulate) {
-        console.log("Skipping populate");
-        return next();
-    }
+CartSchema.pre(/^find/, function (next) {
+    if (this.getOptions().skipPopulate) return next();
 
     this.populate({
-        path: "cartItems.product", select: "name price images colors",
-    });
-    this.populate({
-        path: "user", select: "name email",
+        path: "cartItems.product",
+        select: "name price images colors",
+    }).populate({
+        path: "user",
+        select: "name email",
     });
 
     next();

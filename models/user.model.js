@@ -1,5 +1,4 @@
 import mongoose, {Schema} from "mongoose";
-import validator from "validator";
 import bcrypt from "bcryptjs";
 import slugify from "slugify";
 
@@ -18,7 +17,6 @@ const UserSchema = new Schema({
         required: [true, "Email is required"],
         unique: true,
         lowercase: true,
-        validate: [validator.isEmail, "please provide a valid email"],
     },
     password: {
         type: String,

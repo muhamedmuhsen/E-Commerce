@@ -3,7 +3,7 @@ import authenticateJWT from "../middlewares/authenticate-jwt.js";
 import UserController from "../controllers/user.controller.js";
 import CartController from "../controllers/cart.controller.js";
 import {
-    addToCartValidator, updateProductQuantityValidator, applyCouponValidator,
+    addToCartValidator, updateProductQuantityValidator, applyCouponValidator, removeItemFromCartValidator,
 } from "../validators/cart.validator.js";
 
 const router = express.Router();
@@ -21,7 +21,7 @@ router.put("/apply-coupon", applyCouponValidator, CartController.wrap(CartContro
 router
     .route("/:id")
     .put(updateProductQuantityValidator, CartController.wrap(CartController.updateProductQuantity))
-    .delete(CartController.wrap(CartController.removeItem));
+    .delete(removeItemFromCartValidator,CartController.wrap(CartController.removeItem));
 
 
 export default router;
