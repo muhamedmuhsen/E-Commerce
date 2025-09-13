@@ -54,6 +54,12 @@ class BaseService {
         if (!document) throw new NotFoundError(`${Model.modelName} not found`);
         return document;
     }
+
+    async getOneByName(Model, user) {
+        const document = await Model.findOne({user}).lean();
+        if (!document) throw new NotFoundError(`${Model.modelName} not found`);
+        return document;
+    }
 }
 
 function deletePasswordProperty(Model, documents) {

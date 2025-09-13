@@ -2,7 +2,6 @@ class ApiFeatures {
     constructor(queryString, mongooseQuery) {
         this.queryString = queryString;
         this.mongooseQuery = mongooseQuery;
-        this.appliedFilter = {}
     }
 
     filter() {
