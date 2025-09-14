@@ -17,7 +17,8 @@ class ProductService {
     }
 
     async createProduct(data) {
-        if (!await CategoryModel.exists({_id: data.category})) throw new NotFoundError("Category not found");
+        if (!await CategoryModel.exists({_id: data.category}))
+            throw new NotFoundError("Category not found");
 
         const subcategoryIds = data.subcategories;
 
@@ -57,39 +58,6 @@ class ProductService {
         return await this.#BaseService.getOne(this.#Product, id)
     }
 
-    async getProductsByCategory(query) {
-
-        if (!await CategoryModel.exists({_id: query.category})) throw new NotFoundError("Category not found");
-
-        const products = await this.#BaseService.getAll(this.#Product, query);
-
-        if (!products || !products.length) throw new NotFoundError("it seems this category doesn't have products");
-
-        return products
-    };
-
-
-    async getProductsBySubcategory(subcategoryId, page = 1, limit = 10) {
-
-        if (!await SubCategoryModel.exists(categoryId)) throw new NotFoundError("SubCategory not found");
-
-        const offset = (page - 1) * limit;
-
-        const products = await Product.find({subcategories: subcategoryId})
-            .skip(offset)
-            .limit(limit)
-            .lean();
-
-        if (!products || !products.length) throw new NotFoundError("it seems this subcategory doesn't have products");
-
-        return products
-
-    };
-
-    setRequestQuery(req, res, next){
-        req.query = {page:page, limit:limit, category:categoryId};
-        next()
-    }
 }
 
 export default new ProductService(BaseService, Product);

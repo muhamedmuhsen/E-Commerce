@@ -33,7 +33,6 @@ class OrderService {
 
   async deleteOrder(id) {
     const order = await Order.findById(id).lean();
-    console.log(order);
     if (!order) {
       throw new NotFoundError("Order not found");
     }

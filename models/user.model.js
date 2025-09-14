@@ -38,8 +38,8 @@ const UserSchema = new Schema({
     profileImg: {type: String},
 }, {timestamps: true});
 
-UserSchema.methods.comparePassword = async function (password, hashed) {
-    return await bcrypt.compare(password, hashed);
+UserSchema.methods.comparePassword = async function (password) {
+    return await bcrypt.compare(password, this.password);
 };
 
 UserSchema.pre("save", async function (next) {

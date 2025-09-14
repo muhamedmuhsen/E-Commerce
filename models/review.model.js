@@ -26,11 +26,11 @@ const ReviewsSchema = new Schema(
   { timestamps: true }
 );
 
-ReviewsSchema.pre(/^find/, function (next) {
-  this.populate({ path: "user", select: "name" })
-      .populate({ path: "product", select: "name" });
-  next();
-});
+// ReviewsSchema.pre(/^find/, function (next) {
+//   this.populate({ path: "user", select: "name" })
+//       .populate({ path: "product", select: "name" });
+//   next();
+// });
 
 
 export default mongoose.model("Review", ReviewsSchema);

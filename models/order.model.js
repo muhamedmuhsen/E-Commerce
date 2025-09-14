@@ -84,9 +84,9 @@ OrderSchema.pre("save", function (next) {
   next();
 });
 
-OrderSchema.pre(/^find/, function (next) {
-  this.populate({ path: "user", select: "name email" });
-  this.populate({ path: "items.product", select: "name" });
-  next();
-});
+// OrderSchema.pre(/^find/, function (next) {
+//   this.populate({ path: "user", select: "name email" });
+//   this.populate({ path: "items.product", select: "name" });
+//   next();
+// });
 export default mongoose.model("Order", OrderSchema);

@@ -33,7 +33,6 @@ class CouponController {
 
 
     async createCoupon(req, res) {
-        console.log(req.body)
         const coupon = await this.#CouponService.createCoupon(req.body);
         res.status(201).json({
             status: "success", message: "Coupon created successfully", data: coupon

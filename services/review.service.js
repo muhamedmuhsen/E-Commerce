@@ -29,10 +29,8 @@ class ReviewsService {
             review: rating, message, product: productId, user
         });
 
-        const reviews = await this.#Review.find().where("product", productId);
-        console.log(reviews)
-        const size = await this.#Review.countDocuments().where("product", productId);
-        console.log(size)
+        const reviews = await ReviewModel.find(filter);
+        const size = reviews.length;
         await this.calcuateAvgRating(reviews, size, productId);
 
         return review;

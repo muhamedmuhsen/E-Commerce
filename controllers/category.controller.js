@@ -32,7 +32,6 @@ class CategoryController {
 
 
     async createCategory(req, res) {
-        console.log(req.body)
         const category = await this.#CategoryService.createCategory(req.body);
         res.status(201).json({
             status: "success", message: "Category created successfully", data: category

@@ -47,18 +47,18 @@ CartSchema.methods.calculateTotals = function () {
     return this;
 };
 
-CartSchema.pre(/^find/, function (next) {
-    if (this.getOptions().skipPopulate) return next();
-
-    this.populate({
-        path: "cartItems.product",
-        select: "name price images colors",
-    }).populate({
-        path: "user",
-        select: "name email",
-    });
-
-    next();
-});
+// CartSchema.pre(/^find/, function (next) {
+//     if (this.getOptions().skipPopulate) return next();
+//
+//     this.populate({
+//         path: "cartItems.product",
+//         select: "name price images colors",
+//     }).populate({
+//         path: "user",
+//         select: "name email",
+//     });
+//
+//     next();
+// });
 
 export default mongoose.model("Cart", CartSchema);

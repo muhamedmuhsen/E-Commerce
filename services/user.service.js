@@ -36,7 +36,7 @@ class UserService {
     async changePassword(id, currPassword, newPassword) {
         let user = await this.#User.findOne(id)
 
-        if (!user.comparePassword(currPassword, user.password)) throw new BadRequestError("Password is incorrect")
+        if (!user.comparePassword(currPassword)) throw new BadRequestError("Password is incorrect")
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 

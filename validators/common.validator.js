@@ -87,12 +87,9 @@ export const atLeastOneField = (fields = [], image) =>
         ];
 
         const fieldsToCheck = fields.length > 0 ? fields : defaultProductFields;
-        console.log(val)
-        console.log(fieldsToCheck)
         const hasAtLeastOneField = fieldsToCheck.some(
             (field) => val[field] !== undefined
         );
-        console.log(hasAtLeastOneField)
 
         if (!hasAtLeastOneField) throw new BadRequestError("At least one field is required to update");
 

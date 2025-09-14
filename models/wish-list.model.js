@@ -17,11 +17,6 @@ const WishlistSchema = new Schema(
 );
 
 WishlistSchema.pre(/^find/, function (next) {
-  this.populate({
-    path: "product",
-    select: "name price description imageCover",
-  });
-  this.populate({ path: "user", select: "name" });
   this.lean()
   next();
 });

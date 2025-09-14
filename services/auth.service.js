@@ -2,13 +2,17 @@ import User from "../models/user.model.js";
 import sendEmail from "../utils/send-email.js";
 import createToken from "../utils/create-token.js";
 import hashing from "../utils/hasing.js";
-import {ApiError, BadRequestError, NotFoundError} from "../utils/api-errors.js";
+import {ApiError, BadRequestError, NotFoundError, UnauthorizedError} from "../utils/api-errors.js";
 
 class AuthService {
+    #User
+    constructor(User) {
+        this.#User = User;
+    }
     async login(email, password) {
-        const user = await User.findOne({email});
+        const user = await this.#User.findOne({email});
 
-        if (!user || !(await user.comparePassword(password, user.password))) {
+        if (!user || !(await user.comparePassword(password))) {
             throw new UnauthorizedError("Invalid credentials");
         }
 
@@ -17,9 +21,10 @@ class AuthService {
 
     async register(name, email, password, address) {
 
-        if (await User.exists({email})) throw new BadRequestError("Please try another mail");
+        if (await this.#User.exists({email}))
+            throw new BadRequestError("Please try another mail");
 
-        const user = new User({
+        const user = new this.#User({
             name, email, password, address
         });
 
@@ -28,7 +33,7 @@ class AuthService {
     }
 
     async resetPassword(email, newPassword) {
-        const user = await User.findOne({email});
+        const user = await this.#User.findOne({email});
         if (!user) {
             throw new NotFoundError("user not found");
         }
@@ -47,11 +52,9 @@ class AuthService {
     }
 
     async verifyResetCode(resetCode) {
-        console.log(resetCode)
         const hashedResetCode = hashing(resetCode);
-        console.log(hashedResetCode)
 
-        const user = await User.findOne({
+        const user = await this.#User.findOne({
             passwordResetCode: hashedResetCode, passwordResetCodeExpire: {$gt: Date.now()},
         });
 
@@ -64,7 +67,7 @@ class AuthService {
     }
 
     async forgetPassword(email) {
-        const user = await User.findOne({email});
+        const user = await this.#User.findOne({email});
         if (!user) throw new NotFoundError("Email not found");
 
 
@@ -98,8 +101,9 @@ function expireAfterOneHour() {
     return Date.now() + 60 * 60 * 1000;
 }
 
+// Security Vulnerability -> can be predictable
 function generateResetCode() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-export default new AuthService();
+export default new AuthService(User);

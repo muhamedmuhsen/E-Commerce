@@ -37,7 +37,7 @@ const ProductSchema = new Schema(
       type: String,
       maxlength: [500, "Description cannot exceed 500 characters"],
     },
-    brand: { type: String },
+    brand: { type: mongoose.Schema.Types.ObjectId },
     imageCover: {
       type: String,
       required: [true, "Product Image cover is required"],
@@ -54,13 +54,7 @@ const ProductSchema = new Schema(
     },
     sold: { type: Number, default: 0 },
     image: {
-      type: [String],
-      validate: {
-        validator: function (v) {
-          return !v || validator.isURL(v);
-        },
-        message: "Please provide a valid image URL",
-      },
+      type: [String]
     },
   },
   { timestamps: true }
@@ -71,15 +65,15 @@ ProductSchema.pre("save", function (next) {
   next();
 });
 
-ProductSchema.pre(/^find/, function (next) {
-  if (this.getOptions().skipPopulate) return next();
-    console.log(this.getOptions().skipPopulate)
-  this.populate([
-    { path: "category", select: "name -_id" },
-    { path: "subcategories", select: "name -_id" },
-  ]);
-  next();
-});
+// ProductSchema.pre(/^find/, function (next) {
+//   if (this.getOptions().skipPopulate) return next();
+//     console.log(this.getOptions().skipPopulate)
+//   this.populate([
+//     { path: "category", select: "name -_id" },
+//     { path: "subcategories", select: "name -_id" },
+//   ]);
+//   next();
+// });
 
 const ProductModel = mongoose.model("Product", ProductSchema);
 

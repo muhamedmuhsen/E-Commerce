@@ -14,9 +14,7 @@ class ReviewController {
     }
 
     async addReview(req, res, next) {
-
         const review = await this.#reviewService.addReview(req.user._id, req.params.id, req.body.review, req.body.message);
-        console.log(review)
         res.status(201).json({
             success: true, message: "Review added successfully", data: review,
         });

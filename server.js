@@ -8,7 +8,7 @@ import compression from "compression";
 import limiter from "./utils/rate-limiting.js";
 import hpp from "hpp";
 import errorHandler from "./middlewares/error-handler.js";
-import morgan from "morgan"; 
+import morgan from "morgan";
 import authRoute from "./routes/auth.route.js";
 import brandRoute from "./routes/brand.route.js";
 import categoryRoute from "./routes/category.route.js";
@@ -22,6 +22,8 @@ import orderRoute from "./routes/order.route.js";
 import reviewsRoute from "./routes/review.route.js";
 import { ApiError, NotFoundError } from "./utils/api-errors.js";
 import xss from "xss-clean";
+import multer from "multer";
+import path from "path";
 
 dotenv.config({ path: "./.env" });
 
@@ -50,12 +52,14 @@ app.use((req, res, next) => {
 app.use("/api", limiter);
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
-app.use(mongoSanitize()); 
+app.use(mongoSanitize());
 app.use(helmet());
 app.use(cors());
 //app.use(compression());
 app.use(hpp());
 app.use(xss());
+
+
 
 // routes
 app.use("/api/v1/auth", authRoute);
@@ -69,7 +73,6 @@ app.use("/api/v1/coupons", couponRoute);
 app.use("/api/v1/wishlists", wishlistRoute);
 app.use("/api/v1/reviews", reviewsRoute);
 app.use("/api/v1/orders", orderRoute);
-
 
 // 404 handler for unmatched routes using custom ApiError
 app.use((req, res, next) => {
