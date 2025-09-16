@@ -35,6 +35,7 @@ const createProductValidator = [
 
 const updateProductValidator = [
   mongoId(),
+  atLeastOneField(),
   name("Product").optional(),
   description().optional(),
   quantity().optional(),
@@ -43,11 +44,10 @@ const updateProductValidator = [
   colors(),
   images(),
   category().optional(),
-  subcategories(false), // Single subcategory for updates
+  subcategories().optional(),
   brand(),
   ratingsAverage(),
   ratingsQuantity(),
-  atLeastOneField([], "image"),
   validateRequest,
 ];
 

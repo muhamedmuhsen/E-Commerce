@@ -24,4 +24,14 @@ BrandSchema.pre("save", function (next) {
   next();
 });
 
+BrandSchema.post(
+  ["findOneAndUpdate", "updateOne"],
+  async function (doc, next) {
+    if (doc && (this.getUpdate().name || this.getUpdate().$set)) {
+      doc.slug = slugify(doc.name);
+    }
+    next();
+  }
+);
+
 export default mongoose.model("brands", BrandSchema);

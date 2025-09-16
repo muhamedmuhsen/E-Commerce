@@ -1,6 +1,4 @@
 import asyncWrapper from "../middlewares/async-wrapper.js";
-import "../models/category.model.js";
-import "../models/sub-category.model.js";
 import ProductService from "../services/product.service.js";
 
 class ProductController {
@@ -44,14 +42,15 @@ class ProductController {
   }
 
   async updateProduct(req, res) {
-    const { documents, totalDocuments, pagination } =
-      await this.#ProductService.updateProduct(req.params.id, req.body);
+    const product = await this.#ProductService.updateProduct(
+      req.params.id,
+      req.body
+    );
+
     res.status(200).json({
       status: "success",
       message: "Product updated successfully",
-      length: totalDocuments,
-      pagination,
-      data: documents,
+      data: product,
     });
   }
 

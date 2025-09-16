@@ -18,12 +18,18 @@ class BrandService {
     return await this.#BaseService.getAll(this.#BrandModel, query);
   }
 
-  async createBrand(brand) {
-    return await this.#BaseService.createOne(this.#BrandModel, brand);
+  async createBrand(brand, image) {
+    const brandd = await this.#BaseService.createOne(this.#BrandModel, brand);
+    return brandd;
   }
 
   async updateBrand(id, brand) {
-    return await this.#BaseService.updateOne(this.#BrandModel, id, brand);
+    const brandd = await this.#BaseService.updateOne(
+      this.#BrandModel,
+      id,
+      brand
+    );    
+    return brandd;
   }
 
   async deleteBrand(id) {

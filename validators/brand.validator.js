@@ -13,7 +13,6 @@ const updateBrandValidator = [
   mongoId(),
   atLeastOneField(["name", "image"]),
   name("Brand").optional(),
-  check("image").isURL().withMessage("you must write a valid image Url"),
   validateRequest,
 ];
 

@@ -1,9 +1,15 @@
 import multer from "multer";
 import path from "path";
+import fs from "fs";
 
 export const upload = multer({
   storage: multer.diskStorage({
-    destination: "./uploads",
+    destination: function (req, file, cb) {
+      if (!fs.existsSync("./uploads")) {
+        fs.mkdirSync("./uploads");
+      }
+      cb(null, "./uploads");
+    },
     filename: function (req, file, cb) {
       cb(
         null,
@@ -11,5 +17,8 @@ export const upload = multer({
       );
     },
   }),
-  limits: { fileSize: 1000000 },
+  limits: {
+    fileSize: 5000000, // 5MB
+    files: 6, // Max 6 files
+  },
 });

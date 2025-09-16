@@ -29,8 +29,10 @@ router
 router
   .route("/:id")
   .put(
-    updateBrandValidator,
     isAllowed("admin"),
+    upload.single("image"),
+    normalizeBody,
+    updateBrandValidator,
     BrandController.wrap(BrandController.updateBrand)
   )
   .delete(

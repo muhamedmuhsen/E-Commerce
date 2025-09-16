@@ -32,6 +32,7 @@ class CategoryController {
 
 
     async createCategory(req, res) {
+        
         const category = await this.#CategoryService.createCategory(req.body);
         res.status(201).json({
             status: "success", message: "Category created successfully", data: category
@@ -39,7 +40,7 @@ class CategoryController {
     }
 
     async updateCategory(req, res) {
-        const category = await this.#CategoryService.updateCategory(req.params.id, req.body);
+        const category = await this.#CategoryService.updateCategory(req.params.id, req.body, req.file);
         res.status(200).json({
             status: "success", message: "Category updated successfully", data: category
         })

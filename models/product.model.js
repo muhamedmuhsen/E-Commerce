@@ -54,7 +54,13 @@ const ProductSchema = new Schema(
     },
     sold: { type: Number, default: 0 },
     image: {
-      type: [String]
+      type: [String],
+      validate: {
+        validator: function (arr) {
+          return arr.length <= 6;
+        },
+        message: "Max Images per product is 6",
+      },
     },
   },
   { timestamps: true }
@@ -74,6 +80,15 @@ ProductSchema.pre("save", function (next) {
 //   ]);
 //   next();
 // });
+ProductSchema.post(
+  ["findOneAndUpdate", "updateOne"],
+  async function (doc, next) {
+    if (doc && (this.getUpdate().name || this.getUpdate().$set)) {
+      doc.slug = slugify(doc.name);
+    }
+    next();
+  }
+);
 
 const ProductModel = mongoose.model("Product", ProductSchema);
 

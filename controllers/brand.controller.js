@@ -37,11 +37,8 @@ class BrandController {
   }
 
   async createBrand(req, res) {
-    console.log("req.body:", req.body);
-    console.log("req.file:", req.file);
     const brand = await this.#BrandService.createBrand(req.body);
-    brand.image = req.file.filename;
-    await brand.save();
+
     res.status(201).json({
       success: true,
       message: "Brand created successfully",
@@ -50,8 +47,6 @@ class BrandController {
   }
 
   async updateBrand(req, res) {
-    console.log(req.body);
-
     const brand = await this.#BrandService.updateBrand(req.params.id, req.body);
     res.status(200).json({
       success: true,

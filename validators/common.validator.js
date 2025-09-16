@@ -59,15 +59,16 @@ export const profileImage = () => check("profileImg").optional().isURL();
 
 export const role = () => check("role").optional().isIn(roles);
 
-export const atLeastOneField = (fields = [], image) =>
-  body().custom((val) => {
+export const atLeastOneField = (fields = []) =>
+  body().custom((val, { req }) => {
     const defaultProductFields = [
       "name",
       "description",
+      "quantity",
       "price",
       "colors",
       "imageCover",
-      "images",
+      "image",
       "category",
       "subcategories",
       "brand",
@@ -78,7 +79,9 @@ export const atLeastOneField = (fields = [], image) =>
       (field) => val[field] !== undefined
     );
 
-    if (!hasAtLeastOneField)
+    const hasFile = req.file !== undefined;
+
+    if (!hasAtLeastOneField && !hasFile)
       throw new BadRequestError("At least one field is required to update");
 
     return true;
@@ -125,7 +128,7 @@ export const imageCover = () =>
   check("imageCover").notEmpty().withMessage("Product image cover is required");
 
 export const images = () =>
-  check("images")
+  check("image")
     .optional()
     .isArray()
     .withMessage("Product images should be array of strings");
