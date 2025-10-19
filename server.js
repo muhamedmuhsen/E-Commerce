@@ -36,14 +36,20 @@ if (process.env.NODE_ENV === "development") {
   console.log(`Environment: ${process.env.NODE_ENV}`);
 }
 
-// Middleware that make req.query writable again before calling mongoSanitize()
-// Need to find better way
+// Middleware to make req.query writable for mongoSanitize compatibility
+// Express 5 makes req.query read-only by default, but mongoSanitize needs to modify it
 app.use((req, res, next) => {
+  // Create a mutable copy of the query object
+  const mutableQuery = { ...req.query };
+  
+  // Redefine the query property to be writable
   Object.defineProperty(req, "query", {
-    ...Object.getOwnPropertyDescriptor(req, "query"),
-    value: req.query,
+    value: mutableQuery,
     writable: true,
+    enumerable: true,
+    configurable: true,
   });
+  
   next();
 });
 

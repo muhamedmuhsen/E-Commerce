@@ -1,5 +1,6 @@
 import express from "express";
 import authenticateJWT from "../middlewares/authenticate-jwt.js";
+import checkProductPurchase from "../middlewares/check-product-purchase.js";
 import reviewController from "../controllers/review.controller.js";
 import {
     addReviewValidator,
@@ -17,10 +18,9 @@ router.get("/:id", getAllReviewsOfProductValidator, reviewController.wrap(review
 // Protected Reviews
 router.use(authenticateJWT);
 
-//TODO(middleware to check if the user purchased the product so he can review)
 router
     .route("/:id")
-    .post(addReviewValidator, reviewController.wrap(reviewController.addReview))
+    .post(checkProductPurchase, addReviewValidator, reviewController.wrap(reviewController.addReview))
     .put(updateReviewValidator, reviewController.wrap(reviewController.updateReview))
     .delete(deleteReviewValidator, reviewController.wrap(reviewController.deleteReview));
 

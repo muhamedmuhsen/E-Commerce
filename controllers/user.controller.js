@@ -1,8 +1,6 @@
 import UserService from "../services/user.service.js";
 import asyncWrapper from "../middlewares/async-wrapper.js";
 
-// TODO(handle profile image)
-
 class UserController {
     #UserService
 

@@ -1,7 +1,6 @@
 import BrandService from "../services/brand.service.js";
 import asyncWrapper from "../middlewares/async-wrapper.js";
 
-// TODO(handle image)
 class BrandController {
   #BrandService;
 
