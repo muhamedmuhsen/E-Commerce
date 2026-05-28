@@ -1,4 +1,5 @@
-import { Schema, mongoose } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import slugify from "slugify";
 
 const BrandSchema = new Schema(
   {
@@ -16,6 +17,21 @@ const BrandSchema = new Schema(
     image: String,
   },
   { timestamps: true }
+);
+
+BrandSchema.pre("save", function (next) {
+  this.slug = slugify(this.name);
+  next();
+});
+
+BrandSchema.post(
+  ["findOneAndUpdate", "updateOne"],
+  async function (doc, next) {
+    if (doc && (this.getUpdate().name || this.getUpdate().$set)) {
+      doc.slug = slugify(doc.name);
+    }
+    next();
+  }
 );
 
 export default mongoose.model("brands", BrandSchema);

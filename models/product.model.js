@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import slugify from "slugify";
 
 const ProductSchema = new Schema(
   {
@@ -36,7 +37,7 @@ const ProductSchema = new Schema(
       type: String,
       maxlength: [500, "Description cannot exceed 500 characters"],
     },
-    brand: { type: String },
+    brand: { type: mongoose.Schema.Types.ObjectId },
     imageCover: {
       type: String,
       required: [true, "Product Image cover is required"],
@@ -54,26 +55,40 @@ const ProductSchema = new Schema(
     sold: { type: Number, default: 0 },
     image: {
       type: [String],
-      // validate: {
-      //   validator: function (v) {
-      //     return !v || validator.isURL(v);
-      //   },
-      //   message: "Please provide a valid image URL",
-      // },
+      validate: {
+        validator: function (arr) {
+          return arr.length <= 6;
+        },
+        message: "Max Images per product is 6",
+      },
     },
   },
   { timestamps: true }
 );
 
-
-// TODO(populate subcategories if found)
-ProductSchema.pre(/^find/, function (next) {
-  this.populate(
-    { path: "category", select: "name -_id" },
-    //{ path: "subcategories", select: "name -_id" }
-  );
+ProductSchema.pre("save", function (next) {
+  this.slug = slugify(this.name);
   next();
 });
+
+// ProductSchema.pre(/^find/, function (next) {
+//   if (this.getOptions().skipPopulate) return next();
+//     console.log(this.getOptions().skipPopulate)
+//   this.populate([
+//     { path: "category", select: "name -_id" },
+//     { path: "subcategories", select: "name -_id" },
+//   ]);
+//   next();
+// });
+ProductSchema.post(
+  ["findOneAndUpdate", "updateOne"],
+  async function (doc, next) {
+    if (doc && (this.getUpdate().name || this.getUpdate().$set)) {
+      doc.slug = slugify(doc.name);
+    }
+    next();
+  }
+);
 
 const ProductModel = mongoose.model("Product", ProductSchema);
 

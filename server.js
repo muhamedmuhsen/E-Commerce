@@ -1,25 +1,30 @@
 import dotenv from "dotenv";
 import express from "express";
-import morgan from "morgan";
 import dbConnection from "./config/database.js";
-
-// Import all models FIRST to register them with Mongoose
-import "./models/brand.model.js";
-import "./models/category.model.js";
-import "./models/product.model.js";
-import "./models/subcategory.model.js";
-
-// Then import other modules
-import errorHandler from "./middlewares/errorHandler.js";
+import helmet from "helmet";
+import cors from "cors";
+import mongoSanitize from "express-mongo-sanitize";
+import compression from "compression";
+import limiter from "./utils/rate-limiting.js";
+import hpp from "hpp";
+import errorHandler from "./middlewares/error-handler.js";
+import morgan from "morgan";
 import authRoute from "./routes/auth.route.js";
 import brandRoute from "./routes/brand.route.js";
 import categoryRoute from "./routes/category.route.js";
 import productRoute from "./routes/product.route.js";
-import subcategoryRoute from "./routes/subcategory.route.js";
-import userRoute from './routes/user.route.js'
-import ApiError from "./utils/ApiError.js";
+import subcategoryRoute from "./routes/sub-category.route.js";
+import userRoute from "./routes/user.route.js";
+import cartRoute from "./routes/cart.route.js";
+import couponRoute from "./routes/coupon.route.js";
+import wishlistRoute from "./routes/wish-list.route.js";
+import orderRoute from "./routes/order.route.js";
+import reviewsRoute from "./routes/review.route.js";
+import { ApiError, NotFoundError } from "./utils/api-errors.js";
+import xss from "xss-clean";
 
-dotenv.config({ path: "./config.env" });
+
+dotenv.config({ path: "./.env" });
 
 const app = express();
 
@@ -31,12 +36,35 @@ if (process.env.NODE_ENV === "development") {
   console.log(`Environment: ${process.env.NODE_ENV}`);
 }
 
-// Middlewares
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Middleware to make req.query writable for mongoSanitize compatibility
+// Express 5 makes req.query read-only by default, but mongoSanitize needs to modify it
+app.use((req, res, next) => {
+  // Create a mutable copy of the query object
+  const mutableQuery = { ...req.query };
+  
+  // Redefine the query property to be writable
+  Object.defineProperty(req, "query", {
+    value: mutableQuery,
+    writable: true,
+    enumerable: true,
+    configurable: true,
+  });
+  
+  next();
+});
 
-// Add Morgan for better logging
-app.use(morgan('dev'));
+
+
+// Middlewares
+app.use("/api", limiter);
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "10kb" }));
+app.use(mongoSanitize());
+app.use(helmet());
+app.use(cors());
+//app.use(compression());
+app.use(hpp());
+app.use(xss());
 
 // routes
 app.use("/api/v1/auth", authRoute);
@@ -44,11 +72,16 @@ app.use("/api/v1/categories", categoryRoute);
 app.use("/api/v1/subcategories", subcategoryRoute);
 app.use("/api/v1/brands", brandRoute);
 app.use("/api/v1/products", productRoute);
-app.use("/api/v1/users",userRoute)
+app.use("/api/v1/users", userRoute);
+app.use("/api/v1/carts", cartRoute);
+app.use("/api/v1/coupons", couponRoute);
+app.use("/api/v1/wishlists", wishlistRoute);
+app.use("/api/v1/reviews", reviewsRoute);
+app.use("/api/v1/orders", orderRoute);
 
 // 404 handler for unmatched routes using custom ApiError
 app.use((req, res, next) => {
-  next(new ApiError("Route not found", 404));
+  next(new NotFoundError("Route not found"));
 });
 
 app.use(errorHandler);
@@ -62,3 +95,4 @@ app.listen(PORT, () => {
 process.on("unhandledRejection", (err) => {
   console.log(err.message);
 });
+

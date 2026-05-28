@@ -1,51 +1,58 @@
-import Category from "../models/category.model.js";
-import {
-  createOne,
-  deleteOne,
-  getAll,
-  updateOne,
-  getOne,
-} from "./handlersFactory.js";
+import asyncWrapper from "../middlewares/async-wrapper.js";
+import CategoryService from "../services/category.service.js";
 
-/*
-    @desc   Get all categories with pagination
-    @route  GET /api/v1/categories
-    @access Public
-*/
-const getAllCategories = getAll(Category);
+class CategoryController {
+    #CategoryService;
 
-/*
-    @desc   Create new category
-    @route  POST /api/v1/categories
-    @access Private
-*/
-const createCategory = createOne(Category);
+    constructor(CategoryService) {
+        this.#CategoryService = CategoryService;
+    }
 
-/*
-    @desc   Update category by ID
-    @route  PUT /api/v1/categories/:id
-    @access Private
-*/
-const updateCategory = updateOne(Category);
+    wrap(fn) {
+        return asyncWrapper(fn.bind(this));
+    }
 
-/*
-    @desc   Delete category by ID
-    @route  DELETE /api/v1/categories/:id
-    @access Private
-*/
-const deleteCategory = deleteOne(Category);
+    async getAllCategories(req, res) {
+        const {documents, totalDocuments, pagination} = await this.#CategoryService.getAllCategories(req.query)
+        res.status(200).json({
+            status: "success",
+            message: "Categories retrieved successfully",
+            length: totalDocuments,
+            pagination,
+            data: documents
+        })
+    }
 
-/*
-    @desc   Get single category by ID
-    @route  GET /api/v1/categories/:id
-    @access Public
-*/
-const getSpecificCategory = getOne(Category);
+    async getCategory(req, res) {
+        const category = await this.#CategoryService.getCategoryById(req.params.id)
+        res.status(200).json({
+            status: "success", message: "Category retrieved successfully", data: category
+        })
+    }
 
-export {
-  createCategory,
-  deleteCategory,
-  getAllCategories,
-  getSpecificCategory,
-  updateCategory,
-};
+
+    async createCategory(req, res) {
+        
+        const category = await this.#CategoryService.createCategory(req.body);
+        res.status(201).json({
+            status: "success", message: "Category created successfully", data: category
+        })
+    }
+
+    async updateCategory(req, res) {
+        const category = await this.#CategoryService.updateCategory(req.params.id, req.body, req.file);
+        res.status(200).json({
+            status: "success", message: "Category updated successfully", data: category
+        })
+    }
+
+    async deleteCategory(req, res) {
+        await this.#CategoryService.deleteCategory(req.params.id);
+        res.status(200).json({
+            status: "success", message: "Category deleted successfully"
+        })
+    }
+
+}
+
+export default new CategoryController(CategoryService);

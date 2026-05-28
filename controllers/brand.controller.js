@@ -1,47 +1,67 @@
-import Brand from "../models/brand.model.js";
-import {
-  deleteOne,
-  createOne,
-  getAll,
-  updateOne,
-  getOne,
-} from "./handlersFactory.js";
+import BrandService from "../services/brand.service.js";
+import asyncWrapper from "../middlewares/async-wrapper.js";
 
-// TODO(handle profile image)
+class BrandController {
+  #BrandService;
 
+  constructor(BrandService) {
+    this.#BrandService = BrandService;
+  }
 
-/*
-    @desc   get all the brands on the app
-    @route  GET /api/v1/brands/
-    @access Public
-*/
-const getAllBrand = getAll(Brand);
+  wrap(fn) {
+    return asyncWrapper(fn.bind(this));
+  }
 
-/*
-    @desc   create brands
-    @route  GET /api/v1/brands/
-    @access Private
-*/
-const createBrand = createOne(Brand);
+  async getAllBrands(req, res) {
+    // retrieve wrong totalDocuments length
+    const { documents, totalDocuments, pagination } =
+      await this.#BrandService.getAllBrands(req.query);
 
-/*
-    @desc   update brand
-    @route  GET /api/v1/brands/:id
-    @access Private
-*/
-const updateBrand = updateOne(Brand);
+    res.status(200).json({
+      success: true,
+      message: "Brands retrieved successfully",
+      length: totalDocuments,
+      pagination,
+      data: documents,
+    });
+  }
 
-/*
-    @desc   get specific brand
-    @route  GET /api/v1/brands/:id
-    @access Public
-*/
-const getSpecificBrand = getOne(Brand);
-/*
-    @desc   delete brand
-    @route  GET /api/v1/brands/:id
-    @access Private
-*/
-const deleteBrand = deleteOne(Brand);
+  async getBrandById(req, res) {
+    const brand = await this.#BrandService.getBrandById(req.params.id);
+    res.status(200).json({
+      success: true,
+      message: "Brand retrieved successfully",
+      data: brand,
+    });
+  }
 
-export { createBrand, deleteBrand, getAllBrand, getSpecificBrand, updateBrand };
+  async createBrand(req, res) {
+    const brand = await this.#BrandService.createBrand(req.body);
+
+    res.status(201).json({
+      success: true,
+      message: "Brand created successfully",
+      data: brand,
+    });
+  }
+
+  async updateBrand(req, res) {
+    const brand = await this.#BrandService.updateBrand(req.params.id, req.body);
+    res.status(200).json({
+      success: true,
+      message: "Brand updated successfully",
+      data: brand,
+    });
+  }
+
+  async deleteBrand(req, res) {
+    await this.#BrandService.deleteBrand(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      message: "Brand removed successfully",
+    });
+  }
+}
+
+export default new BrandController(BrandService);

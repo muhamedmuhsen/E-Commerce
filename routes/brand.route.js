@@ -1,31 +1,48 @@
 import express from "express";
-
-import {
-  createBrand,
-  deleteBrand,
-  getAllBrand,
-  getSpecificBrand,
-  updateBrand,
-} from "../controllers/brand.controller.js";
-
+import BrandController from "../controllers/brand.controller.js";
 import {
   createBrandValidator,
   deleteBrandValidator,
   getSpecificBrandValidator,
   updateBrandValidator,
-} from "../validators/validateBrandRequest.js";
-import authenticateJWT from "../middlewares/authenticateJWT.js";
+} from "../validators/brand.validator.js";
+import authenticateJWT from "../middlewares/authenticate-jwt.js";
+import isAllowed from "../middlewares/is-allowed.js";
+import { upload } from "../config/multer.js";
+import { normalizeBody } from "../middlewares/normalize-body.js";
+
 const router = express.Router();
+
+router.use(authenticateJWT);
 
 router
   .route("/")
-  .get(getAllBrand)
-  .post(createBrandValidator, authenticateJWT, createBrand);
+  .get(BrandController.wrap(BrandController.getAllBrands))
+  .post(
+    isAllowed("admin"),
+    upload.single("image"),
+    normalizeBody,
+    createBrandValidator,
+    BrandController.wrap(BrandController.createBrand)
+  );
 
 router
   .route("/:id")
-  .put(updateBrandValidator, authenticateJWT, updateBrand)
-  .delete(deleteBrandValidator, authenticateJWT, deleteBrand)
-  .get(getSpecificBrandValidator, getSpecificBrand);
+  .put(
+    isAllowed("admin"),
+    upload.single("image"),
+    normalizeBody,
+    updateBrandValidator,
+    BrandController.wrap(BrandController.updateBrand)
+  )
+  .delete(
+    deleteBrandValidator,
+    isAllowed("admin"),
+    BrandController.wrap(BrandController.deleteBrand)
+  )
+  .get(
+    getSpecificBrandValidator,
+    BrandController.wrap(BrandController.getBrandById)
+  );
 
 export default router;

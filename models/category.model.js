@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import slugify from "slugify";
 //import validator from "validator";
 
 const CategorySchema = new Schema(
@@ -22,15 +23,23 @@ const CategorySchema = new Schema(
     },
     image: {
       type: String,
-      validate: {
-        validator: function (v) {
-          return !v || validator.isURL(v);
-        },
-        message: "Please provide a valid image URL",
-      },
     },
   },
   { timestamps: true }
+);
+CategorySchema.pre("save", function (next) {
+  this.slug = slugify(this.name);
+  next();
+});
+
+CategorySchema.post(
+  ["findOneAndUpdate", "updateOne"],
+  async function (doc, next) {
+    if (doc && (this.getUpdate().name || this.getUpdate().$set)) {
+      doc.slug = slugify(doc.name);
+    }
+    next();
+  }
 );
 
 const CategoryModel = mongoose.model("Category", CategorySchema);

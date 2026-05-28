@@ -1,76 +1,71 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import asyncWrapper from "../middlewares/asyncWrapper.js";
-import User from "../models/user.model.js";
-import ApiError from "../utils/ApiError.js";
+import asyncWrapper from "../middlewares/async-wrapper.js";
+import AuthService from "../services/auth.service.js";
 
-/*
-    @desc   Register new user
-    @route  POST /api/v1/auth/register
-    @access Public
-*/
 
-// TODO(add validation layer)
-const register = asyncWrapper(async (req, res, next) => {
-  const { name, email, password, passwordConfirm } = req.body;
+/**
+ * @desc   Register new user
+ * @route  POST /api/v1/auth/register
+ * @access Public
+ */
+const registerController = asyncWrapper(async (req, res, next) => {
+    const token = await AuthService.register(req.body.name, req.body.email, req.body.password, req.body.address);
 
-  const existingUser = await User.findOne({ email });
-
-  if (existingUser) {
-    return next(new ApiError("User already exists", 400));
-  }
-
-  if (!req.body) {
-    return next(new ApiError("all fields are required", 400));
-  }
-
-  if (password !== passwordConfirm) {
-    return next(new ApiError("the password doe not match", 400));
-  }
-
-  const newUser = new User({
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password,
-  });
-
-  await newUser.save();
-
-  const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
-  });
-
-  if (!token) {
-    return next(new ApiError("Invalid Token", 401));
-  }
-
-  res
-    .status(201)
-    .json({ success: true, message: "User registered successfully", token });
+    res.status(201).json({
+        success: true, message: "User registered successfully", token,
+    });
 });
 
-/*
-    @desc   Login user
-    @route  POST /api/v1/auth/login
-    @access Public
-*/
-const login = asyncWrapper(async (req, res, next) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return next(new ApiError("all fields are required", 400));
-  }
-  const searchUser = await User.findOne({ email });
-  if (!searchUser || !(await bcrypt.compare(password, searchUser.password))) {
-    return next(new ApiError("Invalid credentials", 401));
-  }
+/**
+ * @desc   Login user
+ * @route  POST /api/v1/auth/login
+ * @access Public
+ */
+const loginSController = asyncWrapper(async (req, res, next) => {
+    const token = await AuthService.login(req.body.email, req.body.password);
 
-  const token = jwt.sign({ id: searchUser._id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
-  });
-
-  res
-    .status(200)
-    .json({ success: true, message: "logged in successfully", token });
+    res
+        .status(200)
+        .json({success: true, message: "logged in successfully", token});
 });
 
-export { login, register };
+/**
+ * @desc   Forget password - send reset code to user email
+ * @route  POST /api/v1/auth/forgetPassword
+ * @access Public
+ */
+const forgetPasswordController = asyncWrapper(async (req, res, next) => {
+    await AuthService.forgetPassword(req.body.email);
+
+    res
+        .status(200)
+        .json({success: true, message: "reset code sent successfully"});
+});
+
+/**
+ * @desc   Verify password reset code
+ * @route  POST /api/v1/auth/verifyResetCode
+ * @access Public
+ */
+const verifyResetCodeController = asyncWrapper(async (req, res, next) => {
+    await AuthService.verifyResetCode(req.body.resetCode);
+
+    res
+        .status(200)
+        .json({success: true, message: "Reset code verified successfully"});
+});
+
+/**
+ * @desc   Reset password with new password
+ * @route  PUT /api/v1/auth/resetPassword
+ * @access Public
+ */
+const resetPasswordController = asyncWrapper(async (req, res, next) => {
+    const token = await AuthService.resetPassword(req.body.email, req.body.newPassword);
+
+    res
+        .status(200)
+        .json({success: true, message: "Password rested successfully", token});
+});
+export {
+    loginSController, registerController, forgetPasswordController, resetPasswordController, verifyResetCodeController,
+};

@@ -1,33 +1,52 @@
 import express from "express";
-import subCategoryRoute from "./subcategory.route.js";
-import {
-  createCategory,
-  deleteCategory,
-  getAllCategories,
-  getSpecificCategory,
-  updateCategory,
-} from "../controllers/category.controller.js";
+import subCategoryRoute from "./sub-category.route.js";
+import CategoryController from "../controllers/category.controller.js";
 import {
   createCategoryValidator,
   deleteCategoryValidator,
   getSpecificCategoryValidator,
   updateCategoryValidator,
-} from "../validators/validateCategoryRequest.js";
-import authenticateJWT from "../middlewares/authenticateJWT.js";
+} from "../validators/category.validator.js";
+import authenticateJWT from "../middlewares/authenticate-jwt.js";
+import ProductRoute from "./product.route.js";
+import isAllowed from "../middlewares/is-allowed.js";
+import { upload } from "../config/multer.js";
+import { normalizeBody } from "../middlewares/normalize-body.js";
 
 const router = express.Router();
 
+router.use(authenticateJWT);
+
 router
   .route("/")
-  .get(getAllCategories)
-  .post(createCategoryValidator, authenticateJWT, createCategory);
+  .get(CategoryController.wrap(CategoryController.getAllCategories))
+  .post(
+    isAllowed("admin"),
+    upload.single("image"),
+    normalizeBody,
+    createCategoryValidator,
+    CategoryController.wrap(CategoryController.createCategory)
+  );
 router
   .route("/:id")
-  .put(updateCategoryValidator, authenticateJWT, updateCategory)
-  .delete(deleteCategoryValidator, authenticateJWT, deleteCategory)
-  .get(getSpecificCategoryValidator, getSpecificCategory);
+  .put(
+    isAllowed("admin"),
+    upload.single("image"),
+    normalizeBody,
+    updateCategoryValidator,
+    CategoryController.wrap(CategoryController.updateCategory)
+  )
+  .delete(
+    isAllowed("admin"),
+    deleteCategoryValidator,
+    CategoryController.wrap(CategoryController.deleteCategory)
+  )
+  .get(
+    getSpecificCategoryValidator,
+    CategoryController.wrap(CategoryController.getCategory)
+  );
 
-// TODO(add valdiator)
 router.use("/:id/subcategories", subCategoryRoute);
+router.use("/:id/products", ProductRoute);
 
 export default router;
